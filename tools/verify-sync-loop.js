@@ -207,7 +207,8 @@ async function session(browser, { putOk }) {
     });
     await page.goto(URL + "/__test", { waitUntil: "load" });
     await page.evaluate(() => { location.hash = "#/"; });
-    await page.waitForSelector("#view [data-owed]");
+    // T-083 #2: the owed rows sit in Today's one closed "N owed" row now, so they are in the page, not on screen.
+    await page.waitForSelector("#view [data-owed]", { state: "attached" });
     const w0 = await page.evaluate(() => window.__stateWrites);
     for (let i = 0; i < 3; i++) await page.evaluate(() => window.__brickfordTest.render());
     await page.waitForTimeout(6000);

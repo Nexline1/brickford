@@ -359,6 +359,9 @@
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
+/* T-083 #3: `hidden` always wins. A class that sets display (.pr-week's flex)
+   beat the attribute's UA rule and drew an empty textarea on Today. */
+[hidden] { display: none !important; }
 html { scroll-behavior: smooth; }
 
 body {
@@ -416,9 +419,19 @@ h3 {
 .mono { font-family: var(--font-body); font-variant-numeric: tabular-nums; }
 a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; text-underline-offset: 3px; }
-a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, [tabindex]:focus-visible {
+a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, summary:focus-visible, [tabindex]:focus-visible {
   outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px;
 }
+/* T-083 #11: #view takes focus after a route change (tabindex=-1) so a screen
+   reader starts on the new page; the whole column is not a control to ring. */
+#view:focus, #view:focus-visible { outline: none; }
+/* The skip link: off screen until a keyboard reaches it. */
+.skip-link {
+  position: absolute; left: 8px; top: -100px; z-index: 1000;
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px;
+  background: var(--accent-fill); color: #fff; border-radius: var(--r-md); font-weight: 600;
+}
+.skip-link:focus, .skip-link:focus-visible { top: 8px; text-decoration: none; }
 
 /* ---------- Shell ---------- */
 .shell { display: flex; min-height: 100vh; min-height: 100dvh; }
@@ -646,10 +659,6 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   letter-spacing: 0.04em; text-transform: none; color: var(--ink-3);
   font-variant-numeric: lining-nums tabular-nums;
 }
-/* The dashboard's large title. On a phone every page opens on one (T-006);
-   the dashboard had no head of its own, so it carries this one, which the
-   desktop does not show — there the hero is the top of the page. */
-.folio.dash-title { display: none; }
 /* A detail page — one course, one lecture, one document — is the case where the
    title IS the information, so it keeps a real heading. The folio above it
    becomes the breadcrumb it already was. */
@@ -1079,7 +1088,7 @@ tr:last-child td { border-bottom: none; }
 .cal-cell.sel { background: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
 .cal-cell.rest { background: var(--bg-2); }
 .cal-cell .dnum {
-  font-family: var(--font-body); font-size: 0.68rem; color: var(--ink-3); line-height: 1;
+  font-family: var(--font-body); font-size: 0.8125rem; color: var(--ink-3); line-height: 1;   /* T-083 #9: 13px floor (was 0.68rem) */
   font-variant-numeric: lining-nums tabular-nums;
 }
 /* The day itself. Solid is a day completed, half is one started, an open ring
@@ -1087,7 +1096,7 @@ tr:last-child td { border-bottom: none; }
    at all — a Saturday is not a hole in the record. */
 .cal-cell .cmark, i.cmark {
   width: 14px; height: 14px; border-radius: 50%; display: block;
-  font-size: 0.5rem; line-height: 14px; text-align: center; color: var(--accent);
+  font-size: 0.8125rem; line-height: 14px; text-align: center; color: var(--accent);   /* T-083 #9: 13px floor (was 0.5rem) */
 }
 i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
 .cmark.dfull { background: var(--good); }
@@ -1170,9 +1179,10 @@ i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
   .cal-cell { min-height: 46px; padding: 3px 2px; align-items: center; gap: 2px; }
   /* The dot IS the cell now, so it needs no narrow-width special case. */
   .cal-cell { min-height: 40px; padding: 5px 1px 4px; }
-  .cal-cell .dnum { font-size: 0.72rem; gap: 0; flex-direction: column; }
-  .cal-cell .cmark { position: static; font-size: 0.6rem; }
-  .cal-dow { font-size: 0.5rem; letter-spacing: 0.02em; padding: 5px 0; }
+  /* T-083 #9: 13px floor on the phone's day numbers, marks and weekday letters (were 0.72, 0.6 and 0.5rem). */
+  .cal-cell .dnum { font-size: 0.8125rem; gap: 0; flex-direction: column; }
+  .cal-cell .cmark { position: static; font-size: 0.8125rem; }
+  .cal-dow { font-size: 0.8125rem; letter-spacing: 0; padding: 5px 0; }
 }
 
 
@@ -1195,7 +1205,8 @@ i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
   position: absolute; text-align: center; font-family: var(--font-rounded); font-variant-numeric: tabular-nums;
   font-size: 1.15rem; font-weight: 500; color: var(--ink); line-height: 1.1;
 }
-.ring-wrap .ring-label small { display: block; font-family: var(--font-body); font-size: 0.56rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; margin-top: 2px; }
+.ring-wrap .ring-label small { display: block; font-family: var(--font-body); font-size: 13px; letter-spacing: 0.01em;   /* T-083 #9: 13px floor (was 0.56rem, 0.06em); px like the ring it sits in, so a larger text setting cannot push it out of a 92px ring */
+  text-transform: uppercase; color: var(--ink-3); font-weight: 600; margin-top: 2px; }
 
 
 /* Staggered entrance for a list of cards or rows. */
@@ -1878,7 +1889,6 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
     line-height: var(--lh-large); text-transform: none; color: var(--ink);
   }
   .folio .fo-meta { display: none; }
-  .folio.dash-title { display: block; }
   /* A detail page's breadcrumb stays on the page now, and its course code is
      the way back to the course — a control, so a 44px target. The negative
      margin keeps the text where the eye expects it. */
@@ -2046,7 +2056,8 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
   .railbar.off { display: none; }
   .railbar .rb-main { flex: 1; min-width: 0; }
   .railbar .rb-label {
-    font-size: 0.6rem; letter-spacing: 0.07em; text-transform: uppercase;
+    font-size: 0.8125rem; letter-spacing: 0.04em;   /* T-083 #9: 13px floor (was 0.6rem) */
+    text-transform: uppercase;
     color: var(--ink-3); font-weight: 600;
   }
   .railbar .rb-t {
@@ -2186,9 +2197,11 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
    lines up a few pixels in from the section's edge.
    It wraps: on a 320px screen a long head beside its meta is wider than the
    column — the meta drops to its own line and keeps to the right edge. */
+/* T-083 #10: a section head is an h2 now (it was a div), so it names the body
+   face itself rather than taking the h2's display face. */
 .ghead {
   display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 10px;
-  margin: 2rem 0 0; padding: 0 4px 8px;
+  margin: 2rem 0 0; padding: 0 4px 8px; font-family: var(--font-body); text-wrap: wrap;
   font-size: var(--fs-footnote); font-weight: 400; line-height: var(--lh-footnote);
   letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-2);
 }
@@ -2656,7 +2669,8 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
 .tl-ring circle { fill: none; stroke-width: 4; }
 .tl-ring .tr-bg { stroke: var(--line); }
 .tl-ring .tr-fg { stroke: var(--fac, var(--accent)); }
-.tl-pct { position: relative; font-size: 0.6875rem; line-height: 1; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.tl-pct { position: relative; font-size: 0.8125rem;   /* T-083 #9: 13px floor (was 0.6875rem) */
+  line-height: 1; color: var(--ink-2); font-variant-numeric: tabular-nums; }
 
 /* ---- opens later ---- */
 .at-chips { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -2784,6 +2798,7 @@ button.at-chip { border: 0; font-family: inherit; cursor: pointer; }
 summary.pd-row { list-style: none; cursor: pointer; }
 summary.pd-row::-webkit-details-marker { display: none; }
 .pd-ic { flex: none; width: 34px; height: 34px; border-radius: 9px; background: var(--surface-2); display: grid; place-items: center; font-size: var(--fs-subhead); color: var(--ink-2); }
+.pd-ic .glyph { width: 18px; height: 18px; }   /* T-083 #12: the drawn marks */
 .pd-b { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .pd-t { font-size: var(--fs-subhead); font-weight: 600; line-height: 1.3; color: var(--ink); }
 .pd-m { font-size: var(--fs-footnote); line-height: 1.35; color: var(--ink-2); }
@@ -3454,7 +3469,7 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 .pr-gv { color: var(--ink-2); font-size: var(--fs-tiny); }
 .pr-msg:empty { display: none; }
 .pr-msg { margin-top: 0; }
-.pr-week { margin-top: var(--sp-2); width: 100%; }
+.pr-weekout { margin-top: var(--sp-2); width: 100%; }
 
 /* ---------- T-069: the near checkpoints ----------
    Each checkpoint is the app's .unit fold (the tracker's category shape), its
@@ -3581,3 +3596,38 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 /* The phone's type scale holds at 17px under the large title (T-051-1): a card's title is the headline there. */
 @media (max-width: 860px) { .bk-t { font-size: var(--fs-headline); line-height: var(--lh-headline); letter-spacing: var(--tr-headline); } }
 
+/* ---------- T-083: the UX review's fixes (loop/specs/T-082-ux-review/findings.md) ---------- */
+/* #10: the dashboard hero's title is the page's h1, the large title at every
+   width (34px/700, -0.022em, the app's serif) — it was a div under a hidden
+   "Dashboard" h1. More specific than the phone ramp's .one.lead .one-kind. */
+.one.lead h1.one-kind {
+  font-family: var(--font-title); font-size: var(--fs-large); font-weight: 700;
+  letter-spacing: var(--tr-large); line-height: var(--lh-large);
+}
+/* #2: what is owed, one row that opens to the list. */
+.owed-fold { margin-top: var(--sp-4); }
+.owed-fold > summary { flex-wrap: wrap; min-height: 44px; }
+.owed-fold .u-name { font-size: var(--fs-body); }
+.owed-fold .owed-hint { order: 3; flex-basis: 100%; font-size: var(--fs-footnote); color: var(--ink-2); }
+.owed-fold .owed-list { margin-top: 4px; }
+/* #5: the toast with an Undo in it takes presses; the button is a 44px target
+   in the toast's own ink (white on navy, 8.2:1). */
+.toast.has-act { display: flex; align-items: center; gap: 12px; padding: 0 6px 0 20px; pointer-events: auto; }
+.toast.has-act .toast-t { padding: 11px 0; }
+.toast-undo {
+  min-width: 44px; min-height: 44px; padding: 0 12px; border: 0; border-radius: var(--r-md);
+  background: none; color: inherit; font: inherit; font-weight: 700; cursor: pointer;
+  text-decoration: underline; text-underline-offset: 3px;
+}
+/* The restore confirm: the backup and this device side by side. */
+.rs-cmp { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 4px 0 12px; }
+.rs-col { display: flex; flex-direction: column; gap: 2px; padding: 12px; border-radius: var(--r-md); background: var(--surface-2); }
+.rs-col b { color: var(--ink); font-size: var(--fs-body); }
+.rs-col span { color: var(--ink-2); font-size: var(--fs-footnote); font-variant-numeric: tabular-nums; }
+.rs-warn { color: var(--bad); font-size: var(--fs-footnote); margin: 0 0 12px; }
+/* The Settings row that replaces this device's progress says so in red. */
+.set-row.set-danger .g-t, .set-row.set-danger .g-lead { color: var(--bad); }
+/* #14 */
+.wk-none { margin-top: 0; }
+/* #9: Practice's fields are fingertip targets too (they measured 39-40px). */
+.pr-form input:not([type="checkbox"]):not([type="radio"]), .pr-form select, .pr-in, .pr-name { min-height: 44px; }

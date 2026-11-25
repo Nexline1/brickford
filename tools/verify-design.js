@@ -876,7 +876,9 @@ function barState() {
             fvn: chs.fontVariantNumeric, family: chs.fontFamily, radius: parseFloat(chs.borderTopLeftRadius), right: cr.right, h: cr.height },
     menu: { w: menu.width, h: menu.height, left: menu.left, color: z.bytes(getComputedStyle(menuEl).color), accent: z.tok("--accent") },
     h1: h1 ? { text: [...h1.childNodes].filter(n => n !== fm).map(n => n.textContent).join("").trim(),
-               size: hs.fontSize, weight: hs.fontWeight, tt: hs.textTransform, meta: fm ? getComputedStyle(fm).display : null } : null,
+               size: hs.fontSize, weight: hs.fontWeight, tt: hs.textTransform, meta: fm ? getComputedStyle(fm).display : null,
+               // T-083 #10: Today's h1 is its next lecture's title, and names the page for the bar in data-tb-title.
+               tb: h1.dataset.tbTitle || null } : null,
   };
 }
 // Scroll so the page h1's top edge is `under` px above the bar's bottom edge,
@@ -1222,8 +1224,11 @@ function thumbState(scope) {
     return { r: z.ratio(fg, bg), fg: z.hex(fg), bg: z.hex(bg) };
   };
   const rows = [];
-  document.querySelectorAll((scope || "#view") + ' a.grow[href^="#/lesson/"]').forEach(a => {
-    const [, , cid, ui, li] = a.getAttribute("href").slice(1).split("/");
+  // T-083 #15: the lecture rows lost their frames too (the owner's "fake thumbnails"); the one frame left
+  // is a watched lecture's own bar (.lq-watched, keyed by data-k), so a scope naming it measures that.
+  const lqw = !!scope && /lq-watched/.test(scope);
+  document.querySelectorAll(lqw ? scope : (scope || "#view") + ' a.grow[href^="#/lesson/"]').forEach(a => {
+    const [cid, ui, li] = lqw ? a.dataset.k.split(".") : a.getAttribute("href").slice(1).split("/").slice(2);
     const c = window.DAR.COURSES.find(x => x.id === cid);
     const l = c && c.units[+ui] && c.units[+ui].lessons[+li];
     const t = a.querySelector(":scope > .thumb");
@@ -1246,7 +1251,7 @@ function thumbState(scope) {
       chip: ((t.querySelector(".th-dur") || {}).textContent || "").trim(),
       chipAria: t.querySelector(".th-dur") ? t.querySelector(".th-dur").getAttribute("aria-hidden") : null,
       edge: edge ? edge.style.width : "", edgeCol: edge ? z.hex(z.bytes(getComputedStyle(edge).backgroundColor)) : "",
-      sub: ((a.querySelector(".g-s") || {}).textContent || "").trim(),
+      sub: ((a.querySelector(lqw ? ".lq-wt" : ".g-s") || {}).textContent || "").trim(),
       code: ((t.querySelector(".th-code") || {}).textContent || "").replace(/\s+/g, " ").trim(),
       codeShown: !!t.querySelector(".th-code") && t.querySelector(".th-code").checkVisibility(),
       ttl: ((t.querySelector(".th-ttl") || {}).textContent || "").trim(),
@@ -2135,7 +2140,9 @@ function t26cWeekWant(st, today) {
       m: "DSA " + (+x.dsa || 0) + " · " + (+x.posts || 0) + " post" + ((+x.posts || 0) === 1 ? "" : "s") + " · " + bhd(+x.revenue || 0),
       notes: x.notes || "No notes." })),
     meta: weeks.length ? weeks.length + " sealed" : "none sealed yet",
-    slots: weeks.length ? [] : [0, 1, 2, 3].map(k => "Week " + (w + k)),
+    // T-083 #14: before the first seal, one line naming the first Sunday (was four placeholder cards, this week and three ahead).
+    early: today < sun,   // T-083 #4: before the week's Sunday the seal is a tinted "Seal early" behind a confirm
+    none: weeks.length ? null : "Sealed weeks appear here; the first opens " + t26cUTC(sun, { weekday: "long" }) + " " + t26cShort(sun) + ".",
   };
 }
 // The Library's documents, read from DOCS in app.js on disk: every id, in
@@ -2163,6 +2170,7 @@ function t26cWeek() {
     filled: [...document.querySelectorAll("#view a, #view button")].filter(n => n.checkVisibility() &&
       (b => b[3] === 255 && z.same(b, fill, 2))(z.bytes(getComputedStyle(n).backgroundColor))).map(n => ({ text: n.textContent.trim(), act: n.dataset.act || null })),
     state: txt(document, "#view .wk-foot .wk-state"),
+    seal: (b => b ? { text: b.textContent.trim(), ghost: b.classList.contains("ghost") } : null)(document.querySelector("#view [data-act=logWeek]")),
     qs: vis("#view .wk-q").map(c => { const l = c.querySelector("label"), i = c.querySelector("input, textarea");
       return { q: l ? l.textContent.trim() : null, forId: l ? l.htmlFor : null, input: i ? i.id : null, h: i ? i.getBoundingClientRect().height : 0 }; }),
     cards: vis("#view .wk-weeks > *").map(c => ({ tag: c.tagName, slot: c.classList.contains("wk-slot"), h: c.classList.contains("wk-slot") ? txt(c, "span") : txt(c, ".wk-h b"),
@@ -2170,6 +2178,7 @@ function t26cWeek() {
       notes: c.tagName === "DETAILS" && c.open ? txt(c, ".wk-notes") : null, open: !!c.open,
       sh: c.querySelector("summary") ? c.querySelector("summary").getBoundingClientRect().height : 0 })),
     past: (g => g ? { t: g.firstChild.textContent.trim(), meta: txt(g, ".gh-meta") } : null)(vis("#view .ghead").find(g => /^Past weeks/.test(g.textContent))),
+    none: txt(document, "#view .wk-none"),
     // Each question's placeholder ink over what is behind the field.
     ph: ["rvShipped", "rvNotes"].map(id => { const el = document.querySelector("#view #" + id); if (!el) return { id, ratio: 0 };
       const back = z.backdrop(el), ink = z.over(z.bytes(getComputedStyle(el, "::placeholder").color), back);
@@ -3080,8 +3089,8 @@ function t28SeedClips(list) {
       check(where + ": the page h1 is the large title (34px/700, sentence case, no day meta in it)",
         !!a.h1 && a.h1.size === "34px" && a.h1.weight === "700" && a.h1.tt === "none" && (a.h1.meta === null || a.h1.meta === "none"),
         a.h1 ? "\"" + a.h1.text + "\" " + a.h1.size + "/" + a.h1.weight + " " + a.h1.tt + (a.h1.meta ? ", meta " + a.h1.meta : "") : "no h1");
-      check(where + ": the inline title is 17px/600 and reads the h1",
-        a.title.size === "17px" && a.title.weight === "600" && !!a.h1 && a.title.text === a.h1.text,
+      check(where + ": the inline title is 17px/600 and reads the h1 (or the page name the h1 carries, T-083)",
+        a.title.size === "17px" && a.title.weight === "600" && !!a.h1 && a.title.text === (a.h1.tb || a.h1.text),
         a.title.size + "/" + a.title.weight + " \"" + a.title.text + "\"");
       check(where + ": at scroll 0 the inline title is hidden (opacity 0) and there is no scroll edge",
         a.title.op === "0" && a.edge.op === "0", "title opacity " + a.title.op + ", edge opacity " + a.edge.op + " (" + a.cls + ")");
@@ -3620,22 +3629,38 @@ function t28SeedClips(list) {
       await page.goto(URL + "/__boot", { waitUntil: "load" });
       await page.waitForSelector("#view > *");
       await themePainted(page, theme, at + " thumbnails");
-      // T-080 PR 3: measured on lecture pages' "In this unit" rows (the course page's rows have no
-      // frame now). Lecture 13's page has the proven lecture 14 as its next row; lecture 2's has the
-      // watched lecture 1 as its previous row and lecture 3 as its next, and is the page measured through.
-      await go(page, "/lesson/math110/0/12");
+      // T-083 #15 (the owner's "design fixes"): a lecture page's In this unit rows are the course page's
+      // rows now, with no frame (tools/verify-flows.js (ux #15) holds that). The one frame left is a
+      // watched lecture's own bar (.lq-watched), so the frame is measured there: lecture 14's page (proven)
+      // and lecture 1's (watched), the page measured through. (T-080 PR 3 measured In this unit's rows.)
+      await go(page, "/lesson/math110/0/13");
       await frames(page);
-      const preP = await page.evaluate(thumbState, "#view .lsn-nav");
-      await go(page, "/lesson/math110/0/1");
+      const preP = await page.evaluate(thumbState, "#view .lq-watched");
+      await go(page, "/lesson/math110/0/0");
       await frames(page);
-      const where = at + " /lesson/math110/0/1 (In this unit)";
-      const pre = await page.evaluate(thumbState, "#view .lsn-nav");
+      const where = at + " /lesson/math110/0/0 (the watched bar's frame)";
+      const pre = await page.evaluate(thumbState, "#view .lq-watched");
       const vids = pre.filter(r => r.v);
       thumbRows += pre.length;
+      const unitFrames = await page.evaluate(() => document.querySelectorAll("#view .lsn-nav .thumb").length);
+      // The bar's frame is a desktop thing (style.css: hidden below 600px, where the bar is one line). On a
+      // phone it is asserted absent from the screen, and the frame's own measurements are made at 1280.
+      if (mobile) {
+        check(where + ": on a phone the bar draws no frame on screen, and In this unit draws none at all",
+          pre.length === 1 && pre[0].boxW === 0 && preP.length === 1 && preP[0].boxW === 0 && unitFrames === 0,
+          pre.map(r => r.at + " box " + r.boxW).join(", ") + "; " + unitFrames + " in In this unit");
+        await go(page, "/lesson/ai300/0/2");
+        const aiP = await page.evaluate(() => document.querySelectorAll("#view .lsn-nav .thumb, #view .lsn-nav img").length);
+        check(at + " /lesson/ai300/0/2: In this unit's rows draw no frame (T-083)", aiP === 0, aiP + " frame(s)");
+        check(at + " thumbnails: no page errors", errors.length === 0, errors.join(" | "));
+        held.splice(0).forEach(r => r.abort().catch(() => {}));
+        await ctx.close();
+        continue;
+      }
       const badSrc = pre.filter(r => !r.thumb || (r.v ? r.imgs !== 1 || r.src !== ytimg(r.v) : r.imgs !== 0));
-      check(where + ": every video lecture row leads with an <img> of i.ytimg.com/vi/<its v>/hqdefault.jpg",
-        pre.length === 2 && vids.length > 0 && badSrc.length === 0,
-        badSrc.length ? show(badSrc, r => r.at + " src " + r.src + " (v " + r.v + ")") : vids.length + " of " + pre.length + " rows (next and previous)");
+      check(where + ": the watched lecture's bar leads with an <img> of i.ytimg.com/vi/<its v>/hqdefault.jpg, and In this unit draws no frame",
+        pre.length === 1 && vids.length === 1 && badSrc.length === 0 && unitFrames === 0,
+        badSrc.length ? show(badSrc, r => r.at + " src " + r.src + " (v " + r.v + ")") : vids.length + " frame; " + unitFrames + " in In this unit");
       const badAttr = vids.filter(r => r.loading !== "lazy" || r.decoding !== "async" || r.alt !== "" ||
         !(Math.abs(r.ratio - 16 / 9) <= 0.01) || !(Math.abs(r.boxRatio - 16 / 9) <= 0.01));
       check(where + ": each image is loading=lazy, decoding=async, alt=\"\", and 16:9 (±0.01)", vids.length > 0 && badAttr.length === 0,
@@ -3647,24 +3672,27 @@ function t28SeedClips(list) {
       const badChip = pre.filter(r => r.chip !== r.want || r.chipAria !== "true");
       check(where + ": the duration chip reads the lesson's min as m:ss or h:mm:ss, and is aria-hidden (the title is beside it)", pre.length > 0 && badChip.length === 0,
         badChip.length ? show(badChip, r => r.at + " \"" + r.chip + "\", want \"" + r.want + "\", aria-hidden " + r.chipAria) : pre.length + " chips, e.g. \"" + pre[0].chip + "\", aria-hidden");
-      // The seeded state: lecture 1 watched, lecture 14 proven.
+      // The seeded state: lecture 1 watched, lecture 14 proven. Each bar says "Watched" beside its frame
+      // (T-083: the bar, not a row, carries the frame now).
       const wr = pre.find(r => r.at === "math110/0/0"), pr = preP.find(r => r.at === "math110/0/13");
-      const stateOk = !!wr && !!pr && /\bwatched\b/.test(wr.cls) && wr.edge === "100%" && wr.edgeCol === "#ffffff" && /· Watched$/.test(wr.sub) &&
-        /\bproven\b/.test(pr.cls) && pr.edge === "100%" && pr.edgeCol !== wr.edgeCol && /· Proven$/.test(pr.sub);
-      check(where + ": a watched lecture's frame has a full white edge, a proven one's a full gold edge, and each row says which", stateOk,
+      const stateOk = !!wr && !!pr && /\bwatched\b/.test(wr.cls) && wr.edge === "100%" && wr.edgeCol === "#ffffff" && /^Watched\b/.test(wr.sub) &&
+        /\bproven\b/.test(pr.cls) && pr.edge === "100%" && pr.edgeCol !== wr.edgeCol && /^Watched\b/.test(pr.sub);
+      check(where + ": a watched lecture's frame has a full white edge, a proven one's a full gold edge, and each bar says Watched", stateOk,
         [wr, pr].map(r => r ? r.at + " " + r.cls.replace(/^thumb /, "") + " edge " + r.edge + " " + r.edgeCol + " \"" + r.sub + "\"" : "missing").join("; "));
 
       // Now refuse them: every frame fails, and must fall back.
       mode = "abort";
       held.splice(0).forEach(r => r.abort().catch(() => {}));
       const settled = await visitThumbs(page);
-      const post = await page.evaluate(thumbState, "#view .lsn-nav");   // T-080 PR 3: the In this unit rows, as above
+      const post = await page.evaluate(thumbState, "#view .lq-watched");   // T-083: the watched bar's frame, as above
       const pv = post.filter(r => r.v);
       coverRows += pv.length;
+      // T-083: the bar's 96px frame shows no code, title or chip (style.css hides them there), so the cover is
+      // asserted as the course's colour with its code and title in the markup, none of it drawn.
       const badCover = pv.filter(r => !/\bcover\b/.test(r.cls) || r.imgs !== 0 || !r.bgOpaque || r.skeleton ||
-        r.bgHue == null || r.facHue == null || hueOff(r.bgHue, r.facHue) > 4 || !r.codeShown ||
+        r.bgHue == null || r.facHue == null || hueOff(r.bgHue, r.facHue) > 4 || r.codeShown ||
         r.code !== r.course + " · " + (+r.at.split("/")[2] + 1) || r.ttl !== r.title);
-      check(where + ": a frame that fails falls back to the typeset cover — no <img>, the course's colour, its code shown, its title in the markup",
+      check(where + ": a frame that fails falls back to the typeset cover — no <img>, the course's colour, its code and title in the markup (not drawn at 96px)",
         settled && pv.length === vids.length && badCover.length === 0,
         !settled ? "not every frame settled within 6s: " + post.filter(r => r.v && !/\bcover\b/.test(r.cls)).length + " still waiting" :
         badCover.length ? show(badCover, r => r.at + " " + r.cls + " imgs " + r.imgs + " bg " + r.bg + " (hue " + (r.bgHue == null ? "-" : r.bgHue.toFixed(1)) + " vs --fac " + r.fac + ") code \"" + r.code + "\" shown " + r.codeShown)
@@ -3672,21 +3700,23 @@ function t28SeedClips(list) {
       const low = [];
       post.forEach(r => (r.texts || []).forEach(t => { thumbTexts++; if (t.r < 4.5 - 0.005) low.push(r.at + " " + t.what + " " + t.r.toFixed(2) + ":1 (" + t.fg + " on " + t.bg + ")"); }));
       const least = post.flatMap(r => (r.texts || []).map(t => Object.assign({ at: r.at }, t))).sort((a, b) => a.r - b.r)[0];
-      check(where + ": on the cover, its code and the chip are >= 4.5:1", !!least && low.length === 0,
-        low.length ? low.length + " — " + low.slice(0, 3).join("; ") : least ? "least " + least.r.toFixed(2) + ":1 (" + least.what + ", " + least.fg + " on " + least.bg + ")" : "no text measured");
+      // T-083: no text is drawn on the bar's frame (code, title and chip hidden), so there is none to fall under 4.5:1;
+      // any that appears is measured here and must pass.
+      check(where + ": on the cover, any text drawn is >= 4.5:1 (the bar's frame draws none)", low.length === 0,
+        low.length ? low.length + " — " + low.slice(0, 3).join("; ") : least ? "least " + least.r.toFixed(2) + ":1 (" + least.what + ", " + least.fg + " on " + least.bg + ")" : "no text drawn");
 
-      // Readings and papers: a cover from the first paint, nothing to load.
+      // Readings and papers. T-083 #15: no row draws a frame now, so a paper's row says what it is in its
+      // length column, as the course page's does: AI 300's paper 3 (unit 0), whose next row is a paper and
+      // previous a video, with no .thumb and no <img> anywhere in In this unit.
       mode = "hold";
-      // T-080 PR 3: AI 300's paper 3 (unit 0): its next row is a paper, its previous a video.
       await go(page, "/lesson/ai300/0/2");
-      const ai = await page.evaluate(thumbState, "#view .lsn-nav");
-      const reads = ai.filter(r => !r.v), aiv = ai.filter(r => r.v);
-      const badRead = reads.filter(r => !r.thumb || !/\bcover\b/.test(r.cls) || r.imgs !== 0 || r.chip !== r.want || (r.vis && !r.codeShown));
-      const badAiv = aiv.filter(r => r.src !== ytimg(r.v));
-      check(at + " /lesson/ai300/0/2: every reading and paper row is a typeset cover with no <img> from its first paint, its chip \"Paper\" or \"Reading\"; every video row's frame is its own v",
-        reads.length === 1 && aiv.length === 1 && badRead.length === 0 && badAiv.length === 0,
-        badRead.length || badAiv.length ? show(badRead.concat(badAiv), r => r.at + " " + r.cls + " imgs " + r.imgs + " chip \"" + r.chip + "\" src " + r.src)
-          : reads.length + " readings (" + reads.filter(r => r.vis).length + " on screen), " + aiv.length + " video rows with their frames");
+      const ai = await page.evaluate(() => [...document.querySelectorAll("#view .lsn-nav a.grow")].map(a => ({ href: a.getAttribute("href"),
+        thumb: !!a.querySelector(".thumb, img"), v: ((a.querySelector(".g-v") || {}).textContent || "").trim() })));
+      const aiWant = ai.map(r => { const [, , cid, ui, li] = r.href.slice(1).split("/"); const l = CURRICULUM.COURSES.find(c => c.id === cid).units[+ui].lessons[+li];
+        return l.min ? null : l.paper ? "paper" : "reading"; });
+      check(at + " /lesson/ai300/0/2: In this unit's rows draw no frame; a paper or reading says so in its length column (T-083)",
+        ai.length === 2 && ai.every(r => !r.thumb) && ai.every((r, i) => aiWant[i] === null ? /^\d+:\d\d/.test(r.v) : r.v === aiWant[i]),
+        JSON.stringify(ai));
       check(at + " thumbnails: no page errors", errors.length === 0, errors.join(" | "));
       await ctx.close();
     }
@@ -3698,15 +3728,16 @@ function t28SeedClips(list) {
   // "no such video" placeholder, which it serves instead of an error. The
   // moment .loaded lands, the frame's running animations are read in that
   // same task: a fade is a CSSTransition on opacity, or it is not there.
-  console.log("\nthumbnails that load, 390px light");
+  console.log("\nthumbnails that load, 1280px light");   // T-083: the bar's frame is hidden below 600px
   const u0 = CURRICULUM.COURSES.find(c => c.id === "math110").units[0].lessons;
-  // T-080 PR 3: lecture 3's page, whose previous row is lecture 2 (BIG) and next is lecture 4 (GREY).
-  const BIG = ytimg(u0[1].v), GREY = ytimg(u0[3].v);
+  // T-083 #15: the watched bars' frames — lecture 1's (watched in the seed: BIG) and lecture 14's (proven: GREY),
+  // one page each. (T-080 PR 3 used lecture 3's In this unit rows, which have no frame now.)
+  const BIG = ytimg(u0[0].v), GREY = ytimg(u0[13].v);
   const bigPng = png(480, 360, [38, 84, 140]), greyPng = png(120, 90, [204, 204, 204]);
   let fadesSeen = 0;
   for (const motion of ["reduce", "no-preference"]) {
     const { ctx, page, errors } = await fresh(browser,
-      { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, colorScheme: "light", reducedMotion: motion }, "light",
+      { viewport: { width: 1280, height: 800 }, colorScheme: "light", reducedMotion: motion }, "light",   // T-083: was 390 (the frame is desktop-only now)
       () => {
         if (window.top !== window) return;
         window.__fade = [];
@@ -3727,21 +3758,24 @@ function t28SeedClips(list) {
     });
     await page.goto(URL + "/__boot", { waitUntil: "load" });
     await page.waitForSelector("#view > *");
-    await go(page, "/lesson/math110/0/2");
-    const sel = li => '#view .lsn-nav a.grow[href="#/lesson/math110/0/' + li + '"] > .thumb';
-    const landed = await page.waitForFunction(([a, b]) => {
-      const x = document.querySelector(a), y = document.querySelector(b);
-      return !!x && !!y && x.classList.contains("loaded") && y.classList.contains("cover");
-    }, [sel(1), sel(3)], { timeout: 6000, polling: 100 }).then(() => true, () => false);
+    const sel = li => '#view .lq-watched[data-k="math110.0.' + li + '"] > .thumb';
+    await go(page, "/lesson/math110/0/13");
+    const greyed = await page.waitForFunction(b => { const y = document.querySelector(b); return !!y && y.classList.contains("cover"); },
+      sel(13), { timeout: 6000, polling: 100 }).then(() => true, () => false);
+    const grey = await page.evaluate(b => { const y = document.querySelector(b); return { grey: y ? y.className : "", greyImgs: y ? y.querySelectorAll("img").length : -1 }; }, sel(13));
+    await go(page, "/lesson/math110/0/0");
+    const landed = await page.waitForFunction(a => {
+      const x = document.querySelector(a);
+      return !!x && x.classList.contains("loaded");
+    }, sel(0), { timeout: 6000, polling: 100 }).then(() => greyed, () => false);
     await page.evaluate(() => Promise.all(document.getAnimations().map(a => a.finished.catch(() => {}))));
-    const r = await page.evaluate(([a, b]) => {
-      const x = document.querySelector(a), y = document.querySelector(b), img = x && x.querySelector("img");
+    const r = Object.assign(await page.evaluate(a => {
+      const x = document.querySelector(a), img = x && x.querySelector("img");
       const cs = img ? getComputedStyle(img) : null;
       return { cls: x ? x.className : "", img: !!img, op: cs ? cs.opacity : null, prop: cs ? cs.transitionProperty : null,
-               dur: cs ? cs.transitionDuration : null, grey: y ? y.className : "", greyImgs: y ? y.querySelectorAll("img").length : -1,
-               fade: window.__fade };
-    }, [sel(1), sel(3)]);
-    const at = "390px light, motion " + motion;
+               dur: cs ? cs.transitionDuration : null, fade: window.__fade };
+    }, sel(0)), grey);
+    const at = "1280px light, motion " + motion;
     check(at + ": a frame that loads is shown — .loaded, opacity 1", landed && /\bloaded\b/.test(r.cls) && r.img && r.op === "1",
       (landed ? "" : "did not settle; ") + r.cls + ", img " + r.img + ", opacity " + r.op);
     const fade = (r.fade || [])[0] || [];
@@ -3762,20 +3796,28 @@ function t28SeedClips(list) {
 
   // ---- covers and chips in every theme, one course per faculty ----
   const FAC_COURSES = ["math110", "ai300", "phys100", "sys250", "res400"];
+  // T-083 #15: the frame left is a watched lecture's bar, so each course's first video lecture is seeded
+  // watched and its own page is measured (T-080 PR 3 measured lecture 2's In this unit rows).
+  const FAC_FIRST = FAC_COURSES.map(cid => { const c = CURRICULUM.COURSES.find(x => x.id === cid);
+    for (let ui = 0; ui < c.units.length; ui++) for (let li = 0; li < c.units[ui].lessons.length; li++) if (c.units[ui].lessons[li].v) return [cid, ui, li];
+    return null; }).filter(Boolean);
+  const facWatched = new Function("args", "if (window.top !== window) return; const s = JSON.parse(localStorage.getItem('darhikmah_v1') || '{}'); s.lessons = s.lessons || {};" +
+    FAC_FIRST.map(([c, u, l]) => "s.lessons['" + c + "." + u + "." + l + "'] = { done: true, doneAt: '2026-10-30', notes: '', checks: [] };").join("") +
+    "localStorage.setItem('darhikmah_v1', JSON.stringify(s));");
   let facTexts = 0;
   for (const theme of ALL_THEMES) {
     console.log("\nthumbnail contrast, " + theme);
-    const { ctx, page, errors } = await fresh(browser, { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }, theme);
+    const { ctx, page, errors } = await fresh(browser, { viewport: { width: 1280, height: 800 } }, theme, facWatched);   // T-083: was 390; the bar's frame is desktop-only
     await page.goto(URL + "/__boot", { waitUntil: "load" });
     await page.waitForSelector("#view > *");
     await themePainted(page, theme, theme + " thumbnail contrast");
     const low = [], lowChip = [];
     let least = null, worstChip = Infinity, covers = 0, unsettled = [];
-    for (const cid of FAC_COURSES) {
-      // T-080 PR 3: a lecture page's In this unit rows (lecture 2: lectures 1 and 3), where frames still are.
-      await go(page, "/lesson/" + cid + "/0/1");
+    for (const [cid, ui, li] of FAC_FIRST) {
+      // T-083: the course's first video lecture, watched: its bar's frame (see FAC_FIRST).
+      await go(page, "/lesson/" + cid + "/" + ui + "/" + li);
       if (!(await visitThumbs(page))) unsettled.push(cid);
-      (await page.evaluate(thumbState, "#view .lsn-nav")).filter(r => r.vis).forEach(r => {
+      (await page.evaluate(thumbState, "#view .lq-watched")).filter(r => r.vis).forEach(r => {
         if (/\bcover\b/.test(r.cls)) covers++;
         (r.texts || []).forEach(t => {
           facTexts++;
@@ -3785,10 +3827,11 @@ function t28SeedClips(list) {
         if (r.chipWorst != null) { worstChip = Math.min(worstChip, r.chipWorst); if (r.chipWorst < 4.5) lowChip.push(r.at + " " + r.chipWorst.toFixed(2)); }
       });
     }
-    check(theme + ": every cover's text and every chip is >= 4.5:1, on " + FAC_COURSES.length + " courses (one per faculty)",
-      unsettled.length === 0 && covers > 0 && !!least && low.length === 0,
+    // T-083: the bar's frame draws no text (see above), so "least" can be empty; any drawn text still must pass.
+    check(theme + ": every cover falls back, and any text on it is >= 4.5:1, on " + FAC_FIRST.length + " courses (one per faculty)",
+      unsettled.length === 0 && covers === FAC_FIRST.length && low.length === 0,
       unsettled.length ? "frames still waiting on " + unsettled.join(", ") : low.length ? low.length + " — " + low.slice(0, 3).join("; ")
-        : covers + " covers, least " + least.r.toFixed(2) + ":1 (" + least.at + " " + least.what + ", " + least.fg + " on " + least.bg + ")");
+        : covers + " covers" + (least ? ", least " + least.r.toFixed(2) + ":1 (" + least.at + " " + least.what + ", " + least.fg + " on " + least.bg + ")" : ", no text drawn"));
     check(theme + ": the chip stays >= 4.5:1 over any picture (its fill over pure white and over pure black)",
       worstChip !== Infinity && lowChip.length === 0, lowChip.length ? lowChip.slice(0, 3).join("; ") : "worst " + worstChip.toFixed(2) + ":1");
     check(theme + " thumbnail contrast: no page errors", errors.length === 0, errors.join(" | "));
@@ -3899,6 +3942,11 @@ function t28SeedClips(list) {
       }
 
       // ---- Courses ----
+      // T-083 #1 (the owner's "design fixes"): a Continue cover opens the plan's pick for its course — the
+      // lecture the course page's Continue opens — not the last one touched; the shelf's ORDER is still the
+      // most recent first. The pick is read off the course page, the one resolver both use.
+      await go(page, "/course/ai200");
+      const aiPick = await page.evaluate(() => (document.querySelector("#view .crs-go") || { getAttribute: () => null }).getAttribute("href"));
       await go(page, "/courses");
       let s = await page.evaluate(coursesState);
       const wantSeg = ["Now · " + sets.running.length, "Later · " + sets.later.length, "Finished · 0", "All"];
@@ -3908,8 +3956,8 @@ function t28SeedClips(list) {
       c26(at + " /courses: every filter option is >= 44x44", s.seg.length === 4 && s.seg.every(b => b.w >= 44 && b.h >= 44),
         s.seg.map(b => b.w.toFixed(0) + "x" + b.h.toFixed(0)).join(", "));
       const lead = s.shelves[0] && s.shelves[0].books[0];
-      c26(at + " /courses: the Continue shelf leads with AI 200, the course with the stored resume point — its lecture, at 5:00",
-        !!lead && s.shelves[0].head === "Continue" && lead.href === "#/lesson/ai200/0/1" && /resume at 5:00$/.test(lead.meta),
+      c26(at + " /courses: the Continue shelf leads with AI 200, the course with the stored resume point — at the plan's pick for it, as its course page's Continue (T-083; was the resume point's lecture)",
+        !!lead && s.shelves[0].head === "Continue" && lead.code === "AI 200" && !!aiPick && lead.href === aiPick && /^(Lecture|Reading|Paper) \d+( · |$)/.test(lead.meta),
         lead ? s.shelves[0].head + ": " + lead.code + " " + lead.href + " \"" + lead.meta + "\"" : "no shelf");
       const nowHrefs = [].concat(...s.shelves.map(x => x.books.map(b => b.href.replace(/^#\/lesson\/([^/]+)\/.*/, "#/course/$1"))));
       c26(at + " /courses: Now holds every running course once (Continue, then one shelf per track)",
@@ -4113,11 +4161,14 @@ function t28SeedClips(list) {
     page.on("pageerror", e => errors.push(e.message));
     await page.goto(URL + "/__boot", { waitUntil: "load" });
     await page.waitForSelector("#view > *");
+    // T-083 #1: the cover opens the plan's pick (the course page's Continue); the ORDER is what this checks.
+    await go(page, "/course/ai200");
+    const aiPick = await page.evaluate(() => (document.querySelector("#view .crs-go") || { getAttribute: () => null }).getAttribute("href"));
     await go(page, "/courses");
     const s = await page.evaluate(coursesState);
     const lead = s.shelves[0] && s.shelves[0].books[0];
-    c26(at + ": Continue leads with AI 200 (paused 02:00 local) over MATH 110 (watched the same local day)",
-      !!lead && s.shelves[0].head === "Continue" && lead.href === "#/lesson/ai200/0/1" && /resume at 5:00$/.test(lead.meta),
+    c26(at + ": Continue leads with AI 200 (paused 02:00 local) over MATH 110 (watched the same local day), at the plan's pick for it",
+      !!lead && s.shelves[0].head === "Continue" && lead.code === "AI 200" && !!aiPick && lead.href === aiPick && s.shelves[0].books.length === 2,
       s.shelves[0] ? s.shelves[0].head + ": " + s.shelves[0].books.map(b => b.code + " \"" + b.meta + "\"").join(", ") : "no shelf");
     c26(at + ": no page errors", errors.length === 0, errors.join(" | "));
     await ctx.close();
@@ -4651,7 +4702,10 @@ function t28SeedClips(list) {
       const cols = new Set(m.tiles.map(t => t.left)).size;
       c26c(at + " /review: the tiles are " + o.cols + " across", cols === o.cols, cols + " distinct columns");
     }
-    c26c(at + " /review: \"Seal the week\" is the only filled primary (data-act logWeek, the existing handler)",
+    // T-083 #4: filled only from the week's Sunday; before it the same handler sits behind a tinted "Seal early".
+    if (W.early) c26c(at + " /review: before Sunday there is no filled primary; the seal is a tinted \"Seal early\" (data-act logWeek, the existing handler)",
+      m.filled.length === 0 && !!m.seal && m.seal.text === "Seal early" && m.seal.ghost, JSON.stringify({ filled: m.filled, seal: m.seal }));
+    else c26c(at + " /review: \"Seal the week\" is the only filled primary (data-act logWeek, the existing handler)",
       m.filled.length === 1 && m.filled[0].text === "Seal the week" && m.filled[0].act === "logWeek", m.filled.map(f => "\"" + f.text + "\" " + f.act).join("; ") || "no filled button");
     c26c(at + " /review: beside it the state reads \"" + W.state + "\"", m.state === W.state, "\"" + m.state + "\"");
     c26c(at + " /review: each question's placeholder reads at >= 4.5:1 on its field (" + m.ph.map(x => "#" + x.id).join(", ") + ")",
@@ -4660,11 +4714,11 @@ function t28SeedClips(list) {
       JSON.stringify(m.qs.map(q => [q.q, q.forId, q.input])) === JSON.stringify([["What did you ship?", "rvShipped", "rvShipped"], ["What got in the way?", "rvNotes", "rvNotes"]]) && m.qs.every(q => q.h >= 44),
       JSON.stringify(m.qs));
     c26c(at + " /review: \"Past weeks\" reads \"" + W.meta + "\"" + (W.cards.length ? " and is one card per sealed week, newest first, each its shipped text (or \"nothing shipped\") and its numbers"
-        : " and holds the four places the cards will go (" + W.slots.join(", ") + ")"),
+        : " and is one line, \"" + W.none + "\" (T-083 #14: no placeholder cards)"),
       !!m.past && m.past.meta === W.meta && (W.cards.length
         ? m.cards.length === W.cards.length && m.cards.every((c, i) => { const x = W.cards[i];
             return c.tag === "DETAILS" && c.h === x.h && c.date === x.date && c.s === x.s && c.fail === x.fail && c.m === x.m && c.sh >= 44; })
-        : m.cards.length === 4 && m.cards.every((c, i) => c.slot && c.h === W.slots[i])),
+        : m.cards.length === 0 && m.none === W.none),
       (m.past ? "\"" + m.past.meta + "\": " : "no header: ") + m.cards.map(c => c.h + (c.date ? " " + c.date : "") + (c.s ? " / " + c.s : "") + (c.m ? " / " + c.m : "")).join(" | "));
     if (o.click && W.cards.length) {
       await page.click("#view .wk-weeks > details:first-child > summary");
@@ -5872,7 +5926,8 @@ function t28SeedClips(list) {
         theme: document.documentElement.dataset.theme, layers, btns,
         playfair: [...document.fonts].filter(f => f.family.replace(/["']/g, "") === "Playfair Display").map(f => f.status),
         h1: face(vis("#view h1:not(.folio)")[0] || null),
-        large: face(vis("#view h1.folio.dash-title")[0] || null),
+        // T-083 #10: the dashboard's large title is the hero's title, the page's one h1 (was a hidden-on-desktop folio h1).
+        large: face(vis("#view h1.dash-title")[0] || null),
         hero: face(vis("#view .one.lead .one-kind")[0] || null),
       };
     };

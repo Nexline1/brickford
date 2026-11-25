@@ -81,6 +81,8 @@
 <link rel="stylesheet" href="css/style.css?v=20261128a">
 </head>
 <body>
+<!-- T-083 #11: the first thing a keyboard reaches; it lands on the page itself. -->
+<a class="skip-link" href="#view" id="skipLink">Skip to content</a>
 
 <!-- The phone's nav bar (T-006). Desktop hides it outright: there the sidebar
      is the frame and the page carries its own folio.
@@ -246,7 +248,7 @@
     <div class="sheet-go"><button class="btn ghost" type="button" data-settings-done>Done</button></div>
   </div>
 </dialog>
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div class="chart-tip" id="chartTip"></div>
 
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>

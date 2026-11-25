@@ -158,6 +158,20 @@
   // for an icon (a font's tick, which changes shape and weight with the face).
   // 1em square, so it takes the size its container's glyph had.
   const TICK = CHECK_SVG.replace("<svg ", '<svg class="tick" aria-hidden="true" ');
+  // T-083 #12: the row marks that were text glyphs (○ ! ◆ ? ⌘ ✎ ↻), drawn in the
+  // nav's own line style (index.html: 20-unit box, 1.5 stroke, currentColor), so
+  // they keep one shape whatever face the row falls back to. Decorative: the row
+  // text says what each one means.
+  const ICO = d => '<svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + "</svg>";
+  const ICON = {
+    open: ICO('<circle cx="10" cy="10" r="6"/>'),                                                     // was ○: not done yet
+    alert: ICO('<circle cx="10" cy="10" r="7.5"/><path d="M10 6 V11"/><circle cx="10" cy="14" r="0.9" fill="currentColor" stroke="none"/>'),   // was !
+    gate: ICO('<path d="M4 3.5 H13 L16 6.5 V16.5 H4 Z M12.5 3.5 V7 H16 M6.5 10.5 H13.5 M6.5 13 H11"/>'),  // was ◆: the Proof glyph
+    quiz: ICO('<path d="M5 2.5 H15 V17.5 H5 Z M7.5 6 H12.5 M7.5 9 H12.5 M7.5 12 H10.5"/>'),            // was ?: the Exams glyph
+    lab: ICO('<path d="M8 2.5 H12 M9 2.5 V7.5 L4.5 15.5 Q3.8 17.5 5.5 17.5 H14.5 Q16.2 17.5 15.5 15.5 L11 7.5 V2.5 M6.5 12 H13.5"/>'),   // was ⌘: the Problems glyph
+    pen: ICO('<path d="M13.5 3.5 L16.5 6.5 L7 16 H4 V13 Z M11.5 5.5 L14.5 8.5"/>'),                     // was ✎
+    again: ICO('<path d="M16.5 10 A6.5 6.5 0 1 1 14 4.9 M16.5 2.5 V5.5 H13.5"/>'),                    // was ↻: the Week glyph's arrow
+  };
   // T-080 PR 2 (owner, on the live hero): a button that goes somewhere ends in a
   // drawn chevron, not a "\u25b8" text glyph, which sat on the baseline and took the
   // font's shape. Decorative: the label says where it goes.
@@ -1868,17 +1882,17 @@
   function todayCardHTML(items, sealRow) {
     const mins = items.reduce((a, it) => a + (it.l.min || 0), 0);
     const doneN = items.filter(schedDone).length;
-    return '<div class="ghead today-head">Today<span class="gh-meta">' +
+    return '<h2 class="ghead today-head">Today<span class="gh-meta">' +
       (doneN ? doneN + " / " + items.length + " done" : items.length + " lecture" + (items.length === 1 ? "" : "s")) +
       (mins ? " \u00b7 " + (mins >= 60 ? Math.floor(mins / 60) + "h" + (mins % 60 ? pad2(mins % 60) : "") : mins + "m") : "") +
-      "</span></div>" +
+      "</span></h2>" +
       '<div class="glist today-card">' + items.map((it, i) => {
         const fc = D.COURSES.find(x => x.id === it.cid);
         const dn = schedDone(it);
         const dur = it.l.min ? it.l.min + "m" : it.l.paper ? "paper" : "reading";
         return '<a class="grow ' + (fc ? facClass(fc) : "") + (dn ? " done-row" : "") + '" href="#/lesson/' +
           it.cid + "/" + it.ui + "/" + it.li + '">' +
-          '<span class="g-lead">' + (dn ? "\u2713" : i + 1) + "</span>" +
+          '<span class="g-lead">' + (dn ? TICK : i + 1) + "</span>" +
           '<span class="g-main"><span class="g-t">' + esc(it.l.t) + "</span>" +
           '<span class="g-s">' + esc(it.code) + " \u00b7 " + esc(it.track) + "</span></span>" +
           '<span class="g-v">' + esc(dur) +
@@ -1960,26 +1974,22 @@
   // The Monk Mode row's mark is the sidebar's own half-moon glyph, drawn: the
   // "\u25d0" text glyph fell back to a font without it and printed a stray "\u2039".
   const MONK_GLYPH = '<svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 3 A7 7 0 0 1 10 17 Z" fill="currentColor" stroke="none"/></svg>';
-  function needsYouHTML(list, backlog) {
+  // T-083 #2: the owed lectures left this strip for their own one row
+  // (owedFoldHTML); what is left is the device warning and Monk Mode.
+  function needsYouHTML() {
     const rows = [];
     const e = S.settings.syncError;
     // Two different failures needing different words. No token is a device
     // nobody connected. A token that errors is worse — it looked connected
     // the whole time it was diverging — so it says what GitHub said.
     if (!ghToken())
-      rows.push('<a class="grow" href="#/sync"><span class="g-lead bad-lead">!</span>' +
+      rows.push('<a class="grow" href="#/sync"><span class="g-lead bad-lead">' + ICON.alert + "</span>" +
         '<span class="g-main"><span class="g-t">This device is not syncing</span>' +
         '<span class="g-s">progress stays in this browser only</span></span></a>');
     else if (e)
-      rows.push('<a class="grow" href="#/sync"><span class="g-lead bad-lead">!</span>' +
+      rows.push('<a class="grow" href="#/sync"><span class="g-lead bad-lead">' + ICON.alert + "</span>" +
         '<span class="g-main"><span class="g-t">Sync is failing</span>' +
         '<span class="g-s">' + esc(e.msg) + " \u00b7 since " + esc(agoLabel(e.at)) + "</span></span></a>");
-    // The count of owed lectures, only when they are not listed below by name.
-    if (backlog > 0 && !list.length)
-      rows.push('<a class="grow" href="#/calendar"><span class="g-lead bad-lead">!</span>' +
-        '<span class="g-main"><span class="g-t">' + (backlog > 20 ? "20+" : backlog) +
-        " lecture" + (backlog === 1 ? "" : "s") + " owed from earlier days</span>" +
-        '<span class="g-s">catching up late still turns the day green</span></span></a>');
     // T-052 / T-065: Monk Mode — not started, its one Start button (it opens the
     // sheet); running, today's day of it; over, nothing.
     const n = monkDay(todayISO());
@@ -1990,27 +2000,20 @@
       rows.push('<a class="grow monk-row" href="#/monk">' +
         '<span class="g-lead">' + MONK_GLYPH + '</span><span class="g-main"><span class="g-t">Monk Mode</span>' +
         '<span class="g-s">Day ' + n + " of " + MONK.days + " \u00b7 prayers, habits, tomorrow\u2019s plan</span></span></a>");
-    const owedRow = x => '<a class="grow" data-owed="' + esc(x.k) + '" href="#/lesson/' + x.it.cid + "/" + x.it.ui + "/" + x.it.li + '">' +
-      // An empty lead, as every other row in the strip has, so the text and the separators line up.
-      '<span class="g-lead"></span><span class="g-main"><span class="g-t">' + esc(x.title) + "</span><span class=\"g-s\">not watched yet</span></span>" +
-      '<span class="g-v">' + owedLabel(x) + "</span></a>";
-    const more = list.slice(5);
-    const count = rows.length + list.length;
-    if (!count) return "";
-    return '<div class="ghead needs-head' + (list.length ? " owed-head" : "") + '">Needs you<span class="gh-meta">' + count + "</span></div>" +
-      '<div class="glist needs-list' + (list.length ? " owed-list" : "") + '">' + rows.join("") + list.slice(0, 5).map(owedRow).join("") + "</div>" +
-      (more.length ? '<details class="unit owed-more"><summary><span class="u-name">+' + more.length + " more</span></summary>" +
-        '<div class="glist">' + more.map(owedRow).join("") + "</div></details>" : "");
+    if (!rows.length) return "";
+    return '<h2 class="ghead needs-head">Needs you<span class="gh-meta">' + rows.length + "</span></h2>" +
+      '<div class="glist needs-list">' + rows.join("") + "</div>";
   }
 
   // T-056 r3: the earliest owed lecture in plan order — the first not cleared
   // on the first day backlogCount() counts as owing one. Null when none is owed.
-  function firstOwed() {
+  // T-083 #1: `cid`, when given, keeps only that course's lectures (planPick).
+  function firstOwed(cid) {
     const today = todayISO(), from = firstActivityISO();
     if (!from) return null;
     for (let iso = (from > D.START_DATE ? from : D.START_DATE); iso < today; iso = addDaysISO(iso, 1)) {
       if (isRestDay(iso)) continue;
-      const it = realSched(iso).find(x => !schedDone(x) && !v2Rescheduled(iso, lessonKey(x.cid, x.ui, x.li)) && !x.l.optional);
+      const it = realSched(iso).find(x => (!cid || x.cid === cid) && !schedDone(x) && !v2Rescheduled(iso, lessonKey(x.cid, x.ui, x.li)) && !x.l.optional);
       if (it) return it;
     }
     return null;
@@ -2194,6 +2197,36 @@
       if (ahead) return lectureAction(ahead, real, true);
     }
     return idleAction();
+  }
+  // T-083 #1: the plan's next lecture in ONE course — what every Continue and
+  // Next in that course opens (the Courses shelf, the course page), so none of
+  // them can disagree with the hero. Read in the order the hero reads the plan:
+  // today's first lecture of the course not yet cleared, else its earliest owed
+  // one, else the next study day that schedules it (work-ahead), else its first
+  // lecture not yet watched. Then lectureAction, as for the hero, so a locked
+  // lecture or a quiz still to pass sends every button to the same quiz.
+  // { a: the action, ui, li, l } for the lecture the action opens; null for a
+  // tracker, an unknown course, or one with every lecture cleared. A read.
+  function planPick(cid) {
+    const c = D.COURSES.find(x => x.id === cid);
+    if (!c || c.tracker || !c.units) return null;
+    const today = todayISO(), real = realSched(today);
+    let it = real.find(x => x.cid === cid && !schedDone(x)) || firstOwed(cid);
+    let ahead = !it ? false : !real.includes(it);
+    for (let iso = today, g = 0; !it && g < 36; g++) {
+      iso = addStudyDays(iso, 1);
+      it = realSched(iso).find(x => x.cid === cid && !schedDone(x));
+      ahead = true;
+    }
+    if (!it) {
+      const f = flatLessons(cid).find(x => !schedDone(x));
+      if (f) { it = f; ahead = true; }
+    }
+    if (!it) return null;
+    const a = lectureAction(it, real, ahead);
+    const m = /^#\/lesson\/[^/]+\/(\d+)\/(\d+)$/.exec(a.href);
+    const ui = m ? +m[1] : it.ui, li = m ? +m[2] : it.li;
+    return { a, ui, li, l: c.units[ui].lessons[li] };
   }
   function lectureAction(nextUp, real, workAhead) {
     {
@@ -2645,7 +2678,8 @@
     let title = "";
     if (h1) {
       const fm = $(".fo-meta", h1);
-      title = [...h1.childNodes].filter(n => n !== fm).map(n => n.textContent).join("").trim();
+      // T-083 #10: Today's h1 is its next lecture's title; the bar names the page.
+      title = h1.dataset.tbTitle || [...h1.childNodes].filter(n => n !== fm).map(n => n.textContent).join("").trim();
     }
     if (!title) {
       const act = $(".nav a.active");
@@ -2806,12 +2840,25 @@
     if (!cta || typeof IntersectionObserver === "undefined") {
       bar.classList.remove("stowed"); measureFurniture(); return;
     }
+    // T-083 #2: and it holds. The bar starts stowed when the button is already
+    // in the visible band — no first frame with both on screen while the
+    // observer has not reported yet — and ANY part of the button showing counts
+    // (threshold 0, not 0.6, which let the bar slide over a half-visible
+    // button). The band is the screen less what the tab bar and the Next bar
+    // cover at the bottom, so a button hidden under them counts as gone.
+    const cover = () => {
+      const cs = getComputedStyle(document.documentElement);
+      return (parseFloat(cs.getPropertyValue("--tabbar-h")) || 0) + (parseFloat(cs.getPropertyValue("--railbar-h")) || 0);
+    };
+    const band = cover();
+    const r0 = cta.getBoundingClientRect();
+    bar.classList.toggle("stowed", r0.bottom > 0 && r0.top < window.innerHeight - band && r0.height > 0);
     ctaObs = new IntersectionObserver(es => {
       // Deliberately NOT re-measuring here. The bar keeps its reserved space
       // while stowed, so the page's bottom padding is constant and nothing
       // shifts under the reader's thumb as it slides in and out.
       bar.classList.toggle("stowed", es.some(e => e.isIntersecting));
-    }, { threshold: 0.6 });
+    }, { threshold: 0, rootMargin: "0px 0px " + (-Math.round(band)) + "px 0px" });
     ctaObs.observe(cta);
   }
 
@@ -2843,171 +2890,34 @@
     set("--topbar-h", $("#topbar"));
   }
 
-  V.dashboard = function () {
-    const resting = isRestDay(todayISO()) && todayISO() >= D.START_DATE;
-    const day = Math.max(1, (resting ? studyIndex(prevStudyDay(todayISO())) : studyToday()) + 1);
-    const f = currentFocus();
+  // T-083 #2: "Where you stand" and the weekly charts, moved from Today to
+  // Proof (the owner's "design fixes", finding 2). The rows are as they were on
+  // Today, less the streak and the proven count, which Proof's tiles state.
+  function standHTML() {
     const g = nextGate();
-    const st = streak();
-    const studiedToday = S.studyDays.includes(todayISO());
-    const weeksArr = S.weeks.slice(-12);
-    const backupAge = S.settings.lastBackup ? daysBetween(S.settings.lastBackup, todayISO()) : null;
-    const todaySched = scheduledFor(todayISO());
-    const real = todaySched.filter(it => !it.pseudo);
-    const doneToday = real.filter(schedDone).length;
-    const backlog = backlogCount();
-    const dueN = problemsDue().n;
+    const drift = planDrift();
+    const due = reviewsDue();
     const probs = nextProblems(2);
     const trackerC = D.COURSES.find(x => x.tracker);
     const probsCat = trackerC ? Object.keys(trackerC.problems).find(cat => trackerC.problems[cat].some(p => !S.problems[cat + "|" + p])) : null;
-    const drift = planDrift();
-    const due = reviewsDue();
-    const proven = Object.values(S.lessons).filter(l => l && l.verified).length;
-    const dayPct = real.length ? (doneToday / real.length) * 100 : (studiedToday ? 100 : 0);
-    const charted = weeksArr.some(w => (+w.dsa || 0) || (+w.revenue || 0));
-
-    // Gate progress: how far through this gate's own window we are, so the
-    // ring reads as "time spent" against the countdown beside it.
-    // gatePct went with the Standing card's second progress ring — the countdown
-    // is the number that matters and it is now a row.
     const gateLeft = g ? Math.max(0, daysBetween(todayISO(), g.target)) : 0;
-
-    const cta = nextAction();
-
-
-    const totalMin = real.reduce((s, it) => s + (it.l.min || 0), 0);
-
-    return '<div class="view-enter">' +
-      // The phone's large title (T-006): every page opens on one, and the
-      // dashboard had no head of its own. Desktop does not show it.
-      '<h1 class="folio dash-title">Dashboard</h1>' +
-      // ---- The one thing: the next lecture ----
-      //
-      // This was a .dash-hero: its own card component, with its own context
-      // line, its own kicker and its own button slot, styled in forty lines of
-      // CSS nobody else could use. Every other page opens with .one — the same
-      // idea, the same faculty edge, the same full-width button. Two components
-      // were answering one question, which is the whole complaint this round is
-      // about, so the hero is now a .one like the rest and the day/week/phase
-      // line is a .ghead, the header shape this page already uses twice below.
-      '<div class="card one lead ' + (cta.fac || "") + '">' +
-      // The day and week are wrapped so the phone can drop them: its running
-      // head carries the same two facts, twenty pixels above this line.
-      '<div class="ghead oh"><span class="gh-day">Day ' + day +   // T-080 PR 3: no zero padding
-      " \u00b7 Week " + f.week + "</span>" +
-      '<span class="gh-meta">Phase ' + f.phase +
-      (real.length ? " \u00b7 " + doneToday + " / " + real.length + " today"
-        : studiedToday ? " \u00b7 day sealed \u2713" : "") + "</span>" +
-      "</div>" +
-      '<div class="one-kind">' + esc(cta.title) + "</div>" +
-      '<p class="one-hint">' + esc(cta.code) + " \u00b7 " + esc(cta.hint) + "</p>" +
-      // T-045: one line when anything is due on Problems.
-      (dueN ? '<a class="one-due" href="#/workshop">' + dueN + " due on Problems</a>" : "") +
-      // The bar is a progress ring's job done in 4px. Only once there is
-      // progress to draw: an empty track reads as an unfinished element rather
-      // than as "none yet".
-      (dayPct > 0
-        ? '<div style="max-width:420px; margin-top:10px;"><div class="bar sweep"><i style="--w:' + (dayPct / 100) + '; transform:scaleX(' + (dayPct / 100) + ');"></i></div></div>'
-        : "") +
-      '<a class="btn lg one-go" href="' + cta.href + '">' + esc(cta.verb) + CHEV + "</a>" +
-      "</div>" +
-
-      // ---- T-079: which lectures are behind and by how much ----
-      // First under the one next action, above every other block on Today. Above the hero it pushed the
-      // hero's button off a 320px screen, and the sticky Next bar came up over the list to repeat it.
-      // ---- T-080 PR 2: "Needs you", one strip, only when it has something ----
-      // What used to be three blocks of equal weight under the hero — the owed
-      // lectures (T-079), Monk Mode and "Needs attention" — is one header and
-      // one list: the warnings first, then Monk Mode, then the owed lectures
-      // (five, the rest folded behind "+N more" as before). Still first under the
-      // one next action (T-079's reason: above the hero it pushed the button off
-      // a 320px screen).
-      needsYouHTML(owedList(), backlog) +
-
-      // ---- The day's own work ----
-      //
-      // A "TODAY" section heading used to sit here, above per-course headers
-      // that say the same thing more precisely. The hero directly above already
-      // states the day and the count; the groups name their own course. So the
-      // day is its lectures, and nothing announces them twice.
-      (resting
-        // A rest day has to look deliberate. An empty day with no explanation
-        // reads as a broken schedule, and the whole point is that this day is
-        // part of the plan rather than a hole in it.
-        ? '<div class="ghead">' + esc(REST_NAME) + '<span class="gh-meta">rest day</span></div>' +
-          '<div class="glist">' +
-          '<div class="grow"><span class="g-lead">\u2014</span>' +
-          '<span class="g-main"><span class="g-t">Nothing is scheduled</span>' +
-          '<span class="g-s">the plan runs six days a week \u2014 taking the seventh is following it. Your streak is safe.</span></span></div>' +
-          '<a class="grow" href="' + nextStudyHref() + '"><span class="g-lead"></span>' +
-          '<span class="g-main"><span class="g-t">' + esc(nextStudyLabel()) + "</span>" +
-          '<span class="g-s">the next study day</span></span></a>' +
-          '<a class="grow" href="#/recall"><span class="g-lead"></span>' +
-          '<span class="g-main"><span class="g-t">Recall, if you want to</span></span></a>' +
-          "</div>"
-        : real.length
-          ? todayCardHTML(real,
-            (studiedToday
-              ? '<div class="grow done-row"><span class="g-lead">\u2713</span>' +
-                '<span class="g-main"><span class="g-t">Deep Track marked for today</span></span></div>'
-              // No Deep Track to mark on a rest day, and none offered: letting a
-              // rest day be logged as a study day would inflate the streak, the
-              // one number that has to stay honest.
-              : '<button class="grow" data-act="studied"><span class="g-lead">\u25cb</span>' +
-                '<span class="g-main"><span class="g-t">Mark today\u2019s Deep Track done</span>' +
-                '<span class="g-s">seals the day</span></span></button>'))
-          : '<div class="ghead">Today<span class="gh-meta">nothing scheduled</span></div>' +
-            '<div class="glist">' +
-            '<div class="grow"><span class="g-lead">\u2014</span>' +
-            '<span class="g-main"><span class="g-t">' +
-            (todaySched.length ? "Problem sets and review only" : "Calibration and setup") + "</span>" +
-            '<span class="g-s">' + (todaySched.length ? "no lectures on this day" : "see the Handbook") + "</span></span></div>" +
-            '<a class="grow" href="#/calendar"><span class="g-lead"></span>' +
-            '<span class="g-main"><span class="g-t">Calendar</span></span></a>' +
-            '<a class="grow" href="#/guide"><span class="g-lead"></span>' +
-            '<span class="g-main"><span class="g-t">Handbook</span></span></a>' +
-            (studiedToday
-              ? '<div class="grow done-row"><span class="g-lead">\u2713</span>' +
-                '<span class="g-main"><span class="g-t">Deep Track marked for today</span></span></div>'
-              : '<button class="grow" data-act="studied"><span class="g-lead">\u25cb</span>' +
-                '<span class="g-main"><span class="g-t">Mark today\u2019s Deep Track done</span>' +
-                '<span class="g-s">seals the day</span></span></button>') +
-            "</div>") +
-
-      // ---- Where you stand, and everything that runs every day ----
-      //
-      // This was a counts grid, then a disclosure holding four plan-rows, then a
-      // Standing card with a countdown and a bar, then a backup card. Four
-      // shapes below the day's work, on the page whose whole job is the day's
-      // work. They are rows in one group now, in the order you would ask for
-      // them, and each one goes where it is about.
-      // T-067 step 3: the problems of today's lectures, and practice due again.
-      practiceDashHTML() +
-      // T-069: the three near checkpoints, and the week's solved problems.
-      checkpointsHTML() +
-      '<div class="ghead">Where you stand</div>' +
-      '<div class="glist">' +
+    const resting = isRestDay(todayISO()) && todayISO() >= D.START_DATE;
+    const backupAge = S.settings.lastBackup ? daysBetween(S.settings.lastBackup, todayISO()) : null;
+    const weeksArr = S.weeks.slice(-12);
+    const charted = weeksArr.some(w => (+w.dsa || 0) || (+w.revenue || 0));
+    return '<h2 class="ghead">Where you stand</h2>' +
+      '<div class="glist pf-stand">' +
       (g
-        ? '<a class="grow" href="#/transcript"><span class="g-lead">\u25c6</span>' +
+        ? '<a class="grow" href="#/transcript"><span class="g-lead">' + ICON.gate + "</span>" +
           '<span class="g-main"><span class="g-t">Gate ' + g.n + " \u2014 " + esc(g.label) + "</span>" +
           '<span class="g-s">' + esc(drift.projected) + " finish" +
           (drift.aheadDays > 0 ? " \u00b7 " + drift.aheadDays + " days ahead"
             : drift.aheadDays < 0 ? " \u00b7 " + (-drift.aheadDays) + " days behind" : " \u00b7 on baseline") +
           "</span></span><span class=\"g-v\">" + gateLeft + "d</span></a>"
-        : '<a class="grow done-row" href="#/transcript"><span class="g-lead">\u2713</span>' +
+        : '<a class="grow done-row" href="#/transcript"><span class="g-lead">' + TICK + "</span>" +
           '<span class="g-main"><span class="g-t">All gates passed</span></span></a>') +
-      (st > 0
-        ? '<a class="grow" href="#/record"><span class="g-lead"></span>' +
-          '<span class="g-main"><span class="g-t">Streak</span></span>' +
-          '<span class="g-v">' + st + "d</span></a>"
-        : "") +
-      (proven > 0
-        ? '<a class="grow" href="#/atlas"><span class="g-lead"></span>' +
-          '<span class="g-main"><span class="g-t">Lectures proven</span></span>' +
-          '<span class="g-v">' + proven + "</span></a>"
-        : "") +
       (due.length
-        ? '<a class="grow" href="#/recall"><span class="g-lead">!</span>' +
+        ? '<a class="grow" href="#/recall"><span class="g-lead">' + ICON.alert + "</span>" +
           '<span class="g-main"><span class="g-t">Recall due</span>' +
           '<span class="g-s">before new material</span></span>' +
           '<span class="g-v">' + due.length + "</span></a>"
@@ -3040,11 +2950,7 @@
           '<span class="g-s">' + (backupAge === null ? "this browser is the only copy" : "last one " + backupAge + " days ago") + "</span></span></button>"
         : "") +
       "</div>" +
-
-      // ---- Charts: folded, and only once there is something to plot ----
-      // Four tiles used to sit here restating the streak and the DSA count that
-      // the status row above already carries, with two charts under them. The
-      // tiles are gone; the charts are a thing you go and look at, so they fold.
+      // The charts are a thing you go and look at, so they fold.
       (charted
         ? '<details class="unit" style="margin-top:16px;"><summary>' +
           '<span class="u-name">Weekly numbers</span><span class="pill">' + weeksArr.length + " weeks</span>" +
@@ -3053,10 +2959,110 @@
           '<div class="card"><h2>DSA over time</h2>' + lineChart(weeksArr.map(w => +w.dsa || 0), weeksArr.map(w => "Week " + w.week)) + "</div>" +
           '<div class="card"><h2>Revenue by week</h2>' + barChart(weeksArr.map(w => +w.revenue || 0), weeksArr.map(w => "Week " + w.week)) + "</div>" +
           "</div></div></details>"
-        : "") +
+        : "");
+  }
 
-      // The backup nag used to be a card here AND is now a row in the group
-      // above, which put "Export a backup" on the page twice.
+  // T-083 #2: the owed lectures as ONE row on Today, "N owed · oldest D days",
+  // that opens (a closed <details>) to every one of them, oldest first — the
+  // T-079 rows, data-owed markers and all. Only the late ones: today's own
+  // lectures are the Today card above it. Nothing when nothing is late. A read.
+  function owedFoldHTML(list) {
+    const late = list.filter(e => e.late > 0);
+    if (!late.length) return "";
+    const n = late.length, old = late.reduce((m, e) => Math.max(m, e.late), 0);
+    const owedRow = x => '<a class="grow" data-owed="' + esc(x.k) + '" href="#/lesson/' + x.it.cid + "/" + x.it.ui + "/" + x.it.li + '">' +
+      '<span class="g-lead"></span><span class="g-main"><span class="g-t">' + esc(x.title) + "</span><span class=\"g-s\">not watched yet</span></span>" +
+      '<span class="g-v">' + owedLabel(x) + "</span></a>";
+    return '<details class="unit owed-fold owed-head"><summary><span class="u-name">' +
+      n + " owed \u00b7 oldest " + old + " day" + (old === 1 ? "" : "s") + "</span>" +
+      '<span class="owed-hint">catching up late still turns the day green</span></summary>' +
+      '<div class="glist owed-list">' + late.map(owedRow).join("") + "</div></details>";
+  }
+
+  V.dashboard = function () {
+    const resting = isRestDay(todayISO()) && todayISO() >= D.START_DATE;
+    const day = Math.max(1, (resting ? studyIndex(prevStudyDay(todayISO())) : studyToday()) + 1);
+    const f = currentFocus();
+    const studiedToday = S.studyDays.includes(todayISO());
+    const todaySched = scheduledFor(todayISO());
+    const real = todaySched.filter(it => !it.pseudo);
+    const doneToday = real.filter(schedDone).length;
+    const dueN = problemsDue().n;
+    const dayPct = real.length ? (doneToday / real.length) * 100 : (studiedToday ? 100 : 0);
+    const cta = nextAction();
+    const sealed = '<div class="grow done-row"><span class="g-lead">' + TICK + "</span>" +
+      '<span class="g-main"><span class="g-t">Deep Track marked for today</span></span></div>';
+    const sealBtn = '<button class="grow" data-act="studied"><span class="g-lead">' + ICON.open + "</span>" +
+      '<span class="g-main"><span class="g-t">Mark today\u2019s Deep Track done</span>' +
+      '<span class="g-s">seals the day</span></span></button>';
+
+    // T-083 #2 (the owner's "design fixes"): Today is the day, in the order it
+    // is worked — the one next action, today's lectures, ONE row for what is
+    // owed, then today's practice. Checkpoints and "Where you stand" moved to
+    // Proof; what still needs the reader (sync, Monk Mode) closes the page.
+    return '<div class="view-enter">' +
+      // ---- The one thing: the next lecture ----
+      // T-083 #10: its title is the page's h1 (it was a div, under a hidden
+      // "Dashboard" h1 the desktop never showed). data-tb-title names the page
+      // in the phone's nav bar once the title scrolls under it.
+      '<div class="card one lead ' + (cta.fac || "") + '">' +
+      // The day and week are wrapped so the phone can drop them: its running
+      // head carries the same two facts, twenty pixels above this line.
+      '<div class="ghead oh"><span class="gh-day">Day ' + day +   // T-080 PR 3: no zero padding
+      " \u00b7 Week " + f.week + "</span>" +
+      '<span class="gh-meta">Phase ' + f.phase +
+      (real.length ? " \u00b7 " + doneToday + " / " + real.length + " today"
+        : studiedToday ? " \u00b7 day sealed" : "") + "</span>" +
+      "</div>" +
+      '<h1 class="one-kind dash-title" data-tb-title="Today">' + esc(cta.title) + "</h1>" +
+      '<p class="one-hint">' + esc(cta.code) + " \u00b7 " + esc(cta.hint) + "</p>" +
+      // T-045: one line when anything is due on Problems.
+      (dueN ? '<a class="one-due" href="#/workshop">' + dueN + " due on Problems</a>" : "") +
+      (dayPct > 0
+        ? '<div style="max-width:420px; margin-top:10px;"><div class="bar sweep"><i style="--w:' + (dayPct / 100) + '; transform:scaleX(' + (dayPct / 100) + ');"></i></div></div>'
+        : "") +
+      '<a class="btn lg one-go" href="' + cta.href + '">' + esc(cta.verb) + CHEV + "</a>" +
+      "</div>" +
+
+      // ---- The day's own work ----
+      (resting
+        // A rest day has to look deliberate: part of the plan, not a hole in it.
+        ? '<h2 class="ghead">' + esc(REST_NAME) + '<span class="gh-meta">rest day</span></h2>' +
+          '<div class="glist">' +
+          '<div class="grow"><span class="g-lead">\u2014</span>' +
+          '<span class="g-main"><span class="g-t">Nothing is scheduled</span>' +
+          '<span class="g-s">the plan runs six days a week \u2014 taking the seventh is following it. Your streak is safe.</span></span></div>' +
+          '<a class="grow" href="' + nextStudyHref() + '"><span class="g-lead"></span>' +
+          '<span class="g-main"><span class="g-t">' + esc(nextStudyLabel()) + "</span>" +
+          '<span class="g-s">the next study day</span></span></a>' +
+          '<a class="grow" href="#/recall"><span class="g-lead"></span>' +
+          '<span class="g-main"><span class="g-t">Recall, if you want to</span></span></a>' +
+          "</div>"
+        : real.length
+          // No Deep Track to mark on a rest day, and none offered: letting a
+          // rest day be logged as a study day would inflate the streak.
+          ? todayCardHTML(real, studiedToday ? sealed : sealBtn)
+          : '<h2 class="ghead">Today<span class="gh-meta">nothing scheduled</span></h2>' +
+            '<div class="glist">' +
+            '<div class="grow"><span class="g-lead">\u2014</span>' +
+            '<span class="g-main"><span class="g-t">' +
+            (todaySched.length ? "Problem sets and review only" : "Calibration and setup") + "</span>" +
+            '<span class="g-s">' + (todaySched.length ? "no lectures on this day" : "see the Handbook") + "</span></span></div>" +
+            '<a class="grow" href="#/calendar"><span class="g-lead"></span>' +
+            '<span class="g-main"><span class="g-t">Calendar</span></span></a>' +
+            '<a class="grow" href="#/guide"><span class="g-lead"></span>' +
+            '<span class="g-main"><span class="g-t">Handbook</span></span></a>' +
+            (studiedToday ? sealed : sealBtn) +
+            "</div>") +
+
+      // ---- T-079 / T-083: what is owed, one row ----
+      owedFoldHTML(owedList()) +
+
+      // T-067 step 3: the problems of today's lectures, and practice due again.
+      practiceDashHTML() +
+
+      // ---- T-080 PR 2: what still needs you (sync, Monk Mode) ----
+      needsYouHTML() +
       "</div>";
   };
 
@@ -3145,8 +3151,8 @@
       const wk = opensWeek(starts, c);
       return bookHTML(c, { href: "#/course/" + c.id, meta: wk ? "Opens week " + wk : "Opens later", later: true });
     };
-    const shelf = (head, meta, books) => '<div class="ghead">' + head +
-      (meta ? '<span class="gh-meta">' + meta + "</span>" : "") + "</div>" +
+    const shelf = (head, meta, books) => '<h2 class="ghead">' + head +
+      (meta ? '<span class="gh-meta">' + meta + "</span>" : "") + "</h2>" +
       '<div class="shelf">' + books.join("") + "</div>";
     const empty = t => '<p class="shelf-empty">' + t + "</p>";
     // T-080 PR 3: one shelf per track, each in the order it was given.
@@ -3165,12 +3171,16 @@
     // Now: Continue, at most four, most recent first; then the rest running.
     const cont = continueOrder(running).slice(0, 4);
     const rest = running.filter(c => !cont.some(p => p.c === c));
+    // T-083 #1: a cover opens the plan's pick for its course (planPick), the
+    // lecture the hero and the course page's Continue name — not the last one
+    // touched. The shelf's ORDER is still the most recent first.
     const contBook = p => {
-      if (p.ui == null) return bookHTML(p.c, { href: "#/course/" + p.c.id, meta: "Every lecture watched" });
-      const l = p.c.units[p.ui].lessons[p.li];
-      const what = (l.v ? "Lecture " : l.paper ? "Paper " : "Reading ") + (p.li + 1);
-      return bookHTML(p.c, { href: "#/lesson/" + p.c.id + "/" + p.ui + "/" + p.li,
-        meta: what + (p.pos != null ? " · resume at " + clockLabel(p.pos) : l.min ? " · " + l.min + " min" : "") });
+      const pk = planPick(p.c.id);
+      if (!pk) return bookHTML(p.c, { href: "#/course/" + p.c.id, meta: "Every lecture watched" });
+      const l = pk.l, pos = (S.lessons[lessonKey(p.c.id, pk.ui, pk.li)] || {}).pos;
+      const what = (l.v ? "Lecture " : l.paper ? "Paper " : "Reading ") + (pk.li + 1);
+      return bookHTML(p.c, { href: pk.a.href,
+        meta: what + (pos != null ? " · resume at " + clockLabel(pos) : l.min ? " · " + l.min + " min" : "") });
     };
     return (cont.length ? shelf("Continue", "where you left off", cont.map(contBook)) : "") +
       // T-080 PR 3: the rest of what is running, one shelf per track.
@@ -3321,8 +3331,22 @@
   function lessonLine(l, i, st) {
     const what = (l.v ? "Lecture " : l.paper ? "Paper " : "Reading ") + (i + 1);
     return what + (st.verified ? ' · <span class="g-good">Proven</span>'
-      : st.done ? ' · <span class="g-good">Watched</span>'
+      : st.done ? " · Watched"     // T-083 #15: watched is the row's own --ink-2; only Proven is green
       : st.pos ? " · Resume at " + clockLabel(st.pos) : "");
+  }
+  // T-083 #15: one lecture row, the course page's shape (V.course and the
+  // lecture page's In this unit both draw it): its number, or a tick once watched; its title; the
+  // line under it, after `lead` when given; its length; a thin bar for a
+  // half-watched lecture.
+  function unitRowHTML(c, ui, i, lead) {
+    const l = c.units[ui].lessons[i], st = S.lessons[lessonKey(c.id, ui, i)] || {};
+    const len = (l.min || 0) * 60, part = !st.done && !st.verified && st.pos && len ? Math.min(1, st.pos / len) : 0;
+    return '<a class="grow lrow' + (st.done || st.verified ? " done-row" : "") + '" href="#/lesson/' + c.id + "/" + ui + "/" + i + '">' +
+      '<span class="g-lead">' + (st.done || st.verified ? TICK : i + 1) + "</span>" +
+      '<span class="g-main"><span class="g-t">' + esc(l.t) + "</span>" +
+      '<span class="g-s">' + (lead ? lead + " · " : "") + lessonLine(l, i, st) + "</span></span>" +
+      '<span class="g-v">' + (l.min ? clockLabel(len) : l.paper ? "paper" : "reading") + "</span>" +
+      (part ? '<span class="lr-prog" aria-hidden="true"><i style="width:' + Math.round(part * 1000) / 10 + '%"></i></span>' : "") + "</a>";
   }
   // The frame either lands or it does not. Delegated, and in the capture
   // phase because load and error do not bubble — so it is in place before any
@@ -3350,16 +3374,15 @@
     // card nobody scrolled to. The action comes first here like it does
     // everywhere else, and the examination is what it becomes once the course
     // has been watched through.
-    let nx = null;
-    c.units.forEach((u, ui) => u.lessons.forEach((l, li) => {
-      if (!nx && !(S.lessons[lessonKey(c.id, ui, li)] || {}).done) nx = { l, ui, li };
-    }));
+    // T-083 #1: the plan's pick for this course (planPick), the same lecture
+    // the hero and the Courses shelf open — no longer the first unwatched.
+    const nx = planPick(c.id);
     const started = c.units.some((u, ui) => unitDone(ui) > 0);
     // T-080 PR 3: the header carries the one action — "Continue: <the next
     // lecture>" once anything is watched, "Start the course" before — and, once
     // every lecture is watched, the examination (or the labs) instead.
     const go = nx
-      ? '<a class="btn lg one-go crs-go" href="#/lesson/' + c.id + "/" + nx.ui + "/" + nx.li + '">' +
+      ? '<a class="btn lg one-go crs-go" href="' + nx.a.href + '">' +
         '<span class="go-t">' + (started ? "Continue: " + esc(clipTitle(nx.l.t, 48)) : "Start the course") + "</span>" + CHEV + "</a>" +
         '<p class="crs-next">' + (started ? "Lecture " : "Starts with lecture ") + (nx.li + 1) +
         (nx.l.min ? " \u00b7 " + nx.l.min + "m" : "") + " \u00b7 " + esc(c.units[nx.ui].name) + "</p>"
@@ -3402,21 +3425,12 @@
           // title, where you stand with it, and its length. A half-watched
           // lecture keeps a thin bar for how far you got.
           '<div class="u-body"><div class="glist crs-list">' +
-          u.lessons.map((l, i) => {
-            const st = S.lessons[lessonKey(c.id, ui, i)] || {};
-            const len = (l.min || 0) * 60, part = !st.done && !st.verified && st.pos && len ? Math.min(1, st.pos / len) : 0;
-            return '<a class="grow lrow' + (st.done || st.verified ? " done-row" : "") + '" href="#/lesson/' + c.id + "/" + ui + "/" + i + '">' +
-              '<span class="g-lead">' + (st.done || st.verified ? TICK : i + 1) + "</span>" +
-              '<span class="g-main"><span class="g-t">' + esc(l.t) + "</span>" +
-              '<span class="g-s">' + lessonLine(l, i, st) + "</span></span>" +
-              '<span class="g-v">' + (l.min ? clockLabel(len) : l.paper ? "paper" : "reading") + "</span>" +
-              (part ? '<span class="lr-prog" aria-hidden="true"><i style="width:' + Math.round(part * 1000) / 10 + '%"></i></span>' : "") + "</a>";
-          }).join("") + "</div></div></details>";
+          u.lessons.map((l, i) => unitRowHTML(c, ui, i)).join("") + "</div></div></details>";
       }).join("") +
 
       // Where the course lives outside Brickford, and the way in to its
       // examination once there is one. Rows, not a strip of ghost buttons.
-      '<div class="ghead">This course elsewhere</div>' +
+      '<h2 class="ghead">This course elsewhere</h2>' +
       '<div class="glist">' +
       (c.quiz
         ? '<a class="grow" href="#/quiz/' + c.quiz + '"><span class="g-lead">\u25c6</span>' +
@@ -3621,7 +3635,7 @@
     // / st.notes keep whatever was typed even while the card is not on screen,
     // because unmarking watched never clears them.
     const proveHTML = () =>
-      '<div class="ghead">Prove it<span class="gh-meta">' + gatesOk + ' of 4 gates</span></div>' +
+      '<h2 class="ghead">Prove it<span class="gh-meta">' + gatesOk + ' of 4 gates</span></h2>' +
       '<div class="card one' + (canVerify ? " one-clear" : "") + '">' +
       '<div class="bar sweep"><i style="--w:' + (gatesOk / 4) + '; transform:scaleX(' + (gatesOk / 4) + ');"></i></div>' +
       '<div class="gates" style="margin-top:12px;">' +
@@ -3677,7 +3691,7 @@
 
       // ---- what this lecture buys, in the concepts' own words ----
       (lessonWhy.length
-        ? '<div class="ghead">Why this matters<span class="gh-meta">' + lessonWhy.length + " concept" + (lessonWhy.length === 1 ? "" : "s") + "</span></div>" +
+        ? '<h2 class="ghead">Why this matters<span class="gh-meta">' + lessonWhy.length + " concept" + (lessonWhy.length === 1 ? "" : "s") + "</span></h2>" +
           '<div class="glist">' +
           lessonWhy.map(x => '<a class="grow ' + facClass(c) + '" href="#/concept/' + x.id + '">' +
             '<span class="g-lead"></span>' +
@@ -3715,7 +3729,7 @@
       '<span class="lq-tm">' + m + "</span>" +
       '<span class="lq-go">' + goLbl + "</span></" + tag + ">";
     const deeperHTML = () =>
-      '<div class="ghead lq-deep-head">Go deeper<span class="gh-meta">optional</span></div>' +
+      '<h2 class="ghead lq-deep-head">Go deeper<span class="gh-meta">optional</span></h2>' +
       '<div class="lq-deep">' +
       (sketchC ? tile("a", "#/concept/" + sketchC.id, "✎", "Sketch it",
         "Sketch \u201c" + esc(sketchC.title) + "\u201d from memory, then compare with the summary.", "Open the pad") : "") +
@@ -3809,20 +3823,18 @@
       // now, as rows with their frames (T-016): next first, because that is
       // where the evening goes. At the end of a unit the forward row is the
       // course, with its cover.
-      '<div class="ghead">In this unit<span class="gh-meta">' + (+li + 1) + " of " + u.lessons.length + "</span></div>" +
-      '<div class="glist lsn-nav">' +
+      '<h2 class="ghead">In this unit<span class="gh-meta">' + (+li + 1) + " of " + u.lessons.length + "</span></h2>" +
+      // T-083 #15: the course page's own row (number or tick, title, where you
+      // stand, length), not a frame: the frames were the owner's "fake
+      // thumbnails". The forward row says what it is: after this, in the unit
+      // (the plan's next may be another course, which the rail names).
+      '<div class="glist lsn-nav crs-list">' +
       (next
-        ? '<a class="grow" href="' + next + '">' + thumbHTML(c, ui, +li + 1) +
-          '<span class="g-main"><span class="g-t">' + esc(u.lessons[+li + 1].t) + "</span>" +
-          '<span class="g-s">Next · ' + lessonLine(u.lessons[+li + 1], +li + 1, S.lessons[lessonKey(cid, ui, +li + 1)] || {}) + "</span></span></a>"
-        : '<a class="grow" href="#/course/' + cid + '">' + thumbBox(c, { title: c.title }) +
+        ? unitRowHTML(c, ui, +li + 1, "After this in the unit")
+        : '<a class="grow lrow" href="#/course/' + cid + '"><span class="g-lead"></span>' +
           '<span class="g-main"><span class="g-t">' + esc(c.title) + "</span>" +
           '<span class="g-s">End of this unit · back to the course</span></span></a>') +
-      (prev
-        ? '<a class="grow" href="' + prev + '">' + thumbHTML(c, ui, li - 1) +
-          '<span class="g-main"><span class="g-t">' + esc(u.lessons[li - 1].t) + "</span>" +
-          '<span class="g-s">Previous · ' + lessonLine(u.lessons[li - 1], li - 1, S.lessons[lessonKey(cid, ui, li - 1)] || {}) + "</span></span></a>"
-        : "") +
+      (prev ? unitRowHTML(c, ui, li - 1, "Previous") : "") +
       "</div></div></div></div>";
   };
 
@@ -3832,17 +3844,17 @@
       if (!c || !l) return "";
       const dn = tick && !!(S.lessons[kk] || {}).done;
       return '<a class="grow ' + facClass(c) + (dn ? " done-row" : "") + '" href="#/lesson/' + p.join("/") + '">' +
-        (tick ? '<span class="g-lead">' + (dn ? "\u2713" : "") + "</span>" : "") +
+        (tick ? '<span class="g-lead">' + (dn ? TICK : "") + "</span>" : "") +
         '<span class="g-main"><span class="g-t">' + esc(l.t) + '</span><span class="g-s">' + esc(c.code) + "</span></span></a>";
     };
     const needs = ((D.PREREQ || {})[k] || {}).needs || [], leads = leadsTo(k);
     const seen = needs.filter(n => (S.lessons[n] || {}).done).length;
     return (needs.length
-        ? '<div class="ghead">Needs<span class="gh-meta">' + seen + " of " + needs.length + " watched</span></div>" +
+        ? '<h2 class="ghead">Needs<span class="gh-meta">' + seen + " of " + needs.length + " watched</span></h2>" +
           '<div class="glist lsn-needs">' + needs.map(n => row(n, true)).join("") + "</div>"
         : "") +
       (leads.length
-        ? '<div class="ghead">Leads to<span class="gh-meta">' + leads.length + " lecture" + (leads.length === 1 ? "" : "s") + "</span></div>" +
+        ? '<h2 class="ghead">Leads to<span class="gh-meta">' + leads.length + " lecture" + (leads.length === 1 ? "" : "s") + "</span></h2>" +
           '<div class="glist lsn-leads">' + leads.map(n => row(n, false)).join("") + "</div>"
         : "");
   }
@@ -3859,7 +3871,7 @@
   function practiceHTML(k) {
     const items = practiceItems(k);
     if (!items.length) return "";
-    return '<div class="ghead pr-head">Practice<span class="gh-meta" data-pr-count>' + practiceSolvedN(k) + " of " + items.length + " solved</span></div>" +
+    return '<h2 class="ghead pr-head">Practice<span class="gh-meta" data-pr-count>' + practiceSolvedN(k) + " of " + items.length + " solved</span></h2>" +
       '<div class="pr-list" data-pr-k="' + esc(k) + '">' + items.map((it, i) => practiceItemHTML(k, it, i)).join("") + "</div>";
   }
   function practiceItemHTML(k, it, i) {
@@ -4107,7 +4119,7 @@
   function practiceDashHTML() {
     const rows = practiceToday(), wk = weekAnswers().length;
     if (!rows.length && !wk) return "";
-    return '<div class="ghead">Today’s practice<span class="gh-meta">' + rows.reduce((a, r) => a + practiceItems(r.k).length, 0) + " items</span></div>" +
+    return '<h2 class="ghead">Today’s practice<span class="gh-meta">' + rows.reduce((a, r) => a + practiceItems(r.k).length, 0) + " items</span></h2>" +
       '<div class="glist pr-today">' +
       rows.map(r => {
         const L = lessonLabel(r.k);
@@ -4116,13 +4128,13 @@
         // A watched lecture is a ticked done row (the dashboard never asks to re-watch one, T-056);
         // what is left to practise is the line under it.
         const seen = !!(S.lessons[r.k] || {}).done;
-        return '<a class="grow' + (seen ? " done-row" : "") + '" href="#/lesson/' + L.cid + "/" + L.ui + "/" + L.li + '"><span class="g-lead">' + (seen ? "✓" : "") + "</span>" +
+        return '<a class="grow' + (seen ? " done-row" : "") + '" href="#/lesson/' + L.cid + "/" + L.ui + "/" + L.li + '"><span class="g-lead">' + (seen ? TICK : "") + "</span>" +
           '<span class="g-main"><span class="g-t">' + esc(L.title) + "</span>" +
           '<span class="g-s">' + esc(L.code) + " · " + done + " of " + n + " answered" + (r.due ? " · " + r.due + " due again" : "") + "</span></span></a>";
       }).join("") +
       (wk ? '<button class="grow" type="button" data-act="copyWeek"><span class="g-lead"></span><span class="g-main"><span class="g-t">Copy this week’s answers</span>' +
             '<span class="g-s">' + wk + " answer" + (wk === 1 ? "" : "s") + " and their questions, for a review in chat</span></span></button>" : "") +
-      "</div>" + '<textarea id="weekOut" class="pr-week" readonly hidden aria-label="This week’s answers"></textarea>';
+      "</div>" + '<textarea id="weekOut" class="pr-weekout" readonly hidden aria-label="This week’s answers"></textarea>';
   }
 
   // ---------- T-069: the near checkpoints ----------
@@ -4185,7 +4197,7 @@
     const vs = checkpointsView();
     if (!vs.length) return "";
     const open = vs.findIndex(v => v.state !== "done");
-    return '<div class="ghead">Checkpoints<span class="gh-meta" data-cp-week>' + cpWeekLine(problemsThisWeek()) + "</span></div>" +
+    return '<h2 class="ghead">Checkpoints<span class="gh-meta" data-cp-week>' + cpWeekLine(problemsThisWeek()) + "</span></h2>" +
       '<div class="cp-list">' + vs.map((v, i) => {
         const c = cpList()[i];
         return '<details class="unit cp" data-cp="' + esc(v.id) + '"' + (i === open ? " open" : "") + ">" +
@@ -4198,20 +4210,7 @@
           "</div></details>";
       }).join("") + "</div>";
   }
-  // The Record page's one row: the next checkpoint not yet done.
-  function checkpointRowHTML() {
-    const vs = checkpointsView();
-    if (!vs.length) return "";
-    const i = vs.findIndex(v => v.state !== "done");
-    const head = '<div class="ghead">Checkpoints<span class="gh-meta">' + cpWeekLine(problemsThisWeek()) + "</span></div>";
-    if (i < 0) return head + '<div class="glist cp-rec"><a class="grow done-row" href="#/"><span class="g-lead">\u2713</span>' +
-      '<span class="g-main"><span class="g-t">All ' + vs.length + " checkpoints done</span></span></a></div>";
-    const v = vs[i];
-    return head + '<div class="glist cp-rec"><a class="grow" href="#/"><span class="g-lead">' + (i + 1) + "</span>" +
-      '<span class="g-main"><span class="g-t">' + esc(cpList()[i].title) + "</span>" +
-      '<span class="g-s">' + esc(v.n + "/" + v.of + " \u00b7 " + cpDateLabel(v.date)) + "</span></span>" +
-      '<span class="g-v">' + esc(cpWhen(v)) + "</span></a></div>";
-  }
+
 
   V.exams = function () {
     const diagSat = D.DIAGNOSTICS.filter(d => (S.diag[d.id] || {}).score != null).length;
@@ -4332,12 +4331,12 @@
       hero +
 
       (open.length
-        ? '<div class="ghead">Also open<span class="gh-meta">' + open.length + "</span></div>" +
+        ? '<h2 class="ghead">Also open<span class="gh-meta">' + open.length + "</span></h2>" +
           '<div class="at-tiles ex-open">' + open.map(card).join("") + "</div>"
         : "") +
 
       (shut.length
-        ? '<div class="ghead">Unlock by watching<span class="gh-meta">' + shut.length + " locked</span></div>" +
+        ? '<h2 class="ghead">Unlock by watching<span class="gh-meta">' + shut.length + " locked</span></h2>" +
           '<div class="ex-locked">' + shut.map(lockRow).join("") + "</div>" +
           (shut.length > 6 ? '<button type="button" class="at-chip ex-more" data-act="exMore">+' + (shut.length - 6) + " more</button>" : "")
         : "") +
@@ -4552,7 +4551,7 @@
       catchUp +
       (gate ? '<p class="cd-note cd-gate"><strong>◆ Gate ' + gate.n + " — " + esc(gate.label) + "</strong> " + esc(gate.req) + "</p>" : "") +
       blocks +
-      '<div class="ghead">Every study day<span class="gh-meta">' + about + "</span></div>" +
+      '<h2 class="ghead">Every study day<span class="gh-meta">' + about + "</span></h2>" +
       '<div class="cd-habits">' + habits.map(habit).join("") + "</div></div>";
   }
 
@@ -4803,8 +4802,8 @@
   function summaryHTML(k, o) {
     const sm = (D.SUMMARIES || {})[sumKey(k)];
     if (!sm) return "";
-    return '<div class="ghead">Summary<span class="gh-meta">' +
-      sm.beats.length + " step" + (sm.beats.length === 1 ? "" : "s") + "</span></div>" +
+    return '<h2 class="ghead">Summary<span class="gh-meta">' +
+      sm.beats.length + " step" + (sm.beats.length === 1 ? "" : "s") + "</span></h2>" +
       '<div class="card">' +
       '<p class="sum-lead">' + sm.takeaway + "</p>" +
       '<details class="sum-more"><summary>Read the ' + sm.beats.length + " step" + (sm.beats.length === 1 ? "" : "s") + "</summary>" +
@@ -5102,10 +5101,10 @@
       (drift.aheadDays ? '<p class="at-base">Plan baseline ' + esc(monthLabel(drift.baseline, true)) + " \u00b7 " + driftWords(drift.aheadDays) + "</p>" : "") +
       "</div>" +
       route + nextCard +
-      '<div class="ghead">Studying now<span class="gh-meta">' + running.length + " course" + (running.length === 1 ? "" : "s") + "</span></div>" +
+      '<h2 class="ghead">Studying now<span class="gh-meta">' + running.length + " course" + (running.length === 1 ? "" : "s") + "</span></h2>" +
       '<div class="at-tiles">' + running.map(tile).join("") + "</div>" +
       (later.length
-        ? '<div class="ghead">Opens later<span class="gh-meta">' + later.length + " course" + (later.length === 1 ? "" : "s") + "</span></div>" +
+        ? '<h2 class="ghead">Opens later<span class="gh-meta">' + later.length + " course" + (later.length === 1 ? "" : "s") + "</span></h2>" +
           '<div class="at-chips">' + later.slice(0, 5).map(chip).join("") +
           (more > 0 ? '<a class="at-chip more" href="#/courses?later" aria-label="' + more + ' more opening later">+' + more + "</a>" : "") + "</div>"
         : "") +
@@ -5113,7 +5112,7 @@
       (function () {
         const lines = planLines();
         return [["Math & Physics", lines.Theory], ["AI / Python", lines.Build], ["Storytelling", lines.Publish]].filter(x => x[1].length).map(([lab, ids]) =>
-          '<div class="ghead">' + esc(lab) + '<span class="gh-meta">in order</span></div>' +
+          '<h2 class="ghead">' + esc(lab) + '<span class="gh-meta">in order</span></h2>' +
           '<div class="at-chips at-path">' + ids.map(cid => '<a class="at-step" href="#/course/' + cid + '"><b>' +
             esc((D.COURSES.find(c => c.id === cid) || {}).code || cid) + "</b></a>").join("") + "</div>").join("");
       })() +
@@ -5195,7 +5194,7 @@
         (rv.due <= todayISO() ? "var(--accent)" : "var(--ink-3)") + ';">' + esc(rv.due) + "</span></p>" : "") +
       "</div>" +
       "</div>" +
-      '<div class="ghead">Taught in<span class="gh-meta">' + (c.lectures || []).length + "</span></div>" +
+      '<h2 class="ghead">Taught in<span class="gh-meta">' + (c.lectures || []).length + "</span></h2>" +
       '<div class="glist">' +
       (c.lectures || []).map(k => {
         const L = lessonLabel(k);
@@ -5287,7 +5286,7 @@
           "</div></div></div></div>") +
 
       (next.length
-        ? '<div class="ghead">Coming up<span class="gh-meta">' + next.length + "</span></div>" +
+        ? '<h2 class="ghead">Coming up<span class="gh-meta">' + next.length + "</span></h2>" +
           '<div class="glist">' +
           next.map(k => {
             const pr = practiceRef(k), L = lessonLabel(pr ? pr.k : k);
@@ -5336,20 +5335,23 @@
 
       '<div class="at-tiles pf-tiles">' + tile(cur, "day streak") + tile(best, "longest streak") + tile(proven, "lectures proven") + "</div>" +
 
-      '<div class="ghead">Sealed days<span class="gh-meta">last 6 months</span></div>' +
+      '<h2 class="ghead">Sealed days<span class="gh-meta">last 6 months</span></h2>' +
       '<div class="card pf-heat">' + heatmapHTML(26) +
       '<div class="cal-legend"><span>Quiet</span>' +
       [0, 1, 2, 3, 4].map(l => '<span class="hc l' + l + '" style="display:inline-block;"></span>').join("") +
       "<span>Busy</span></div></div>" +
 
-      '<div class="ghead">Latest seals<span class="gh-meta' + (led.length && !v.ok ? " pf-broken" : "") + '">' +
-      (!led.length ? "none yet" : v.ok ? "newest first" : "chain broken at entry " + v.brokenAt) + "</span></div>" +
+      '<h2 class="ghead">Latest seals<span class="gh-meta' + (led.length && !v.ok ? " pf-broken" : "") + '">' +
+      (!led.length ? "none yet" : v.ok ? "newest first" : "chain broken at entry " + v.brokenAt) + "</span></h2>" +
       (led.length ? '<div class="pf-seals">' + sealsHTML + "</div>"
         : '<p class="shelf-empty">The first lecture you prove starts the chain.</p>') +
 
-      // T-069: the next checkpoint, one row (the block itself is on Today). After the
-      // seals, so the page still opens on the run, the sealed days and the chain.
-      checkpointRowHTML() +
+      // T-069: the checkpoints. T-083 #2: the whole block moved here from Today
+      // (it was one row here, linking to it there), with "Where you stand" after
+      // it. After the seals, so the page still opens on the run, the sealed days
+      // and the chain.
+      checkpointsHTML() +
+      standHTML() +
 
       // Everything you touch a few times a year, as pills. The reset keeps its
       // confirmation and sits last, in its danger colour; it is never filled.
@@ -5409,7 +5411,7 @@
       const passed = !!g.doneDate;
       const left = daysBetween(todayISO(), g.target);
       return '<div class="grow' + (passed ? " done-row" : "") + '">' +
-        '<span class="g-lead">' + (passed ? "✓" : g.n) + "</span>" +
+        '<span class="g-lead">' + (passed ? TICK : g.n) + "</span>" +
         '<span class="g-main"><span class="g-t">Gate ' + g.n + " — " + esc(g.label) + "</span>" +
         '<span class="g-s">' + esc(g.req) + "</span></span>" +
         '<span class="g-v"' + (!passed && left < 0 ? ' style="color:var(--bad);"' : "") + ">" +
@@ -5452,7 +5454,7 @@
         return '<div class="onecounts">' + cells.join("") + "</div>";
       })() +
 
-      '<div class="ghead">The five gates<span class="gh-meta">each from the last one passed</span></div>' +
+      '<h2 class="ghead">The five gates<span class="gh-meta">each from the last one passed</span></h2>' +
       '<div class="glist">' + plan.map(gateLine).join("") + "</div>" +
 
       // The buttons used to be a second copy of the same five gates, in a
@@ -5630,7 +5632,7 @@
       '<div class="wk-foot"><span class="wk-state">' + esc(state) + "</span>" +
       '<button class="btn" data-act="logWeek">Seal the week</button></div>' +
 
-      '<div class="ghead">Past weeks<span class="gh-meta">' + (past.length ? past.length + " sealed" : "none sealed yet") + "</span></div>" +
+      '<h2 class="ghead">Past weeks<span class="gh-meta">' + (past.length ? past.length + " sealed" : "none sealed yet") + "</span></h2>" +
       '<div class="wk-weeks">' + (past.length ? past.map(card).join("") : slots.join("")) + "</div>" +
       "</div>";
   };
@@ -5691,8 +5693,8 @@
     const d = (D.DRILLS || {})[key];
     if (!d) return "";
     const ICON = { written: "✎", recorded: "●", spoken: "❝" };
-    return '<div class="ghead">The mechanic<span class="gh-meta">module ' + esc(d.module || "") +
-      " · drill " + d.drill.minutes + "m · same day</span></div>" +
+    return '<h2 class="ghead">The mechanic<span class="gh-meta">module ' + esc(d.module || "") +
+      " · drill " + d.drill.minutes + "m · same day</span></h2>" +
       '<div class="card drill">' +
       '<p class="dr-mech">' + esc(d.mechanic) + "</p>" +
       '<ol class="dr-rules">' + d.rules.map(r => "<li>" + r + "</li>").join("") + "</ol>" +
@@ -6586,7 +6588,7 @@
 
     return head + above + seg +
       '<div class="pr-pane">' + paneHTML(tab) + "</div>" +
-      '<div class="ghead">Your recordings<span class="gh-meta">kept on this device</span></div>' +
+      '<h2 class="ghead">Your recordings<span class="gh-meta">kept on this device</span></h2>' +
       '<div class="pr-clips" id="prClips" aria-busy="true"></div>' +
       repHistoryHTML(bank, R, counts) + "</div>";
   };
@@ -6605,7 +6607,7 @@
       (bank.length + (R.story || []).length + (R.humor || []).length + (R.review || []).length) + " logged</span>" +
       '<span class="u-prog" style="width:100%;"></span></summary><div class="u-body">' +
       (counts.length ? '<div class="glist">' + counts.join("") + "</div>" : "") +
-      '<div class="ghead">History</div><div class="glist">' +
+      '<h2 class="ghead">History</h2><div class="glist">' +
       bank.slice(0, 10).map(e => row(e.date, e.what, e.why)).join("") +
       (R.story || []).slice(-4).reverse().map(e => row(e.date, e.seconds + "s story rep · " + e.takes + " take" + (e.takes === 1 ? "" : "s"), e.from)).join("") +
       (R.humor || []).slice(-4).reverse().map(e => row(e.date, e.seconds ? "Humour rep, recorded · " + clockLabel(e.seconds)
@@ -6629,7 +6631,7 @@
             '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:6px;"><strong style="color:var(--ink);">The offer:</strong> ' + esc(locked.offer) + " <span class='mono' style='color:var(--accent);'>" + esc(locked.pricing) + "</span></p>" +
             '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:4px;"><strong style="color:var(--ink);">Why they buy:</strong> ' + esc(locked.pain) + "</p>" +
             "</div>" +
-            '<div class="ghead">The first five moves</div>' +
+            '<h2 class="ghead">The first five moves</h2>' +
             '<div class="glist">' +
             ["List 30 targets from Google Maps + Instagram — name, owner, number", "Record a 60-second Arabic demo of the agent answering on YOUR number", "Send 10 DMs a day for 3 days (script: Library → Earning Offers)", "Close ONE pilot at 50% price with a testimonial + referral clause", "Deliver in ≤2 weeks, publish the case study, raise the price"]
               .map((s, i) => '<div class="grow"><span class="g-lead">' + (i + 1) + "</span>" +
@@ -6767,7 +6769,7 @@
       const n = lessonQuiz(q.k).length, nx = flatLessons(q.cid)[flatLessons(q.cid).findIndex(f => f.ui === q.ui && f.li === q.li) + 1];
       const locks = !catchUp && !!nx && !!lockedBy(nx.cid, nx.ui, nx.li);
       return '<a class="pd-row" data-due="' + (catchUp ? "catchup" : "quiz") + '" data-id="' + q.k + '" href="#/lesson/' + q.cid + "/" + q.ui + "/" + q.li + '">' +
-        ic("?") + body("Lecture quiz · " + q.title, "Quiz",
+        ic(ICON.quiz) + body("Lecture quiz · " + q.title, "Quiz",
           q.code + (catchUp ? " · catch-up" : "") + " · watched, not passed · " + plural(n, "question") + (locks ? " · locks the next lecture" : "")) +
         go("Take it") + "</a>";
     };
@@ -6776,23 +6778,23 @@
     // catch-up list, review r1), was watched, not passed.
     const psetRow = i => {
       const L = lessonOf(i.after);
-      return '<details class="pd-item" data-due="pset" data-id="' + i.id + '"><summary class="pd-row">' + ic("✎") +
+      return '<details class="pd-item" data-due="pset" data-id="' + i.id + '"><summary class="pd-row">' + ic(ICON.pen) +
         body("Problem set · " + i.course + ", " + i.label, "Problem set", "Pen and paper · unlocked: you " + (quizPassed(i.after) ? "passed " : "watched ") + (L ? L.l.t : i.after)) + go("Open") +
         '</summary><div class="pd-body"><a class="btn ghost" href="' + i.url + '" target="_blank" rel="noopener">The set, at the source ↗</a>' +
         '<label class="check-row"><input type="checkbox" data-pset="' + i.id + '" ' + (S.psets[i.id] ? "checked" : "") + '><span class="checkbox">' + CHECK_SVG +
         '</span><span class="check-label">Done — ' + esc(i.label) + "</span></label></div></details>";
     };
-    const labDueRow = l => '<details class="pd-item" data-due="lab" data-id="' + l.id + '"><summary class="pd-row">' + ic("⌘") +
+    const labDueRow = l => '<details class="pd-item" data-due="lab" data-id="' + l.id + '"><summary class="pd-row">' + ic(ICON.lab) +
       body("Lab · " + l.title, "Lab", firstClause(l.req) + " · Phase " + l.phase + " · ~" + l.hours + " h") + go("Start") +
       '</summary><div class="pd-body">' + lab(l, true) + "</div></details>";
     const soonRow = c => {
       const L = lessonOf(c.after), at = L ? "After lecture " + L.n + " · " + L.l.t : "After " + c.after;
       return c.pset
-        ? '<div class="pd-row muted" data-soon="pset" data-id="' + c.pset.id + '">' + ic("✎") + body("Problem set · " + c.pset.course + ", " + c.pset.label, "", at) + "</div>"
-        : '<div class="pd-row muted" data-soon="lab" data-id="' + c.lab.id + '">' + ic("⌘") + body("Lab · " + c.lab.title, "", at + " · Phase " + c.lab.phase) + "</div>";
+        ? '<div class="pd-row muted" data-soon="pset" data-id="' + c.pset.id + '">' + ic(ICON.pen) + body("Problem set · " + c.pset.course + ", " + c.pset.label, "", at) + "</div>"
+        : '<div class="pd-row muted" data-soon="lab" data-id="' + c.lab.id + '">' + ic(ICON.lab) + body("Lab · " + c.lab.title, "", at + " · Phase " + c.lab.phase) + "</div>";
     };
     const rows = P.quizzes.map(q => quizRow(q, false)).concat(P.catchUp.map(q => quizRow(q, true)), P.psets.map(psetRow), P.labs.map(labDueRow),
-      P.review ? ['<a class="pd-row" data-due="review" data-id="drill" href="#/drill">' + ic("↻") +
+      P.review ? ['<a class="pd-row" data-due="review" data-id="drill" href="#/drill">' + ic(ICON.again) +
         body("Daily review", "", "questions you missed, served back until they stick") + go("Start") + "</a>"] : []);
     // Nothing due: the next lecture not yet cleared, from today on — or, when
     // a chain of unwatched lectures locks it, the first of that chain (the
@@ -6808,7 +6810,7 @@
     const catalogue =
       // The phase you are in, at weight. Phase 3 is three years away.
       (labsIn(phase).length
-        ? '<div class="ghead">This phase\u2019s labs<span class="gh-meta">' + PHASE_NAME[phase].replace(" \u2014 ", " \u00b7 ") + "</span></div>" +
+        ? '<h2 class="ghead">This phase\u2019s labs<span class="gh-meta">' + PHASE_NAME[phase].replace(" \u2014 ", " \u00b7 ") + "</span></h2>" +
           '<div class="pb-labs" id="pbLabs">' + labsIn(phase).map(labRow).join("") + "</div>"
         : '<div id="pbLabs"></div>') +
 
@@ -6834,7 +6836,7 @@
 
     return '<div class="view-enter"><div class="page-head"><h1>Problems</h1>' +
       '<div class="sub">Only what’s due now. Each item says what it is and why it’s here.</div></div>' +
-      '<div class="ghead">Due now<span class="gh-meta pd-count">' + P.n + "</span></div>" +
+      '<h2 class="ghead">Due now<span class="gh-meta pd-count">' + P.n + "</span></h2>" +
       (rows.length
         ? '<div class="pd-list" id="pdDue">' + rows.join("") + "</div>"
         : '<div class="card pd-empty"><p>Nothing due. Your next lecture is ' +
@@ -6845,7 +6847,7 @@
       "<div><b>Problem set</b>Unlocks when you finish a unit. Pen and paper, checked against the course’s solutions.</div>" +
       "<div><b>Lab</b>A build project, one or two per phase. Done when it’s on GitHub and meets its checklist.</div></div>" +
       (P.coming.length
-        ? '<div class="ghead">Coming up<span class="gh-meta">unlocks as you go</span></div>' +
+        ? '<h2 class="ghead">Coming up<span class="gh-meta">unlocks as you go</span></h2>' +
           '<div class="pd-list pd-soon">' + P.coming.slice(0, 3).map(soonRow).join("") + "</div>"
         : "") +
       '<details class="unit" id="pbAll"><summary><span class="u-name">Everything</span>' +
@@ -6972,7 +6974,7 @@
       ' <span class="one-more">4\u20135h</span></div>' +
       '<p class="one-hint">Six days a week — ' + REST_NAME + " is off, and taking it is following the plan, not breaking it. Same order every day.</p>" +
       '<a class="btn lg one-go" href="#/">Open Today' + CHEV + "</a></div>" +
-      '<div class="ghead">In this order<span class="gh-meta">6 steps</span></div>' +
+      '<h2 class="ghead">In this order<span class="gh-meta">6 steps</span></h2>' +
       '<div class="glist">' +
       row("1", "Open Today", "the day’s lectures, plus anything owed from earlier days", "#/") +
       row("2", "Theory · ~2h", "the math rotation — Linear Algebra → Calculus → Probability", null) +
@@ -6989,14 +6991,14 @@
       '<span class="pill">2</span><span class="u-prog" style="width:100%;"></span></summary>' +
       '<div class="u-body">' +
 
-      '<div class="ghead">The weekly loop<span class="gh-meta">Sunday · 30 min</span></div>' +
+      '<h2 class="ghead">The weekly loop<span class="gh-meta">Sunday · 30 min</span></h2>' +
       '<div class="glist">' +
       row("1", "Week", "what shipped, DSA, posts, revenue. No artifact = a failed week", "#/review") +
       row("2", "Sit one examination", "one concept exam \u00b7 \u226585% is Mastered \u00b7 40% of course mastery", "#/exams") +
       row("3", "Export a backup", "sidebar \u2192 Backup. This browser is the only copy", null) +
       "</div>" +
 
-      '<div class="ghead">The monthly loop<span class="gh-meta">gate day</span></div>' +
+      '<h2 class="ghead">The monthly loop<span class="gh-meta">gate day</span></h2>' +
       '<div class="glist">' +
       row("1", "Transcript & gates", "pass a gate the day it is true \u2014 every later target moves earlier", "#/transcript") +
       row("2", "Lab audit", "every done lab needs a proof URL \u2014 the list is your CV", "#/workshop") +
@@ -7039,7 +7041,7 @@
       "</div></div></details>" +
 
       // T-058: the owner asked for it as an app, and for it to work offline.
-      '<div class="ghead">On your phone</div>' +
+      '<h2 class="ghead">On your phone</h2>' +
       '<div class="glist">' +
       row("", "Install it", "iPhone: Safari → Share → Add to Home Screen. Android: Chrome → ⋮ → Install app", null) +
       row("", "Offline", "everything works without a connection except the videos; progress syncs when you are back online", null) +
@@ -7116,7 +7118,7 @@
     return '<div class="view-enter"><div class="page-head"><h1>Library</h1>' +
       '<div class="sub">The rules of Brickford, and the guides for each phase.</div></div>' +
 
-      '<div class="ghead">Start here</div>' +
+      '<h2 class="ghead">Start here</h2>' +
       '<div class="at-tiles lb-docs lb-start">' +
       doc("#/guide", "The Handbook", "How Brickford works, end to end", "start") +
       doc("#/method", "The Method", "Why mastery beats coverage") +
@@ -7124,7 +7126,7 @@
 
       // "Progress Log (file)" keeps its own title and its superseded note, in
       // the quieter ink: it is there to be found, not to be read first.
-      '<div class="ghead">Guides</div>' +
+      '<h2 class="ghead">Guides</h2>' +
       '<div class="at-tiles lb-docs lb-guides">' +
       guides.map(d => doc("#/doc/" + d.id, face(d)[0], face(d)[1], d.id === "log" ? "lb-old" : "")).join("") + "</div>" +
 
@@ -7132,13 +7134,13 @@
       // tools/revision-pdf.js into revision/ at the repo root. They open in a
       // new tab, or in the Home Screen app's own window (T-058 r1,
       // standalone); the browser's own viewer handles the PDF.
-      '<div class="ghead">Sunday revision<span class="gh-meta">' + REVISION_PDFS + " weeks</span></div>" +
+      '<h2 class="ghead">Sunday revision<span class="gh-meta">' + REVISION_PDFS + " weeks</span></h2>" +
       '<div class="at-tiles lb-docs lb-rev">' +
       revisionTiles().map(t => '<a class="at-tile pb-mode lb-doc" href="' + t.href +
         '"' + (standalone() ? "" : ' target="_blank" rel="noopener"') + ">" + glyph + '<span class="pb-t">Week ' + t.n + "</span>" +
         '<span class="pb-d">' + esc(t.dates) + " \u00b7 " + t.lectures + " lectures</span></a>").join("") + "</div>" +
 
-      '<div class="ghead">Outside links<span class="gh-meta">' + LINKS.length + "</span></div>" +
+      '<h2 class="ghead">Outside links<span class="gh-meta">' + LINKS.length + "</span></h2>" +
       '<div class="at-chips lb-links">' +
       LINKS.map(([t, u], i) => '<a class="at-chip" href="' + u + '" target="_blank" rel="noopener"' +
         (i >= LINKS_SHOWN ? " hidden data-lb-more" : "") + ">" + esc(t) + ' <span aria-hidden="true">↗</span></a>').join("") +
@@ -7192,7 +7194,7 @@
     const from = Number(MONK.from.slice(8)) + " " + mkNice(MONK.from).split(" ").pop();
     const head = n ? "Day " + n + " of " + MONK.days : before ? "Starts " + from : MONK.days + " days done";
     const weeks = Math.ceil(MONK.days / 7), week = n ? "Week " + (Math.floor((n - 1) / 7) + 1) + " of " + weeks : "";
-    const gh = (t, meta) => '<div class="ghead">' + esc(t) + (meta ? '<span class="gh-meta">' + esc(meta) + "</span>" : "") + "</div>";
+    const gh = (t, meta) => '<h2 class="ghead">' + esc(t) + (meta ? '<span class="gh-meta">' + esc(meta) + "</span>" : "") + "</h2>";
     const tick = on => on ? CHECK_SVG : '<span class="mk-ring"></span>';
 
     // ---- Now / Next, and the full day behind a disclosure ----
@@ -7373,7 +7375,7 @@
       '<span class="g-main"><span class="g-t">' + esc(t) + "</span></span>" +
       (rt === "/review" && due ? '<span class="g-v">' + due + " due</span>" : "") + "</a>";
     return '<div class="view-enter more-page">' + folio("More") +
-      MORE_GROUPS.map(([h, rows]) => (h ? '<div class="ghead">' + esc(h) + "</div>" : "") +
+      MORE_GROUPS.map(([h, rows]) => (h ? '<h2 class="ghead">' + esc(h) + "</h2>" : "") +
         '<div class="glist">' + rows.map(row).join("") + "</div>").join("") +
       '<div class="glist more-set"><button type="button" class="grow" data-open-settings>' +
       '<span class="g-lead">' + (($("#settingsBtn svg") || {}).outerHTML || "") + "</span>" +
@@ -8516,6 +8518,7 @@
     if (opts && opts.background && (videoOnScreen() || mediaBusy() || quizLive() || monkTyping())) { bgSkipped = true; return; }
     bgSkipped = false;
     rendering = true;
+    renderBg = !!(opts && opts.background);
     // opts.after runs once the view is rebuilt, on either path below (T-026c:
     // the day controls put the page back where the reader had it).
     const done = () => { rendering = false; if (opts && opts.after) opts.after(); };
@@ -8538,7 +8541,7 @@
       try { renderInner(); } finally { done(); }
     }
   }
-  let lastRoute = null;
+  let lastRoute = null, renderBg = false;
   function renderInner() {
     clearInterval(timerH);
     freezeSchedule();   // T-074: once per date, in memory (a render is a read)
@@ -8630,6 +8633,11 @@
     // same page, start at the top as before.
     if (moved && tabScroll[r] !== undefined) window.scrollTo({ top: tabScroll[r], behavior: "instant" });
     else window.scrollTo({ top: 0 });
+    // T-083 #11: a new page takes focus, so a screen reader and the next Tab
+    // start on it rather than on the link that was pressed. Only a foreground
+    // route change: never the first paint, never a repaint of the same page and
+    // never a background render (a sync landing must not move anyone's focus).
+    if (moved && prevRoute !== null && !renderBg) view.focus({ preventScroll: true });
   }
 
   // ---------- boot ----------
@@ -8683,6 +8691,10 @@
       window.addEventListener("hashchange", closeSet);
     }
     $("#settingsBtn").onclick = openSettings;
+    // T-083 #11: the skip link. Its href would be a route in this hash router,
+    // so it focuses the page instead of navigating.
+    const skip = $("#skipLink");
+    if (skip) skip.onclick = e => { e.preventDefault(); $("#view").focus({ preventScroll: false }); };
     $$("#themeMenu [data-theme-pick]").forEach(b => {
       b.onclick = () => {
         S.settings.theme = b.dataset.themePick;

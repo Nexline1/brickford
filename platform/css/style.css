@@ -441,27 +441,18 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
    with the espresso panel: on the white card colour the page's inks are the
    sidebar's inks. */
 
-.crest { text-align: center; padding-bottom: var(--sp-3); border-bottom: 1px solid var(--line); margin-bottom: var(--sp-2); }
-.crest svg { width: 46px; height: 46px; color: var(--accent); }
-/* T-080 PR 2 (owner): the phone app's lockup (app/lib/widgets/crest.dart,
-   CrestLockup; app/web/index.html #boot), in its proportions of the crest's
-   height h = 110px: the wordmark Playfair Display Bold at 0.2h (22px), tracked
-   0.14em, 0.16h under the crest; a 1px gold rule 0.3h wide with 0.07h either
-   side; the descriptor Inter SemiBold at 0.085h, tracked 0.2em. In px, not
-   rem: a lockup is a mark and keeps its proportions at every text size (the
-   rem wordmark grew past the drawer's column at a 24px root, T-002). CSS
-   tracking adds space after the last letter too, so each line is padded by
-   the same amount on the left to stay centred, as #boot does. */
-.crest .name-en {
-  font-family: var(--font-title); font-weight: 700; font-size: 22px; line-height: 1.1; color: var(--ink);
-  margin-top: 17.6px; letter-spacing: 0.14em; padding-left: 0.14em; text-transform: uppercase;
+/* T-081 (owner, 25 Nov): the sidebar header is the phone app's Home header,
+   not a seal. The stacked 110px lockup took a quarter of the column and read
+   as "too big"; now the crest (32px) and BRICKFORD (Playfair Bold 18px,
+   tracked 0.14em) sit on one row, aligned with the nav's icons. In px: a mark
+   keeps its proportions at every text size (T-002). */
+.crest {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 10px 14px; border-bottom: 1px solid var(--line); margin-bottom: var(--sp-2);
 }
-/* A hairline between name and descriptor — the lockup device every institutional
-   identity in the references uses to say "this is a seal, not a logotype". */
-.crest .wordrule { width: 33px; height: 1px; background: var(--crest); margin: 7.7px auto; }
-.crest .est {
-  font-family: var(--font-body); font-weight: 600; font-size: 9.35px; line-height: 1.2; color: var(--ink-2);
-  letter-spacing: 0.2em; padding-left: 0.2em; text-transform: uppercase;
+.crest .name-en {
+  font-family: var(--font-title); font-weight: 700; font-size: 18px; line-height: 1; color: var(--ink);
+  letter-spacing: 0.14em; text-transform: uppercase; white-space: nowrap;
 }
 
 .nav-group-label { font-size: var(--fs-tiny); text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-3); margin: var(--sp-2) var(--sp-2) 2px; }
@@ -497,8 +488,9 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 }
 .nav a.active .glyph { opacity: 1; color: var(--accent); }
 
-.sidebar-foot { margin-top: auto; padding-top: var(--sp-2); border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 1px; }
-.sidebar-foot .motto { margin-top: var(--sp-3); }
+/* T-081: under the nav, not pushed to the bottom of the window (the void the owner disliked). */
+.sidebar-foot { margin-top: var(--sp-3); padding-top: var(--sp-2); border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 1px; }
+.sidebar-foot .motto { margin-top: var(--sp-3); padding: 0 10px; text-align: left; text-transform: none; letter-spacing: 0; font-family: var(--font-body); font-weight: 400; font-size: var(--fs-footnote); }
 
 /* Theme picker */
 /* apple-design 7: a menu should originate from the element that triggered it,
@@ -1229,7 +1221,7 @@ i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
    until T-051-1 made --gold iOS orange), and the cut-outs are the --panel the
    sidebar is painted with, so the device reads as holes in the seal (T-025:
    the sidebar is the panel again). */
-.crest svg { width: 98px; height: 110px; display: block; margin: 0 auto; }   /* T-080 PR 2: h = 110px, the lockup above is in its proportions */
+.crest svg { width: 28.57px; height: 32px; display: block; flex: none; }   /* T-081: 32px tall (200:224) */
 /* The crest (owner's artwork, 23 Nov 2026): one gold mark on an open field, so
    the panel it sits on shows through the shield. tools/crest-gen.js writes it. */
 .crest .cr-mark { fill: var(--crest); }

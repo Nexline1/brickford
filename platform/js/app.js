@@ -139,6 +139,7 @@
   function toast(msg) {
     const t = $("#toast");
     t.textContent = msg;
+    t.classList.remove("has-act");
     t.classList.add("show");
     clearTimeout(t._h);
     t._h = setTimeout(() => t.classList.remove("show"), 2600);
@@ -5602,10 +5603,9 @@
         esc(fmtBHD(+x.revenue || 0).replace(" ", "\u00a0")) + "</span>" +
         '</summary><p class="wk-notes">' + (x.notes ? esc(x.notes) : "No notes.") + "</p></details>";
     };
-    // Nothing sealed yet: this week and the three after it, as the places the
-    // cards will go. Faded by ink and a dashed edge, never by opacity.
-    const slots = [0, 1, 2, 3].map(k => '<div class="wk-card wk-slot' + (k ? " later" : "") + '"><b aria-hidden="true">—</b>' +
-      "<span>Week " + (w + k) + "</span></div>");
+    // T-083 #14: nothing sealed yet is one line saying when the first can be.
+    // (It was this week and the three after it as empty cards, under "Past weeks".)
+    const firstOpens = new Date(sun + "T00:00:00").toLocaleString("en-US", { weekday: "long" }) + " " + shortDay(sun);
 
     return '<div class="view-enter"><div class="page-head"><h1>Week ' + w + "</h1>" +
       '<div class="sub">Every Sunday: what shipped, what didn’t. Seal it in two minutes.</div></div>' +
@@ -5630,10 +5630,15 @@
       '<input type="text" id="rvNotes" autocomplete="off" placeholder="one line is enough"></div>' +
 
       '<div class="wk-foot"><span class="wk-state">' + esc(state) + "</span>" +
-      '<button class="btn" data-act="logWeek">Seal the week</button></div>' +
+      // T-083 #4: filled only from the week's Sunday. Before it the press is
+      // early: a tinted "Seal early" that asks first (wire, logWeek).
+      (today < sun
+        ? '<button class="btn ghost" data-act="logWeek">Seal early</button></div>'
+        : '<button class="btn" data-act="logWeek">Seal the week</button></div>') +
 
       '<h2 class="ghead">Past weeks<span class="gh-meta">' + (past.length ? past.length + " sealed" : "none sealed yet") + "</span></h2>" +
-      '<div class="wk-weeks">' + (past.length ? past.map(card).join("") : slots.join("")) + "</div>" +
+      (past.length ? '<div class="wk-weeks">' + past.map(card).join("") + "</div>"
+        : '<p class="shelf-empty wk-none">Sealed weeks appear here; the first opens ' + esc(firstOpens) + ".</p>") +
       "</div>";
   };
 
@@ -6278,7 +6283,7 @@
   const TX_MODEL = "onnx-community/whisper-large-v3-turbo";
   const TX_REVISION = "360ebcde2559d60bb474678be3c1de9ef347d01a";
   const TX_MODEL_MB = 1115;
-  const TX_WORKER = "js/transcribe-worker.js?v=20261128a";
+  const TX_WORKER = "js/transcribe-worker.js?v=20261129a";
   const TX_MSG = {
     unsupported: "This browser cannot run the speech model, so this one stays audio only.",
     download: "Could not download the speech model. The recording is kept.",
@@ -7725,6 +7730,22 @@
           logEvent("diagnostic", m[1], { score: null }); save(); render(); toast("Diagnostic marked complete.");
         } else if (act === "logWeek") {
           const w = revisionWeekOf(todayISO());      // T-056 r2: the revision week, as the page shows it
+          // T-083 #4: before the week's Sunday a seal is early, and early asks
+          // first. Decided here from the date, never from the button's label,
+          // so no path writes a week before Sunday without the confirm.
+          const sun = revisionWeek(w).sun;
+          if (todayISO() < sun && !b.dataset.confirmed) {
+            const n = daysBetween(todayISO(), sun);
+            askSheet({
+              title: "Seal week " + w + " early?",
+              lede: "The week opens for sealing on " + esc(new Date(sun + "T00:00:00").toLocaleString("en-US", { weekday: "long" })) + " " + esc(shortDay(sun)) +
+                ", in " + n + " day" + (n === 1 ? "" : "s") + ". Sealing now records it as it stands today" +
+                ($("#rvShipped").value.trim() ? "" : ", with nothing shipped, which is a failed week") +
+                ", and adds it to the chain. You can seal it again before Sunday ends; the record keeps both.",
+              go: "Seal early",
+            }, () => { b.dataset.confirmed = "1"; b.click(); delete b.dataset.confirmed; });
+            return;
+          }
           const entry = {
             week: w, date: todayISO(),
             shipped: $("#rvShipped").value.trim(),
@@ -8078,6 +8099,32 @@
     toast("Backup exported. Keep it somewhere safe.");
     render();
   }
+  // T-083 #4 / #5: a confirm, as the gate sheet asks: a native modal <dialog>,
+  // Escape or Cancel or a press outside closes it and writes nothing; only the
+  // go button runs onGo. o: { title, lede (HTML, already escaped), body (HTML),
+  // go, danger }. Opening it writes nothing.
+  function askSheet(o, onGo) {
+    const old = $("dialog.ask-sheet");
+    if (old) old.remove();
+    const set = $("#settingsSheet");          // never two sheets at once: the confirm replaces Settings
+    if (set && set.open) set.close();
+    const dlg = document.createElement("dialog");
+    dlg.className = "sheet ask-sheet";
+    dlg.setAttribute("aria-labelledby", "sheetTitle");
+    dlg.innerHTML = '<div class="sheet-in"><h2 id="sheetTitle">' + esc(o.title) + "</h2>" +
+      (o.lede ? '<p class="sheet-lede">' + o.lede + "</p>" : "") + (o.body || "") +
+      '<div class="sheet-go"><button class="btn ghost" type="button" data-sheet-cancel>Cancel</button>' +
+      '<button class="btn' + (o.danger ? " danger" : "") + '" type="button" data-sheet-go>' + esc(o.go) + "</button></div></div>";
+    document.body.appendChild(dlg);
+    const close = () => { if (dlg.open) dlg.close(); };
+    dlg.addEventListener("close", () => { dlg.remove(); window.removeEventListener("hashchange", close); });
+    window.addEventListener("hashchange", close);
+    $("[data-sheet-cancel]", dlg).onclick = close;
+    dlg.onclick = e => { if (e.target === dlg) close(); };
+    $("[data-sheet-go]", dlg).onclick = () => { close(); onGo(); };
+    dlg.showModal();
+    return dlg;
+  }
   // ---------- the gate confirm sheet (T-038) ----------
   // A pass was a bare toggle behind a fold, and the owner's device ended up
   // with Gates 1-3 passed by accident. Now each control opens this: a native
@@ -8177,25 +8224,91 @@
     sheet.showModal();
   }
 
+  // T-083 #5: Restore backup asks first, and can be undone. It used to replace
+  // everything on this device the moment a file was picked. Now: the file is
+  // read and checked, a confirm sets the two side by side (how recent, lectures
+  // watched, days sealed), and only "Restore" replaces this device's state —
+  // through the same steps as before. The state it replaced is kept, in memory,
+  // for ten seconds behind an Undo in the toast; Undo puts it back exactly.
+  // Nothing is written until Restore is pressed.
+  let restoreUndo = null;
+  function stateSummary(st) {
+    const L = Object.values((st && st.lessons) || {}).filter(l => l && l.done).length;
+    const days = Array.isArray(st && st.studyDays) ? st.studyDays.filter(d => typeof d === "string") : [];
+    let last = "";
+    days.forEach(d => { if (d > last) last = d; });
+    Object.values((st && st.lessons) || {}).forEach(l => { if (l && typeof l.doneAt === "string" && l.doneAt > last) last = l.doneAt; });
+    return { watched: L, sealed: days.length, last };
+  }
   function importBackup(file) {
     const r = new FileReader();
     r.onload = () => {
+      let data;
       try {
-        const data = JSON.parse(r.result);
+        data = JSON.parse(r.result);
         if (!data || typeof data !== "object" || !("lessons" in data)) throw new Error("bad file");
-        const kept = S.monkStart;
-        S = Object.assign({}, DEFAULT, data);
-        S.treasury = Object.assign({}, DEFAULT.treasury, S.treasury);
-        S.settings = Object.assign({}, DEFAULT.settings, S.settings);
-        // T-065: a backup can add the Monk start where this device has none; it
-        // can never replace or clear one (and a value that is not a date is dropped).
-        if (kept) S.monkStart = kept;
-        else if (!/^\d{4}-\d{2}-\d{2}$/.test(S.monkStart || "")) delete S.monkStart;
-        save(); render();
-        toast("Backup restored. Welcome back, scholar.");
-      } catch (e) { toast("That file is not a valid backup."); }
+      } catch (e) { toast("That file is not a valid backup."); return; }
+      const fileDay = file.lastModified ? localDate(file.lastModified) : "";
+      const made = ((data.settings || {}).lastBackup) || fileDay;
+      const b = stateSummary(data), here = stateSummary(S);
+      const when = iso => iso ? shortDay(iso) : "\u2014";
+      const col = (head, o, date) => '<div class="rs-col"><b>' + head + "</b>" +
+        '<span>' + esc(date) + "</span>" +
+        "<span>" + o.watched + " lecture" + (o.watched === 1 ? "" : "s") + " watched</span>" +
+        "<span>" + o.sealed + " day" + (o.sealed === 1 ? "" : "s") + " sealed</span>" +
+        "<span>last activity " + esc(when(o.last)) + "</span></div>";
+      askSheet({
+        title: "Restore this backup?",
+        lede: "It replaces everything on this device. You can undo it for ten seconds after.",
+        body: '<div class="rs-cmp">' + col("Backup", b, made ? "made " + when(made) : "date unknown") + col("This device", here, "today " + when(todayISO())) + "</div>" +
+          (b.watched < here.watched ? '<p class="rs-warn">The backup has ' + (here.watched - b.watched) + " fewer lecture" + (here.watched - b.watched === 1 ? "" : "s") + " watched than this device.</p>" : ""),
+        go: "Restore", danger: true,
+      }, () => restoreFrom(data));
     };
     r.readAsText(file);
+  }
+  function restoreFrom(data) {
+    const before = JSON.stringify(S);
+    const kept = S.monkStart;
+    S = Object.assign({}, DEFAULT, data);
+    S.treasury = Object.assign({}, DEFAULT.treasury, S.treasury);
+    S.settings = Object.assign({}, DEFAULT.settings, S.settings);
+    // T-065: a backup can add the Monk start where this device has none; it
+    // can never replace or clear one (and a value that is not a date is dropped).
+    if (kept) S.monkStart = kept;
+    else if (!/^\d{4}-\d{2}-\d{2}$/.test(S.monkStart || "")) delete S.monkStart;
+    // The same defaults load() fills in, so a backup missing a field (an old
+    // one, or a hand-made one) renders instead of throwing in reviewsDue.
+    S.ledger = S.ledger || [];
+    S.review = S.review || {};
+    S.concepts = S.concepts || {};
+    S.anchors = S.anchors || [];
+    S.practice = S.practice && typeof S.practice === "object" ? S.practice : {};
+    S.checkpoints = S.checkpoints && typeof S.checkpoints === "object" && !Array.isArray(S.checkpoints) ? S.checkpoints : {};
+    S.foreignLedgers = S.foreignLedgers || {};
+    S.gates = S.gates || {};
+    save(); render();
+    const token = {};
+    restoreUndo = { token, before, until: Date.now() + RESTORE_UNDO_MS };
+    toastUndo("Backup restored.", RESTORE_UNDO_MS, () => {
+      if (!restoreUndo || restoreUndo.token !== token) return;
+      S = JSON.parse(restoreUndo.before);
+      restoreUndo = null;
+      save(); render();
+      toast("Restore undone. This device is as it was.");
+    }, () => { if (restoreUndo && restoreUndo.token === token) restoreUndo = null; });
+  }
+  const RESTORE_UNDO_MS = 10000;
+  // A toast with one action. The action is a real button (44px), the toast a
+  // live region; when the time is up the action goes and onExpire runs.
+  function toastUndo(msg, ms, onUndo, onExpire) {
+    const t = $("#toast");
+    clearTimeout(t._h);
+    t.innerHTML = '<span class="toast-t">' + esc(msg) + '</span><button type="button" class="toast-undo" data-toast-undo>Undo</button>';
+    t.classList.add("show", "has-act");
+    const end = () => { t.classList.remove("show", "has-act"); const u = $("[data-toast-undo]", t); if (u) u.remove(); };
+    $("[data-toast-undo]", t).onclick = () => { clearTimeout(t._h); end(); onUndo(); };
+    t._h = setTimeout(() => { end(); if (onExpire) onExpire(); }, ms);
   }
 
   // ---------- router ----------

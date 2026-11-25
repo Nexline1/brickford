@@ -104,9 +104,9 @@
 //   (j) slide (once, 390px, motion on): a finger 60% of the way from Today to
 //       Courses has the bubble under it within 2px; release opens /courses and
 //       the bubble settles on it; past Review the bubble resists; a 40px
-//       vertical drag switches nothing; tapping the active tab at scrollY 800
-//       goes to 0 (and instantly under reduced motion); Today left at 600 is
-//       at 600 again after Courses; and all of it makes zero save() calls. A
+//       vertical drag switches nothing; tapping the active tab at scrollY 600
+//       goes to 0 (and instantly under reduced motion); Today left at 500 is
+//       at 500 again after Courses (800 and 600 before T-083 shortened Today); and all of it makes zero save() calls. A
 //       Ctrl-click on a tab (800x700, mouse), and a Ctrl- or Shift-tap with a
 //       finger (390) — held from the press, or only at the release — each
 //       open exactly one new page and leave this one where it was; a pen's
@@ -375,6 +375,264 @@ async function shot(page, name) {
   await page.screenshot({ path: path.join(SHOTS, name + ".png"), fullPage: false });
 }
 
+// ---- (ux) T-083: the UX review's fixes, batch 1 (loop/specs/T-082-ux-review/findings.md) ----
+// The owner approved "design fixes" for every finding. Each check below was run against the bug
+// put back (a plant) and failed before it was trusted. The fixture is the review's: Wednesday 25 Nov
+// 2026 (before the revision week's Sunday), 31 lectures watched in plan order (every fifth proven),
+// so lectures are owed, today has three, and practice is due. `node tools/verify-flows.js --only-t083`
+// runs this block alone (how the plants were run).
+const UX_DAY = "2026-11-25";
+async function uxFresh(browser, w, extra) {
+  const f = await fresh(browser, w, null, "/__test", UX_DAY);
+  await f.page.evaluate(extra => {
+    const T = window.__brickfordTest, s = { lessons: {}, problems: {}, studyDays: [], review: {} };
+    let n = 0;
+    for (let i = 0; i < 60 && n < 31; i++) {
+      const iso = T.dateForStudy(i);
+      T.scheduledFor(iso).filter(x => !x.pseudo).forEach(it => {
+        const k = it.cid + "." + it.ui + "." + it.li;
+        if (n >= 31 || s.lessons[k]) return;
+        s.lessons[k] = { done: true, doneAt: iso, notes: "", checks: [] };
+        if (n % 5 === 0) { s.lessons[k].verified = true; s.lessons[k].verifiedAt = iso; }
+        n++;
+        if (!s.studyDays.includes(iso)) s.studyDays.push(iso);
+      });
+    }
+    localStorage.setItem("darhikmah_v1", JSON.stringify(Object.assign(s, extra || {})));
+  }, extra || null);
+  await f.page.reload({ waitUntil: "load" });
+  await f.page.waitForSelector("#view > *");
+  await go(f.page, "/");
+  return f;
+}
+const VISIBLE_CONTROLS = () => [...document.querySelectorAll("#view a[href], #view button, #view input:not([type=hidden]), #view select, #view textarea, #view summary")]
+  .filter(e => e.checkVisibility());
+async function t083Flows(browser) {
+  console.log("\nT-083: the UX review's fixes (batch 1)");
+  for (const w of WIDTHS) {
+    const at = w + "px";
+    // #2 Today's order, its controls, Checkpoints and Where you stand on Proof; #10 one h1; #3 no visible [hidden];
+    // #12 drawn marks; #1 every next button agrees; #11 the live toast and the focus.
+    {
+      const { ctx, page, errors } = await uxFresh(browser, w);
+      try {
+        const t = await page.evaluate(VC => {
+          const vc = new Function("return (" + VC + ")()")();
+          const v = document.querySelector("#view .view-enter");
+          const kids = [...v.children];
+          const idx = sel => kids.findIndex(k => k.matches(sel));
+          const heads = [...document.querySelectorAll("#view .ghead")].map(h => h.textContent.replace(/\s+/g, " ").trim());
+          const h1s = [...document.querySelectorAll("#view h1")];
+          return {
+            order: [idx(".card.one.lead"), idx(".today-head"), idx(".owed-fold"), kids.findIndex(k => /^Today.s practice/.test(k.textContent) && k.matches(".ghead"))],
+            controls: vc.length, list: vc.map(e => e.tagName + ":" + e.textContent.replace(/\s+/g, " ").trim().slice(0, 24)),
+            heads, cp: !!document.querySelector("#view .cp-list"), stand: heads.some(h => /^Where you stand/i.test(h)),
+            h1: h1s.length, h1vis: h1s.filter(h => h.checkVisibility()).length, h1hero: !!document.querySelector("#view .card.one.lead > h1"),
+            gheadTags: [...new Set([...document.querySelectorAll("#view .ghead:not(.oh)")].map(h => h.tagName))],
+            hiddenShown: [...document.querySelectorAll("[hidden]")].filter(e => e.checkVisibility()).map(e => e.tagName + "#" + e.id + "." + e.className),
+            weekOut: !!document.querySelector("#weekOut"),
+            glyphs: [...document.querySelectorAll("#view .g-lead")].map(e => e.textContent.trim()).filter(x => /[✓○!◆]/.test(x)),
+            owedFold: (() => { const d = document.querySelector("#view details.owed-fold"); return d ? { open: d.open, sum: d.querySelector("summary").textContent.trim(), rows: d.querySelectorAll("[data-owed]").length } : null; })(),
+            heroHref: (document.querySelector("#view .card.one.lead a.one-go") || {}).getAttribute ? document.querySelector("#view .card.one.lead a.one-go").getAttribute("href") : null,
+          };
+        }, VISIBLE_CONTROLS.toString());
+        const owedN = await page.evaluate(() => window.__brickfordTest.owedList().filter(e => e.late > 0).length);
+        check("(ux #2) " + at + ": Today is hero, then the Today card, then one owed row, then today's practice, in that order",
+          t.order.every(i => i >= 0) && t.order.every((x, i) => !i || x > t.order[i - 1]), JSON.stringify(t.order));
+        check("(ux #2) " + at + ": the owed lectures are one closed row, \"N owed · oldest D days\", holding every late one (" + owedN + ")",
+          !!t.owedFold && t.owedFold.open === false && t.owedFold.rows === owedN && owedN > 5 && new RegExp("^" + owedN + " owed · oldest \\d+ days?").test(t.owedFold.sum),
+          JSON.stringify(t.owedFold));
+        check("(ux #2) " + at + ": at most 12 controls on Today (" + t.controls + ")", t.controls <= 12 && t.controls > 0, t.list.join(", "));
+        check("(ux #2) " + at + ": no Checkpoints and no \"Where you stand\" on Today", !t.cp && !t.stand, t.heads.join(" | "));
+        check("(ux #10) " + at + ": exactly one h1 on Today, visible, and it is the hero's title", t.h1 === 1 && t.h1vis === 1 && t.h1hero, t.h1 + " h1, " + t.h1vis + " visible, hero " + t.h1hero);
+        check("(ux #10) " + at + ": every section head on Today is an h2", t.gheadTags.length === 1 && t.gheadTags[0] === "H2", t.gheadTags.join(","));
+        check("(ux #3) " + at + ": nothing carrying [hidden] is visible on Today (the week's answers box is in the page, hidden)", t.weekOut && t.hiddenShown.length === 0,
+          "weekOut " + t.weekOut + "; shown: " + (t.hiddenShown.join(", ") || "none"));
+        check("(ux #12) " + at + ": no row mark on Today is a text glyph (✓ ○ ! ◆)", t.glyphs.length === 0, t.glyphs.join(" "));
+        // The phone's Next bar is stowed while the hero's button shows, and back once it has scrolled away.
+        if (w < 860) {
+          const bar = () => page.evaluate(() => { const b = document.querySelector("#railbar"); return { stowed: b.classList.contains("stowed"), off: b.classList.contains("off") }; });
+          const b0 = await bar();
+          await page.evaluate(() => window.scrollTo({ top: document.querySelector("#view .card.one.lead a.one-go").getBoundingClientRect().bottom + scrollY + 400, behavior: "instant" }));
+          const b1 = await page.waitForFunction(() => !document.querySelector("#railbar").classList.contains("stowed"), null, { timeout: 4000 }).then(() => true, () => false);
+          await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+          const b2 = await page.waitForFunction(() => document.querySelector("#railbar").classList.contains("stowed"), null, { timeout: 4000 }).then(() => true, () => false);
+          check("(ux #2) " + at + ": the Next bar is stowed from the first frame while the hero's button shows, out once it has scrolled away, stowed again back at the top",
+            b0.stowed && !b0.off && b1 && b2, JSON.stringify({ first: b0, away: b1, back: b2 }));
+        }
+        // #1: the hero, Courses' Continue and the course page's Continue name one lecture per course.
+        const heroCid = t.heroHref ? t.heroHref.split("/")[2] : null;
+        await go(page, "/courses");
+        const shelf = await page.evaluate(() => {
+          const h = [...document.querySelectorAll("#view .ghead")].find(x => /^Continue/.test(x.textContent));
+          const s = h && h.nextElementSibling;
+          return s ? [...s.querySelectorAll("a.book")].map(a => ({ code: a.querySelector(".cv-code").textContent.trim(), href: a.getAttribute("href") })) : [];
+        });
+        const codes = await page.evaluate(() => Object.fromEntries(window.DAR.COURSES.map(c => [c.code, c.id])));
+        const bad = [];
+        for (const b of shelf) {
+          const cid = codes[b.code];
+          await go(page, "/course/" + cid);
+          const crs = await page.evaluate(() => { const a = document.querySelector("#view .crs-go"); return a ? a.getAttribute("href") : null; });
+          if (crs !== b.href) bad.push(b.code + ": shelf " + b.href + ", course page " + crs);
+          if (cid === heroCid && b.href !== t.heroHref) bad.push(b.code + ": shelf " + b.href + ", hero " + t.heroHref);
+        }
+        let rail = null;
+        if (t.heroHref && /^#\/lesson\//.test(t.heroHref)) {
+          const [, , cid, ui] = t.heroHref.split("/");
+          await go(page, "/course/" + cid);
+          // A lecture page of the hero's course draws the rail's card; its Next is the hero's.
+          await go(page, "/lesson/" + cid + "/" + ui + "/0");
+          rail = await page.evaluate(() => { const a = document.querySelector("#view .rail-card a.btn, #rail .rail-card a.btn"); return a ? a.getAttribute("href") : null; });
+          if (rail !== null && rail !== t.heroHref) bad.push("rail " + rail + ", hero " + t.heroHref);
+        }
+        check("(ux #1) " + at + ": every Next and Continue agrees — Courses' Continue covers and each course page's Continue, the hero and the rail (" + shelf.length + " courses, hero in " + heroCid + ")",
+          shelf.length >= 2 && shelf.some(b => codes[b.code] === heroCid) && bad.length === 0, bad.join("; ") || shelf.map(b => b.code + " " + b.href).join(", ") + "; rail " + rail);
+        // #15: the lecture page's In this unit rows are the course page's rows; the forward one says what it is.
+        await go(page, "/lesson/math110/0/5");
+        const un = await page.evaluate(() => [...document.querySelectorAll("#view .lsn-nav a.grow")].map(a => ({ thumb: !!a.querySelector(".thumb"), lrow: a.classList.contains("lrow"),
+          s: a.querySelector(".g-s").textContent.trim(), v: (a.querySelector(".g-v") || {}).textContent || "", good: [...a.querySelectorAll(".g-good")].map(g => g.textContent) })));
+        check("(ux #15) " + at + ": In this unit has no frames — the course page's rows, the forward one \"After this in the unit\"",
+          un.length === 2 && un.every(r => !r.thumb && r.lrow && r.v) && /^After this in the unit · Lecture 7/.test(un[0].s) && /^Previous · Lecture 5/.test(un[1].s), JSON.stringify(un));
+        await go(page, "/course/math110");
+        const ink = await page.evaluate(() => {
+          const rows = [...document.querySelectorAll("#view .crs-list a.lrow")];
+          const w = rows.find(r => / Watched$/.test(r.querySelector(".g-s").textContent)), p = rows.find(r => / Proven$/.test(r.querySelector(".g-s").textContent));
+          const col = e => e ? getComputedStyle(e).color : null;
+          const probe = document.createElement("span"); probe.style.color = "var(--ink-2)"; document.querySelector("#view").appendChild(probe);
+          const ink2 = getComputedStyle(probe).color; probe.remove();
+          return { watched: w ? col(w.querySelector(".g-s")) : null, watchedGreen: w ? !!w.querySelector(".g-good") : null,
+            proven: p ? col(p.querySelector(".g-good")) : null, ink2 };
+        });
+        check("(ux #15) " + at + ": \"Watched\" is set in --ink-2 and only \"Proven\" is green", !!ink.watched && ink.watched === ink.ink2 && ink.watchedGreen === false && !!ink.proven && ink.proven !== ink.ink2,
+          JSON.stringify(ink));
+        // #2: Checkpoints and Where you stand are on Proof.
+        await go(page, "/record");
+        const pf = await page.evaluate(() => ({ cp: !!document.querySelector("#view .cp-list"), stand: [...document.querySelectorAll("#view .ghead")].some(h => /^Where you stand/.test(h.textContent)) }));
+        check("(ux #2) " + at + ": Checkpoints and \"Where you stand\" are on Proof", pf.cp && pf.stand, JSON.stringify(pf));
+        // #11: the toast is a live region; a foreground route change focuses the page; a same-page repaint does not move focus.
+        const a11y = await page.evaluate(() => { const t = document.querySelector("#toast"); return { role: t.getAttribute("role"), live: t.getAttribute("aria-live"), skip: !!document.querySelector("a.skip-link[href='#view']") }; });
+        check("(ux #11) " + at + ": #toast is role=status, aria-live=polite, and a skip link to #view exists", a11y.role === "status" && a11y.live === "polite" && a11y.skip, JSON.stringify(a11y));
+        await markView(page);
+        await page.click(w < 860 ? "#tabbar a[data-route='/courses']" : "#nav a[data-route='/courses']");
+        await viewReplaced(page);
+        const f1 = await page.evaluate(() => document.activeElement && document.activeElement.id);
+        await page.focus("#view a.book");
+        await page.evaluate(() => window.__brickfordTest.render());
+        const f2 = await page.evaluate(() => document.activeElement === document.body || document.activeElement.id !== "view");
+        check("(ux #11) " + at + ": a route change by the nav focuses #view; a repaint of the same page does not take focus to it", f1 === "view" && f2, "after nav: " + f1 + ", after repaint not #view: " + f2);
+        await go(page, "/workshop");
+        const pg = await page.evaluate(() => [...document.querySelectorAll("#view .pd-ic")].map(e => ({ svg: !!e.querySelector("svg"), text: e.textContent.trim() })));
+        check("(ux #12) " + at + ": every mark on Problems is a drawn icon, not a text glyph (? ⌘ ✎)", pg.length > 0 && pg.every(x => x.svg && !x.text), JSON.stringify(pg.slice(0, 4)));
+      } catch (e) { check("(ux) " + at + ": the Today flow ran to its end without a harness error", false, String(e.message).split("\n")[0]); }
+      check("(ux) " + at + ": no page errors", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
+
+    // #4: before Sunday, "Seal early" is tinted and asks; Escape and Cancel write nothing; only its confirm seals.
+    {
+      const { ctx, page, errors } = await uxFresh(browser, w);
+      try {
+        await go(page, "/review");
+        const btn = await page.evaluate(() => { const b = document.querySelector("#view [data-act=logWeek]"); return { t: b.textContent.trim(), ghost: b.classList.contains("ghost") }; });
+        await page.fill("#rvShipped", "a post");
+        const w0 = await writes(page);
+        await page.click("#view [data-act=logWeek]");
+        const open1 = await page.waitForSelector("dialog.ask-sheet[open]", { timeout: 4000 }).then(() => true, () => false);
+        const w1 = await writes(page);
+        await page.keyboard.press("Escape");
+        await page.waitForSelector("dialog.ask-sheet", { state: "detached", timeout: 4000 }).catch(() => {});
+        await page.click("#view [data-act=logWeek]");
+        await page.waitForSelector("dialog.ask-sheet[open]", { timeout: 4000 });
+        await page.click("dialog.ask-sheet [data-sheet-cancel]");
+        await page.waitForSelector("dialog.ask-sheet", { state: "detached", timeout: 4000 }).catch(() => {});
+        const w2 = await writes(page);
+        const weeks0 = await page.evaluate(() => (JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").weeks || []).length);
+        check("(ux #4) " + at + ": on a Wednesday the button is a tinted \"Seal early\"; pressing it opens a confirm and writes nothing; Escape and Cancel write nothing",
+          btn.t === "Seal early" && btn.ghost && open1 && w1 - w0 === 0 && w2 - w0 === 0 && weeks0 === 0, JSON.stringify({ btn, open1, writes: [w1 - w0, w2 - w0], weeks0 }));
+        await markView(page);
+        await page.click("#view [data-act=logWeek]");
+        await page.waitForSelector("dialog.ask-sheet[open]", { timeout: 4000 });
+        await page.click("dialog.ask-sheet [data-sheet-go]");
+        await viewReplaced(page);
+        const st = await page.evaluate(() => JSON.parse(localStorage.getItem("darhikmah_v1") || "{}"));
+        check("(ux #4) " + at + ": its confirm seals the week, as Seal always did (two saves, the week and its chain event)",
+          (await writes(page)) - w0 === 2 && (st.weeks || []).length === 1 && st.weeks[0].shipped === "a post" && st.ledger[st.ledger.length - 1].type === "week",
+          ((await writes(page)) - w0) + " writes, " + JSON.stringify(st.weeks));
+      } catch (e) { check("(ux #4) " + at + ": the seal-early flow ran to its end without a harness error", false, String(e.message).split("\n")[0]); }
+      check("(ux #4) " + at + ": no page errors", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
+    // #14: before the first seal, Past weeks is one line; no placeholder cards.
+    {
+      const { ctx, page, errors } = await uxFresh(browser, w);
+      await go(page, "/review");
+      const pw = await page.evaluate(() => ({ slots: document.querySelectorAll("#view .wk-slot, #view .wk-weeks").length, line: ((document.querySelector("#view .wk-none") || {}).textContent || "").trim() }));
+      check("(ux #14) " + at + ": with nothing sealed, Past weeks is one line naming the first Sunday, and no week cards", pw.slots === 0 && pw.line === "Sealed weeks appear here; the first opens Sunday 29 Nov.", JSON.stringify(pw));
+      check("(ux #14) " + at + ": no page errors", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
+    // #5: Restore backup asks, comparing the two; Cancel writes nothing; Restore replaces; Undo puts back exactly what was there.
+    {
+      const { ctx, page, errors } = await uxFresh(browser, w);
+      try {
+        const file = path.join(require("os").tmpdir(), "t083-backup-" + process.pid + ".json");
+        fs.writeFileSync(file, JSON.stringify({ lessons: { "math110.0.0": { done: true, doneAt: "2026-10-16", notes: "", checks: [] } }, studyDays: ["2026-10-16"],
+          problems: {}, review: {}, settings: { lastBackup: "2026-10-20" } }));
+        // scheduledFor and firstDoneAt are T-074's derivations, made in memory on the first render of the day and
+        // stored by the next save (a render is a read): the undo's save stores them, the seed never did. Read past them.
+        const snap = () => page.evaluate(() => { const s = JSON.parse(localStorage.getItem("darhikmah_v1") || "{}");
+          const ls = {}; Object.keys(s.lessons || {}).sort().forEach(k => { const o = Object.assign({}, s.lessons[k]); delete o.scheduledFor; delete o.firstDoneAt; if (Object.keys(o).length) ls[k] = o; });
+          return JSON.stringify({ lessons: ls, studyDays: s.studyDays, weeks: s.weeks || [], ledger: s.ledger || [], problems: s.problems }); });
+        const before = await snap(), w0 = await writes(page);
+        // The Settings sheet's Restore row clicks this input; the file is handed to it directly.
+        await page.setInputFiles("#importFile", file);
+        const asked = await page.waitForSelector("dialog.ask-sheet[open]", { timeout: 4000 }).then(() => true, () => false);
+        const cmp = asked ? await page.evaluate(() => [...document.querySelectorAll("dialog.ask-sheet .rs-cmp b, dialog.ask-sheet .rs-cmp span")].map(e => e.textContent.trim()).join(" ")) : "";
+        await page.click("dialog.ask-sheet [data-sheet-cancel]").catch(() => {});
+        await page.waitForSelector("dialog.ask-sheet", { state: "detached", timeout: 4000 }).catch(() => {});
+        const w1 = await writes(page), after1 = await snap();
+        check("(ux #5) " + at + ": picking a backup asks first, setting the backup beside this device (lectures watched, days sealed), and Cancel writes nothing",
+          asked && /Backup made 20 Oct 1 lecture watched 1 day sealed/.test(cmp) && /This device today 25 Nov 31 lectures watched/.test(cmp) && w1 === w0 && after1 === before,
+          JSON.stringify({ asked, cmp, writes: w1 - w0, same: after1 === before }));
+        await page.setInputFiles("#importFile", file);
+        await page.waitForSelector("dialog.ask-sheet[open]", { timeout: 4000 });
+        await page.click("dialog.ask-sheet [data-sheet-go]");
+        await page.waitForSelector("#toast.show [data-toast-undo]", { timeout: 4000 });
+        const restored = await page.evaluate(() => Object.keys(JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").lessons || {}));
+        const undoBox = await page.evaluate(() => { const b = document.querySelector("#toast [data-toast-undo]").getBoundingClientRect(); return [b.width, b.height]; });
+        check("(ux #5) " + at + ": Restore replaces this device's state with the backup's, and the toast offers Undo (a 44x44 button)",
+          restored.length === 1 && restored[0] === "math110.0.0" && undoBox[0] >= 44 && undoBox[1] >= 44, JSON.stringify({ restored, undoBox }));
+        await page.click("#toast [data-toast-undo]");
+        await page.waitForFunction(() => Object.keys(JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").lessons || {}).length > 1, null, { timeout: 4000 }).catch(() => {});
+        const back = await snap();
+        check("(ux #5) " + at + ": Undo puts back exactly what this device held (lessons, study days, weeks, chain, problems)", back === before,
+          back === before ? "identical" : back.slice(0, 160));
+        fs.unlinkSync(file);
+      } catch (e) { check("(ux #5) " + at + ": the restore flow ran to its end without a harness error", false, String(e.message).split("\n")[0]); }
+      check("(ux #5) " + at + ": no page errors", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
+  }
+  // #5, once: the Undo lasts ten seconds, then goes (the restored state stays).
+  {
+    const { ctx, page, errors } = await uxFresh(browser, 1280);
+    const file = path.join(require("os").tmpdir(), "t083-backup2-" + process.pid + ".json");
+    fs.writeFileSync(file, JSON.stringify({ lessons: {}, studyDays: [], problems: {}, review: {} }));
+    await page.setInputFiles("#importFile", file);
+    await page.waitForSelector("dialog.ask-sheet[open]", { timeout: 4000 });
+    await page.click("dialog.ask-sheet [data-sheet-go]");
+    await page.waitForSelector("#toast [data-toast-undo]", { timeout: 4000 });
+    const t0 = Date.now();
+    const at9 = await page.waitForSelector("#toast [data-toast-undo]", { state: "detached", timeout: 9000 }).then(() => false, () => true);
+    const gone = await page.waitForSelector("#toast [data-toast-undo]", { state: "detached", timeout: 3000 }).then(() => true, () => false);
+    check("(ux #5) the Undo is still there 9 seconds after a restore and gone by 12", at9 && gone, "still at 9s " + at9 + ", gone " + gone + " (" + (Date.now() - t0) + "ms)");
+    check("(ux #5) no page errors (undo expiry)", errors.length === 0, errors.join(" | "));
+    fs.unlinkSync(file);
+    await ctx.close();
+  }
+}
+
 // ---- T-038: the gates, and the confirm sheet ----
 const GATE1_REQ = (() => {
   const vm = require("vm");
@@ -467,6 +725,13 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
 
 (async () => {
   const browser = await chromium.launch();
+  // T-083: `--only-t083` runs the UX block alone (how its plants were run).
+  if (process.argv.includes("--only-t083")) {
+    await t083Flows(browser);
+    await browser.close();
+    console.log("\n" + (fails === 0 ? "PASS — " + checks + " T-083 checks" : fails + " of " + checks + " T-083 check(s) FAILED"));
+    process.exit(fails === 0 ? 0 : 1);
+  }
 
   for (const w of WIDTHS) {
     console.log("\n" + w + "px");
@@ -1049,7 +1314,10 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
           } else await page.tap("dialog.sheet [data-sheet-go]");
           await viewReplaced(page);
           const passed = { w: await writes(page) - w0, g: await gatesStored(page), gone: await sheetGone(page), ctl: await gateControls(page),
-            row: await page.evaluate(() => ((document.querySelector("#view .glist .grow .g-lead") || {}).textContent || "").trim()) };
+            // T-083 #12: a passed gate's mark is the inline SVG check (svg.tick) now, not the "\u2713" text glyph: read as "\u2713"
+            // only when the svg is there and no text is.
+            row: await page.evaluate(() => { const l = document.querySelector("#view .glist .grow .g-lead");
+              return !l ? "" : l.querySelector("svg.tick") && !l.textContent.trim() ? "\u2713" : l.textContent.trim(); }) };
           const p1 = passed.g[1] || {};
           check("(m) passing is one save() of { date: today, at, passed: true }; the sheet closes, Gate 1 reads passed, and the controls move on (pass 2, unmark 1)",
             passed.w === 1 && p1.passed === true && p1.date === TODAY && /^\d{4}-\d\d-\d\dT/.test(p1.at || "") && passed.gone && passed.row === "\u2713" && passed.ctl === "pass 2, unmark 1",
@@ -2136,7 +2404,9 @@ export async function pipeline(task, model, opts) {
 
   // ---- (j) the tab bar you slide along (T-023) ----
   // Once, at 390x568, with motion ON (the spring is part of what is measured).
-  // 568 tall so Today scrolls past 800 (at 844 it scrolls 548).
+  // 568 tall so Today scrolls past 800 (at 844 it scrolls 548). T-083 #2: Today is shorter now
+  // (Checkpoints and Where you stand moved to Proof; the owed list is one row): it scrolls 645
+  // here, so the deep scroll is 600 and the scroll memory 500 (were 800 and 600). Same behaviour.
   // Touches are real CDP touch events; the vertical drag is also done with a
   // mouse pointer, which no touch-action can intercept, so it is the page's
   // own hysteresis that is tested. Pointer moves are delivered once a frame,
@@ -2233,30 +2503,30 @@ export async function pipeline(task, model, opts) {
     check("(j) a 40px vertical drag on Exams does not switch tabs (touch and pointer)",
       afterTouch === before && afterMouse === before, before + " -> touch " + afterTouch + ", pointer " + afterMouse);
 
-    // Tap the active tab at scrollY 800: back to the top.
+    // Tap the active tab at scrollY 600 (T-083: was 800): back to the top.
     const H = centres[0];
     await touch("touchStart", H.x, H.y); await touch("touchEnd");
     await until(() => shown("/"));
     await page.waitForTimeout(300);
-    await page.evaluate(() => window.scrollTo({ top: 800, behavior: "instant" }));
-    const at800 = await page.evaluate(() => Math.round(scrollY));
+    await page.evaluate(() => window.scrollTo({ top: 600, behavior: "instant" }));
+    const at800 = await page.evaluate(() => Math.round(scrollY));   // the name is from before T-083; it holds 600
     await touch("touchStart", H.x, H.y); await touch("touchEnd");
     const top = await until(async () => (await page.evaluate(() => scrollY)) === 0, 4000);
-    check("(j) tapping the active tab at scrollY 800 scrolls to 0",
-      at800 === 800 && top, "from " + at800 + " to " + (await page.evaluate(() => Math.round(scrollY))));
+    check("(j) tapping the active tab at scrollY 600 scrolls to 0",
+      at800 === 600 && top, "from " + at800 + " to " + (await page.evaluate(() => Math.round(scrollY))));
 
-    // Scroll memory: Today at 600, go to Courses, come back.
-    await page.evaluate(() => window.scrollTo({ top: 600, behavior: "instant" }));
-    const at600 = await page.evaluate(() => Math.round(scrollY));
+    // Scroll memory: Today at 500 (T-083: was 600), go to Courses, come back.
+    await page.evaluate(() => window.scrollTo({ top: 500, behavior: "instant" }));
+    const at600 = await page.evaluate(() => Math.round(scrollY));   // holds 500 since T-083
     await touch("touchStart", C.x, C.y); await touch("touchEnd");
     await until(() => shown("/courses"));
     await page.waitForTimeout(200);
     const onC = await page.evaluate(() => Math.round(scrollY));
     await touch("touchStart", H.x, H.y); await touch("touchEnd");
     await until(() => shown("/"));
-    const back = await until(async () => { const y = await page.evaluate(() => scrollY); return Math.abs(y - 600) <= 2 ? y : null; }, 2000);
-    check("(j) scroll memory: Today at 600, to Courses (" + onC + ") and back is 600 (+/-2)",
-      at600 === 600 && back !== null, "back at " + (await page.evaluate(() => Math.round(scrollY))));
+    const back = await until(async () => { const y = await page.evaluate(() => scrollY); return Math.abs(y - 500) <= 2 ? y : null; }, 2000);
+    check("(j) scroll memory: Today at 500, to Courses (" + onC + ") and back is 500 (+/-2)",
+      at600 === 500 && back !== null, "back at " + (await page.evaluate(() => Math.round(scrollY))));
 
     const w1 = await writes(page);
     check("(j) a render is a read: sliding, tapping and switching made zero save() calls", w1 - w0 === 0, (w1 - w0) + " write(s)");
@@ -2268,10 +2538,11 @@ export async function pipeline(task, model, opts) {
   {
     const { ctx, page, errors } = await fresh(browser, 390, null, "/");
     const H = await page.evaluate(() => { const r = document.querySelector("#tabbar a").getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; });
-    const from = await page.evaluate(() => { window.scrollTo({ top: 400, behavior: "instant" }); return Math.round(scrollY); });
+    // T-083 #2: Today scrolls 313px on this fixture now (it was longer), so the tap starts at 250 (was 400).
+    const from = await page.evaluate(() => { window.scrollTo({ top: 250, behavior: "instant" }); return Math.round(scrollY); });
     await page.touchscreen.tap(H.x, H.y);
     const y = await page.evaluate(() => new Promise(r => requestAnimationFrame(() => r(Math.round(scrollY)))));
-    check("(j) reduced motion: tapping the active tab is at the top within a frame", from === 400 && y === 0, "from " + from + " to " + y);
+    check("(j) reduced motion: tapping the active tab is at the top within a frame", from === 250 && y === 0, "from " + from + " to " + y);
     check("(j) reduced motion: no page errors", errors.length === 0, errors.join(" | "));
     await ctx.close();
   }
@@ -3135,14 +3406,15 @@ export async function pipeline(task, model, opts) {
   }
 
   // ---- (cp) T-069: the near checkpoints ----
-  // On Today, at 390 (tapped) and 1280 (ticked by keyboard, unticked by mouse):
+  // T-083 #2: the block moved from Today to Proof (/record), unchanged; it is pressed there.
+  // On Proof (was Today), at 390 (tapped) and 1280 (ticked by keyboard, unticked by mouse):
   // an item ticked and unticked is one write each, { done, at } stored, the
   // checkpoint's count repainted in place and the fold left open; every row and
   // fold head of the block is at least 44x44; drawing the block writes nothing.
   for (const w of WIDTHS) {
     console.log("\ncheckpoints (T-069) at " + w + "px:");
     const CP_DAY = "2026-11-16";
-    const { ctx, page, errors } = await fresh(browser, w, null, "/", CP_DAY);
+    const { ctx, page, errors } = await fresh(browser, w, null, "/record", CP_DAY);   // T-083: Proof, was "/"
     try {
       await page.waitForSelector("#view .cp-list");
       const w0 = await writes(page);
@@ -3184,8 +3456,11 @@ export async function pipeline(task, model, opts) {
   // activity, and activity on a Saturday with nothing scheduled) there is no banner.
   {
     const OB_DAY = "2026-11-29", OB_SEED = { studyDays: ["2026-11-25"] };
+    // T-083 #2 (the owner's "design fixes"): the banner is ONE closed row on Today, "N owed · oldest D days",
+    // holding every LATE lecture (today's own are the Today card above it). `more` is that fold now; the checks
+    // below open it before reading what is on screen, and assert the new shape where the old one was five rows.
     const banner = page => page.evaluate(() => {
-      const rows = [...document.querySelectorAll("#view [data-owed]")], more = document.querySelector("#view details.owed-more");
+      const rows = [...document.querySelectorAll("#view [data-owed]")], more = document.querySelector("#view details.owed-fold");
       return { head: !!document.querySelector("#view .owed-head"), keys: rows.map(r => r.dataset.owed), hrefs: rows.map(r => r.getAttribute("href")),
         labels: rows.map(r => r.querySelector(".g-v").textContent), shown: rows.filter(r => r.checkVisibility()).length,
         moreOpen: more ? more.open : null, moreLabel: more ? more.querySelector("summary").textContent.trim() : null,
@@ -3197,17 +3472,22 @@ export async function pipeline(task, model, opts) {
       console.log("\nowed banner (T-079) at " + w + "px:");
       const { ctx, page, errors } = await fresh(browser, w, OB_SEED, "/__test", OB_DAY);
       try {
-        const list = await page.evaluate(() => window.__brickfordTest.owedList());
+        const all = await page.evaluate(() => window.__brickfordTest.owedList());
+        const list = all.filter(e => e.late > 0);     // T-083: the late ones; today's are the Today card
         const w0 = await writes(page);
         await go(page, "/");
+        const b0 = await banner(page);
+        const oldest = list.reduce((m, e) => Math.max(m, e.late), 0);
+        check("(ob) the owed lectures are one closed row reading \"N owed \u00b7 oldest D days\", nothing of the list on screen until it opens (T-083)",
+          b0.moreOpen === false && b0.shown === 0 && new RegExp("^" + list.length + " owed \u00b7 oldest " + oldest + " days?").test(b0.moreLabel || ""),
+          b0.shown + " shown, details " + b0.moreOpen + " \"" + b0.moreLabel + "\"");
+        await page.click("#view details.owed-fold > summary");
         const b = await banner(page);
-        check("(ob) the banner lists every owed lecture, oldest first, each labelled today / 1 day late / N days late (" + list.length + " owed)",
+        check("(ob) opened, it lists every late lecture, oldest first, each labelled 1 day late / N days late, and none of today's (" + list.length + " late of " + all.length + " owed)",
           b.head && list.length > 5 && b.keys.join() === list.map(e => e.k).join() && b.labels.join() === list.map(word).join() &&
-            list.some(e => e.late > 1) && list.some(e => e.late === 1) && list.some(e => e.late === 0),
-          JSON.stringify({ rows: b.keys.length, labels: b.labels.slice(0, 6) }));
-        check("(ob) five rows show, the rest sit in a closed <details> reading +N more", b.shown === 5 && b.moreOpen === false && b.moreLabel === "+" + (list.length - 5) + " more",
-          b.shown + " shown, details " + b.moreOpen + " \"" + b.moreLabel + "\"");
-        check("(ob) every row on screen and the +N more fold are at least 44x44", b.small.length === 0, b.small.join(", ") || "all 44+");
+            list.some(e => e.late > 1) && list.some(e => e.late === 1) && all.some(e => e.late === 0) && b.shown === list.length,
+          JSON.stringify({ rows: b.keys.length, shown: b.shown, labels: b.labels.slice(0, 6) }));
+        check("(ob) every row on screen and the fold's own row are at least 44x44", b.small.length === 0, b.small.join(", ") || "all 44+");
         check("(ob) drawing Today with the banner writes nothing", (await writes(page)) - w0 === 0, ((await writes(page)) - w0) + " write(s)");
         // A row whose lecture has no quiz, so marking it watched clears it.
         const i = await page.evaluate(keys => keys.findIndex(k => { const p = k.split("."), c = window.DAR.COURSES.find(x => x.id === p[0]), l = c.units[+p[1]].lessons[+p[2]];
@@ -3222,6 +3502,7 @@ export async function pipeline(task, model, opts) {
         await page.click("#view [data-act=toggleDone]");
         await page.waitForFunction(() => ((document.querySelector("#view [data-act=toggleDone]") || {}).textContent || "").trim() === "Unmark watched", null, { timeout: 8000 });
         await go(page, "/");
+        await page.click("#view details.owed-fold > summary");
         const b2 = await banner(page);
         check("(ob) marking it watched removes its row, and only its row", !b2.keys.includes(k) && b2.keys.join() === b.keys.filter(x => x !== k).join(), b2.keys.length + " rows, was " + b.keys.length);
         await shot(page, "owed-banner-" + w);
@@ -3240,6 +3521,8 @@ export async function pipeline(task, model, opts) {
     }
   }
 
+  await t083Flows(browser);
+
   await browser.close();
   console.log("");
   check("no network sync (GitHub requests from test contexts)", githubHits === 0, githubHits + " request(s)");
@@ -3253,6 +3536,7 @@ export async function pipeline(task, model, opts) {
       "practice items at 390 — numeric right and wrong, a worked solution and a written checklist kept out of the page until an attempt, Grade with Claude against a stub (one request, only the question, checklist and answer, the key nowhere), Copy this week, and a missed item back in Recall (T-067 step 3); " +
       "checkpoints at 390 (tapped) and 1280 (keyboard, then mouse) — tick and untick one write each, 44x44 targets, drawing writes nothing (T-069); " +
       "the owed banner at 390 and 1280 — the owed list in order with its lateness, five rows and +N more, 44x44, drawing writes nothing, a row opens its lecture, watching it removes the row, no banner with nothing owed (T-079); " +
+      "the UX review's fixes at 390 and 1280 — Today's order and at most 12 controls, one h1, no visible [hidden], drawn marks, every Next agreeing, In this unit's rows, Watched in --ink-2, the live toast and focus, Seal early asking first, Past weeks before a seal, Restore asking and Undo restoring (T-083); " +
       "record on the phone, transcribe on the laptop — the upload to the private repo's audio/ at 390 and 1280, the phone with no transcription at all, consent, the transcript on IndexedDB only, fillers, counts, words per minute, Copy, the desktop pull, the upload failure and its retry per open, Not now, and every failure line (T-046)"
     : fails + " of " + checks + " flow check(s) FAILED"));
   process.exit(fails === 0 ? 0 : 1);

@@ -1222,8 +1222,11 @@ function thumbState(scope) {
     return { r: z.ratio(fg, bg), fg: z.hex(fg), bg: z.hex(bg) };
   };
   const rows = [];
-  document.querySelectorAll((scope || "#view") + ' a.grow[href^="#/lesson/"]').forEach(a => {
-    const [, , cid, ui, li] = a.getAttribute("href").slice(1).split("/");
+  // T-083 #15: the lecture rows lost their frames too (the owner's "fake thumbnails"); the one frame left
+  // is a watched lecture's own bar (.lq-watched, keyed by data-k), so a scope naming it measures that.
+  const lqw = !!scope && /lq-watched/.test(scope);
+  document.querySelectorAll(lqw ? scope : (scope || "#view") + ' a.grow[href^="#/lesson/"]').forEach(a => {
+    const [cid, ui, li] = lqw ? a.dataset.k.split(".") : a.getAttribute("href").slice(1).split("/").slice(2);
     const c = window.DAR.COURSES.find(x => x.id === cid);
     const l = c && c.units[+ui] && c.units[+ui].lessons[+li];
     const t = a.querySelector(":scope > .thumb");
@@ -1246,7 +1249,7 @@ function thumbState(scope) {
       chip: ((t.querySelector(".th-dur") || {}).textContent || "").trim(),
       chipAria: t.querySelector(".th-dur") ? t.querySelector(".th-dur").getAttribute("aria-hidden") : null,
       edge: edge ? edge.style.width : "", edgeCol: edge ? z.hex(z.bytes(getComputedStyle(edge).backgroundColor)) : "",
-      sub: ((a.querySelector(".g-s") || {}).textContent || "").trim(),
+      sub: ((a.querySelector(lqw ? ".lq-wt" : ".g-s") || {}).textContent || "").trim(),
       code: ((t.querySelector(".th-code") || {}).textContent || "").replace(/\s+/g, " ").trim(),
       codeShown: !!t.querySelector(".th-code") && t.querySelector(".th-code").checkVisibility(),
       ttl: ((t.querySelector(".th-ttl") || {}).textContent || "").trim(),
@@ -2135,7 +2138,8 @@ function t26cWeekWant(st, today) {
       m: "DSA " + (+x.dsa || 0) + " · " + (+x.posts || 0) + " post" + ((+x.posts || 0) === 1 ? "" : "s") + " · " + bhd(+x.revenue || 0),
       notes: x.notes || "No notes." })),
     meta: weeks.length ? weeks.length + " sealed" : "none sealed yet",
-    slots: weeks.length ? [] : [0, 1, 2, 3].map(k => "Week " + (w + k)),
+    // T-083 #14: before the first seal, one line naming the first Sunday (was four placeholder cards, this week and three ahead).
+    none: weeks.length ? null : "Sealed weeks appear here; the first opens " + t26cUTC(sun, { weekday: "long" }) + " " + t26cShort(sun) + ".",
   };
 }
 // The Library's documents, read from DOCS in app.js on disk: every id, in
@@ -2170,6 +2174,7 @@ function t26cWeek() {
       notes: c.tagName === "DETAILS" && c.open ? txt(c, ".wk-notes") : null, open: !!c.open,
       sh: c.querySelector("summary") ? c.querySelector("summary").getBoundingClientRect().height : 0 })),
     past: (g => g ? { t: g.firstChild.textContent.trim(), meta: txt(g, ".gh-meta") } : null)(vis("#view .ghead").find(g => /^Past weeks/.test(g.textContent))),
+    none: txt(document, "#view .wk-none"),
     // Each question's placeholder ink over what is behind the field.
     ph: ["rvShipped", "rvNotes"].map(id => { const el = document.querySelector("#view #" + id); if (!el) return { id, ratio: 0 };
       const back = z.backdrop(el), ink = z.over(z.bytes(getComputedStyle(el, "::placeholder").color), back);
@@ -3620,22 +3625,24 @@ function t28SeedClips(list) {
       await page.goto(URL + "/__boot", { waitUntil: "load" });
       await page.waitForSelector("#view > *");
       await themePainted(page, theme, at + " thumbnails");
-      // T-080 PR 3: measured on lecture pages' "In this unit" rows (the course page's rows have no
-      // frame now). Lecture 13's page has the proven lecture 14 as its next row; lecture 2's has the
-      // watched lecture 1 as its previous row and lecture 3 as its next, and is the page measured through.
-      await go(page, "/lesson/math110/0/12");
+      // T-083 #15 (the owner's "design fixes"): a lecture page's In this unit rows are the course page's
+      // rows now, with no frame (tools/verify-flows.js (ux #15) holds that). The one frame left is a
+      // watched lecture's own bar (.lq-watched), so the frame is measured there: lecture 14's page (proven)
+      // and lecture 1's (watched), the page measured through. (T-080 PR 3 measured In this unit's rows.)
+      await go(page, "/lesson/math110/0/13");
       await frames(page);
-      const preP = await page.evaluate(thumbState, "#view .lsn-nav");
-      await go(page, "/lesson/math110/0/1");
+      const preP = await page.evaluate(thumbState, "#view .lq-watched");
+      await go(page, "/lesson/math110/0/0");
       await frames(page);
-      const where = at + " /lesson/math110/0/1 (In this unit)";
-      const pre = await page.evaluate(thumbState, "#view .lsn-nav");
+      const where = at + " /lesson/math110/0/0 (the watched bar's frame)";
+      const pre = await page.evaluate(thumbState, "#view .lq-watched");
       const vids = pre.filter(r => r.v);
       thumbRows += pre.length;
+      const unitFrames = await page.evaluate(() => document.querySelectorAll("#view .lsn-nav .thumb").length);
       const badSrc = pre.filter(r => !r.thumb || (r.v ? r.imgs !== 1 || r.src !== ytimg(r.v) : r.imgs !== 0));
-      check(where + ": every video lecture row leads with an <img> of i.ytimg.com/vi/<its v>/hqdefault.jpg",
-        pre.length === 2 && vids.length > 0 && badSrc.length === 0,
-        badSrc.length ? show(badSrc, r => r.at + " src " + r.src + " (v " + r.v + ")") : vids.length + " of " + pre.length + " rows (next and previous)");
+      check(where + ": the watched lecture's bar leads with an <img> of i.ytimg.com/vi/<its v>/hqdefault.jpg, and In this unit draws no frame",
+        pre.length === 1 && vids.length === 1 && badSrc.length === 0 && unitFrames === 0,
+        badSrc.length ? show(badSrc, r => r.at + " src " + r.src + " (v " + r.v + ")") : vids.length + " frame; " + unitFrames + " in In this unit");
       const badAttr = vids.filter(r => r.loading !== "lazy" || r.decoding !== "async" || r.alt !== "" ||
         !(Math.abs(r.ratio - 16 / 9) <= 0.01) || !(Math.abs(r.boxRatio - 16 / 9) <= 0.01));
       check(where + ": each image is loading=lazy, decoding=async, alt=\"\", and 16:9 (±0.01)", vids.length > 0 && badAttr.length === 0,
@@ -3647,18 +3654,19 @@ function t28SeedClips(list) {
       const badChip = pre.filter(r => r.chip !== r.want || r.chipAria !== "true");
       check(where + ": the duration chip reads the lesson's min as m:ss or h:mm:ss, and is aria-hidden (the title is beside it)", pre.length > 0 && badChip.length === 0,
         badChip.length ? show(badChip, r => r.at + " \"" + r.chip + "\", want \"" + r.want + "\", aria-hidden " + r.chipAria) : pre.length + " chips, e.g. \"" + pre[0].chip + "\", aria-hidden");
-      // The seeded state: lecture 1 watched, lecture 14 proven.
+      // The seeded state: lecture 1 watched, lecture 14 proven. Each bar says "Watched" beside its frame
+      // (T-083: the bar, not a row, carries the frame now).
       const wr = pre.find(r => r.at === "math110/0/0"), pr = preP.find(r => r.at === "math110/0/13");
-      const stateOk = !!wr && !!pr && /\bwatched\b/.test(wr.cls) && wr.edge === "100%" && wr.edgeCol === "#ffffff" && /· Watched$/.test(wr.sub) &&
-        /\bproven\b/.test(pr.cls) && pr.edge === "100%" && pr.edgeCol !== wr.edgeCol && /· Proven$/.test(pr.sub);
-      check(where + ": a watched lecture's frame has a full white edge, a proven one's a full gold edge, and each row says which", stateOk,
+      const stateOk = !!wr && !!pr && /\bwatched\b/.test(wr.cls) && wr.edge === "100%" && wr.edgeCol === "#ffffff" && /^Watched\b/.test(wr.sub) &&
+        /\bproven\b/.test(pr.cls) && pr.edge === "100%" && pr.edgeCol !== wr.edgeCol && /^Watched\b/.test(pr.sub);
+      check(where + ": a watched lecture's frame has a full white edge, a proven one's a full gold edge, and each bar says Watched", stateOk,
         [wr, pr].map(r => r ? r.at + " " + r.cls.replace(/^thumb /, "") + " edge " + r.edge + " " + r.edgeCol + " \"" + r.sub + "\"" : "missing").join("; "));
 
       // Now refuse them: every frame fails, and must fall back.
       mode = "abort";
       held.splice(0).forEach(r => r.abort().catch(() => {}));
       const settled = await visitThumbs(page);
-      const post = await page.evaluate(thumbState, "#view .lsn-nav");   // T-080 PR 3: the In this unit rows, as above
+      const post = await page.evaluate(thumbState, "#view .lq-watched");   // T-083: the watched bar's frame, as above
       const pv = post.filter(r => r.v);
       coverRows += pv.length;
       const badCover = pv.filter(r => !/\bcover\b/.test(r.cls) || r.imgs !== 0 || !r.bgOpaque || r.skeleton ||
@@ -3675,18 +3683,18 @@ function t28SeedClips(list) {
       check(where + ": on the cover, its code and the chip are >= 4.5:1", !!least && low.length === 0,
         low.length ? low.length + " — " + low.slice(0, 3).join("; ") : least ? "least " + least.r.toFixed(2) + ":1 (" + least.what + ", " + least.fg + " on " + least.bg + ")" : "no text measured");
 
-      // Readings and papers: a cover from the first paint, nothing to load.
+      // Readings and papers. T-083 #15: no row draws a frame now, so a paper's row says what it is in its
+      // length column, as the course page's does: AI 300's paper 3 (unit 0), whose next row is a paper and
+      // previous a video, with no .thumb and no <img> anywhere in In this unit.
       mode = "hold";
-      // T-080 PR 3: AI 300's paper 3 (unit 0): its next row is a paper, its previous a video.
       await go(page, "/lesson/ai300/0/2");
-      const ai = await page.evaluate(thumbState, "#view .lsn-nav");
-      const reads = ai.filter(r => !r.v), aiv = ai.filter(r => r.v);
-      const badRead = reads.filter(r => !r.thumb || !/\bcover\b/.test(r.cls) || r.imgs !== 0 || r.chip !== r.want || (r.vis && !r.codeShown));
-      const badAiv = aiv.filter(r => r.src !== ytimg(r.v));
-      check(at + " /lesson/ai300/0/2: every reading and paper row is a typeset cover with no <img> from its first paint, its chip \"Paper\" or \"Reading\"; every video row's frame is its own v",
-        reads.length === 1 && aiv.length === 1 && badRead.length === 0 && badAiv.length === 0,
-        badRead.length || badAiv.length ? show(badRead.concat(badAiv), r => r.at + " " + r.cls + " imgs " + r.imgs + " chip \"" + r.chip + "\" src " + r.src)
-          : reads.length + " readings (" + reads.filter(r => r.vis).length + " on screen), " + aiv.length + " video rows with their frames");
+      const ai = await page.evaluate(() => [...document.querySelectorAll("#view .lsn-nav a.grow")].map(a => ({ href: a.getAttribute("href"),
+        thumb: !!a.querySelector(".thumb, img"), v: ((a.querySelector(".g-v") || {}).textContent || "").trim() })));
+      const aiWant = ai.map(r => { const [, , cid, ui, li] = r.href.slice(1).split("/"); const l = CURRICULUM.COURSES.find(c => c.id === cid).units[+ui].lessons[+li];
+        return l.min ? null : l.paper ? "paper" : "reading"; });
+      check(at + " /lesson/ai300/0/2: In this unit's rows draw no frame; a paper or reading says so in its length column (T-083)",
+        ai.length === 2 && ai.every(r => !r.thumb) && ai.every((r, i) => aiWant[i] === null ? /^\d+:\d\d/.test(r.v) : r.v === aiWant[i]),
+        JSON.stringify(ai));
       check(at + " thumbnails: no page errors", errors.length === 0, errors.join(" | "));
       await ctx.close();
     }
@@ -3700,8 +3708,9 @@ function t28SeedClips(list) {
   // same task: a fade is a CSSTransition on opacity, or it is not there.
   console.log("\nthumbnails that load, 390px light");
   const u0 = CURRICULUM.COURSES.find(c => c.id === "math110").units[0].lessons;
-  // T-080 PR 3: lecture 3's page, whose previous row is lecture 2 (BIG) and next is lecture 4 (GREY).
-  const BIG = ytimg(u0[1].v), GREY = ytimg(u0[3].v);
+  // T-083 #15: the watched bars' frames — lecture 1's (watched in the seed: BIG) and lecture 14's (proven: GREY),
+  // one page each. (T-080 PR 3 used lecture 3's In this unit rows, which have no frame now.)
+  const BIG = ytimg(u0[0].v), GREY = ytimg(u0[13].v);
   const bigPng = png(480, 360, [38, 84, 140]), greyPng = png(120, 90, [204, 204, 204]);
   let fadesSeen = 0;
   for (const motion of ["reduce", "no-preference"]) {
@@ -3727,20 +3736,23 @@ function t28SeedClips(list) {
     });
     await page.goto(URL + "/__boot", { waitUntil: "load" });
     await page.waitForSelector("#view > *");
-    await go(page, "/lesson/math110/0/2");
-    const sel = li => '#view .lsn-nav a.grow[href="#/lesson/math110/0/' + li + '"] > .thumb';
-    const landed = await page.waitForFunction(([a, b]) => {
-      const x = document.querySelector(a), y = document.querySelector(b);
-      return !!x && !!y && x.classList.contains("loaded") && y.classList.contains("cover");
-    }, [sel(1), sel(3)], { timeout: 6000, polling: 100 }).then(() => true, () => false);
+    const sel = li => '#view .lq-watched[data-k="math110.0.' + li + '"] > .thumb';
+    await go(page, "/lesson/math110/0/13");
+    const greyed = await page.waitForFunction(b => { const y = document.querySelector(b); return !!y && y.classList.contains("cover"); },
+      sel(13), { timeout: 6000, polling: 100 }).then(() => true, () => false);
+    const grey = await page.evaluate(b => { const y = document.querySelector(b); return { grey: y ? y.className : "", greyImgs: y ? y.querySelectorAll("img").length : -1 }; }, sel(13));
+    await go(page, "/lesson/math110/0/0");
+    const landed = await page.waitForFunction(a => {
+      const x = document.querySelector(a);
+      return !!x && x.classList.contains("loaded");
+    }, sel(0), { timeout: 6000, polling: 100 }).then(() => greyed, () => false);
     await page.evaluate(() => Promise.all(document.getAnimations().map(a => a.finished.catch(() => {}))));
-    const r = await page.evaluate(([a, b]) => {
-      const x = document.querySelector(a), y = document.querySelector(b), img = x && x.querySelector("img");
+    const r = Object.assign(await page.evaluate(a => {
+      const x = document.querySelector(a), img = x && x.querySelector("img");
       const cs = img ? getComputedStyle(img) : null;
       return { cls: x ? x.className : "", img: !!img, op: cs ? cs.opacity : null, prop: cs ? cs.transitionProperty : null,
-               dur: cs ? cs.transitionDuration : null, grey: y ? y.className : "", greyImgs: y ? y.querySelectorAll("img").length : -1,
-               fade: window.__fade };
-    }, [sel(1), sel(3)]);
+               dur: cs ? cs.transitionDuration : null, fade: window.__fade };
+    }, sel(0)), grey);
     const at = "390px light, motion " + motion;
     check(at + ": a frame that loads is shown — .loaded, opacity 1", landed && /\bloaded\b/.test(r.cls) && r.img && r.op === "1",
       (landed ? "" : "did not settle; ") + r.cls + ", img " + r.img + ", opacity " + r.op);
@@ -3762,20 +3774,28 @@ function t28SeedClips(list) {
 
   // ---- covers and chips in every theme, one course per faculty ----
   const FAC_COURSES = ["math110", "ai300", "phys100", "sys250", "res400"];
+  // T-083 #15: the frame left is a watched lecture's bar, so each course's first video lecture is seeded
+  // watched and its own page is measured (T-080 PR 3 measured lecture 2's In this unit rows).
+  const FAC_FIRST = FAC_COURSES.map(cid => { const c = CURRICULUM.COURSES.find(x => x.id === cid);
+    for (let ui = 0; ui < c.units.length; ui++) for (let li = 0; li < c.units[ui].lessons.length; li++) if (c.units[ui].lessons[li].v) return [cid, ui, li];
+    return null; }).filter(Boolean);
+  const facWatched = new Function("args", "if (window.top !== window) return; const s = JSON.parse(localStorage.getItem('darhikmah_v1') || '{}'); s.lessons = s.lessons || {};" +
+    FAC_FIRST.map(([c, u, l]) => "s.lessons['" + c + "." + u + "." + l + "'] = { done: true, doneAt: '2026-10-30', notes: '', checks: [] };").join("") +
+    "localStorage.setItem('darhikmah_v1', JSON.stringify(s));");
   let facTexts = 0;
   for (const theme of ALL_THEMES) {
     console.log("\nthumbnail contrast, " + theme);
-    const { ctx, page, errors } = await fresh(browser, { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }, theme);
+    const { ctx, page, errors } = await fresh(browser, { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }, theme, facWatched);
     await page.goto(URL + "/__boot", { waitUntil: "load" });
     await page.waitForSelector("#view > *");
     await themePainted(page, theme, theme + " thumbnail contrast");
     const low = [], lowChip = [];
     let least = null, worstChip = Infinity, covers = 0, unsettled = [];
-    for (const cid of FAC_COURSES) {
-      // T-080 PR 3: a lecture page's In this unit rows (lecture 2: lectures 1 and 3), where frames still are.
-      await go(page, "/lesson/" + cid + "/0/1");
+    for (const [cid, ui, li] of FAC_FIRST) {
+      // T-083: the course's first video lecture, watched: its bar's frame (see FAC_FIRST).
+      await go(page, "/lesson/" + cid + "/" + ui + "/" + li);
       if (!(await visitThumbs(page))) unsettled.push(cid);
-      (await page.evaluate(thumbState, "#view .lsn-nav")).filter(r => r.vis).forEach(r => {
+      (await page.evaluate(thumbState, "#view .lq-watched")).filter(r => r.vis).forEach(r => {
         if (/\bcover\b/.test(r.cls)) covers++;
         (r.texts || []).forEach(t => {
           facTexts++;
@@ -4660,11 +4680,11 @@ function t28SeedClips(list) {
       JSON.stringify(m.qs.map(q => [q.q, q.forId, q.input])) === JSON.stringify([["What did you ship?", "rvShipped", "rvShipped"], ["What got in the way?", "rvNotes", "rvNotes"]]) && m.qs.every(q => q.h >= 44),
       JSON.stringify(m.qs));
     c26c(at + " /review: \"Past weeks\" reads \"" + W.meta + "\"" + (W.cards.length ? " and is one card per sealed week, newest first, each its shipped text (or \"nothing shipped\") and its numbers"
-        : " and holds the four places the cards will go (" + W.slots.join(", ") + ")"),
+        : " and is one line, \"" + W.none + "\" (T-083 #14: no placeholder cards)"),
       !!m.past && m.past.meta === W.meta && (W.cards.length
         ? m.cards.length === W.cards.length && m.cards.every((c, i) => { const x = W.cards[i];
             return c.tag === "DETAILS" && c.h === x.h && c.date === x.date && c.s === x.s && c.fail === x.fail && c.m === x.m && c.sh >= 44; })
-        : m.cards.length === 4 && m.cards.every((c, i) => c.slot && c.h === W.slots[i])),
+        : m.cards.length === 0 && m.none === W.none),
       (m.past ? "\"" + m.past.meta + "\": " : "no header: ") + m.cards.map(c => c.h + (c.date ? " " + c.date : "") + (c.s ? " / " + c.s : "") + (c.m ? " / " + c.m : "")).join(" | "));
     if (o.click && W.cards.length) {
       await page.click("#view .wk-weeks > details:first-child > summary");
@@ -5872,7 +5892,8 @@ function t28SeedClips(list) {
         theme: document.documentElement.dataset.theme, layers, btns,
         playfair: [...document.fonts].filter(f => f.family.replace(/["']/g, "") === "Playfair Display").map(f => f.status),
         h1: face(vis("#view h1:not(.folio)")[0] || null),
-        large: face(vis("#view h1.folio.dash-title")[0] || null),
+        // T-083 #10: the dashboard's large title is the hero's title, the page's one h1 (was a hidden-on-desktop folio h1).
+        large: face(vis("#view h1.dash-title")[0] || null),
         hero: face(vis("#view .one.lead .one-kind")[0] || null),
       };
     };

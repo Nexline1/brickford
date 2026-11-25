@@ -1304,6 +1304,8 @@ async function scenario(browser, now, state, tz) {
       const file = { lessons: {}, studyDays: ["2026-10-20"] };
       if (backup !== undefined) file.monkStart = backup;
       await probe.page.setInputFiles("#importFile", { name: "backup.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(file)) });
+      // T-083 #5: Restore asks first now (a confirm setting the backup beside this device); the owner's press is its Restore.
+      await probe.page.click("dialog.ask-sheet [data-sheet-go]");
       await probe.page.waitForFunction(() => (JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").studyDays || []).includes("2026-10-20"), null, { timeout: 5000 });
       const r = await probe.page.evaluate(() => ({ stored: JSON.parse(localStorage.getItem("darhikmah_v1")).monkStart || null, from: window.__brickfordTest.MONK.from }));
       check("T-065 importBackup, " + name + " (" + (want || "none") + ")", r.stored === want && r.from === want, JSON.stringify(r));
@@ -1575,14 +1577,16 @@ async function scenario(browser, now, state, tz) {
       await page.waitForSelector("#view .lsn-needs", { timeout: 8000 });
       const L = await page.evaluate(() => {
         const rows = sel => [...document.querySelectorAll("#view " + sel + " a.grow")].map(a => ({ href: a.getAttribute("href"), done: a.classList.contains("done-row"),
-          tick: (a.querySelector(".g-lead") || {}).textContent || "" }));
+          // T-083 #12: the tick is the inline SVG check (svg.tick), no longer the "\u2713" text glyph; a watched row has
+          // that and no text, an unwatched one neither.
+          tick: (l => l && l.querySelector("svg.tick") && !l.textContent.trim() ? "tick" : (l ? l.textContent : ""))(a.querySelector(".g-lead")) }));
         const head = t => [...document.querySelectorAll("#view .ghead")].map(h => h.textContent).find(x => x.startsWith(t)) || "";
         return { needs: rows(".lsn-needs"), leads: rows(".lsn-leads"), needsHead: head("Needs"), leadsHead: head("Leads to"), want: window.DAR.PREREQ["ai200.3.0"].needs };
       });
       const hrefOf = k => "#/lesson/" + k.split(".").join("/");
       check("v2: a lecture page lists its Needs in the map's order, the watched one ticked, and Leads to",
         JSON.stringify(L.needs.map(r => r.href)) === JSON.stringify(L.want.map(hrefOf)) &&
-        L.needs.every(r => r.done === (r.href === hrefOf("cs100.0.8")) && (r.tick === "✓") === r.done) &&
+        L.needs.every(r => r.done === (r.href === hrefOf("cs100.0.8")) && (r.tick === "tick") === r.done) &&
         L.needsHead === "Needs1 of " + L.want.length + " watched" && L.leads.some(r => r.href === hrefOf("ai200.3.1")) && /^Leads to\d+ lecture/.test(L.leadsHead),
         L.needsHead + ": " + L.needs.map(r => r.href.slice(9) + (r.done ? " (ticked)" : "")).join(", ") + "; " + L.leadsHead + ": " + L.leads.map(r => r.href.slice(9)).join(", "));
       await page.click("#view .lsn-leads a[href='" + hrefOf("ai200.3.1") + "']");
@@ -1679,10 +1683,11 @@ async function scenario(browser, now, state, tz) {
         await page.evaluate(r => { location.hash = "#" + r; }, r);
         await page.waitForFunction(() => document.querySelector("#view > *") && !document.querySelector("#view [data-logic-stale]"), null, { timeout: 8000 });
         await page.evaluate(() => { window.__brickfordTest.render(); window.__brickfordTest.render(); });
-        drawn.push(await page.evaluate(r => !!document.querySelector(r === "/" ? "#view .cp-list" : "#view .cp-rec"), r));
+        // T-083 #2: the block moved from Today to Proof; Today is drawn too (it has to stay a read as well).
+        drawn.push(await page.evaluate(r => !!document.querySelector(r === "/" ? "#view .card.one.lead" : "#view .cp-list"), r));
       }
       const after = await page.evaluate(() => ({ w: window.__stateWrites, s: localStorage.getItem("darhikmah_v1") }));
-      check("T-069: a render is a read: drawing Today's Checkpoints block and Proof's checkpoint row 4 times (and 8 renders) writes the progress state 0 times and leaves it byte-identical",
+      check("T-069: a render is a read: drawing Today and Proof's Checkpoints block (T-083: moved there from Today) 4 times (and 8 renders) writes the progress state 0 times and leaves it byte-identical",
         drawn.every(Boolean) && after.w === 0 && after.s === before, "drawn " + drawn.join(",") + "; " + after.w + " write(s); state " + (after.s === before ? "unchanged" : "CHANGED"));
       check("no page errors (T-069 render)", errors.length === 0, errors.join(" | "));
       await ctx.close();
@@ -1697,7 +1702,7 @@ async function scenario(browser, now, state, tz) {
       const runs = [];
       for (const clock of CLOCKS) {
         const { ctx, page, errors } = await scenario(browser, clock, null, clock === "2026-12-07" ? "America/Los_Angeles" : undefined);
-        await page.evaluate(() => { location.hash = "#/"; });
+        await page.evaluate(() => { location.hash = "#/record"; });   // T-083 #2: the Checkpoints block is on Proof now
         await page.waitForSelector("#view .cp-list", { timeout: 8000 });
         const r = await page.evaluate(() => {
           const T = window.__brickfordTest;
@@ -1728,7 +1733,7 @@ async function scenario(browser, now, state, tz) {
       check("no page errors (T-069 days left)", runs.every(r => r.errors.length === 0), runs.map(r => r.errors.join(" | ")).join(" "));
       // Still tickable when late: one tick on the late clock, stored.
       const { ctx, page, errors } = await scenario(browser, "2027-03-01", null);
-      await page.evaluate(() => { location.hash = "#/"; });
+      await page.evaluate(() => { location.hash = "#/record"; });   // T-083 #2: the Checkpoints block is on Proof now
       await page.waitForSelector("#view .cp-list", { timeout: 8000 });
       await page.evaluate(() => { const d = document.querySelector('#view details.cp[data-cp="c1"]'); d.open = true; });
       await page.click('#view label:has(input[data-cp-tick="c1|nn"])');
@@ -1765,7 +1770,7 @@ async function scenario(browser, now, state, tz) {
         res.every(r => r.ok), res.map(r => r.name + " " + r.got.join("/") + (r.ok ? "" : " WRONG")).join("; "));
       // On the page: an auto item is drawn ticked and disabled, and pressing it stores nothing.
       const { ctx, page, errors } = await scenario(browser, "2026-11-14", cases[2][1]);
-      await page.evaluate(() => { location.hash = "#/"; });
+      await page.evaluate(() => { location.hash = "#/record"; });   // T-083 #2: the Checkpoints block is on Proof now
       await page.waitForSelector("#view .cp-list", { timeout: 8000 });
       const box = await page.evaluate(() => { const i = document.querySelector('#view input[data-cp-tick="c1|cs50p"]'); return { checked: i.checked, disabled: i.disabled }; });
       await page.click('#view label:has(input[data-cp-tick="c1|cs50p"])', { force: true });   // Playwright calls a disabled control's label not enabled; the press is the reader's
@@ -1792,7 +1797,7 @@ async function scenario(browser, now, state, tz) {
       };
       const { ctx, page, errors } = await scenario(browser, "2026-11-14", { practice });
       const n = await page.evaluate(() => window.__brickfordTest.problemsThisWeek());
-      await page.evaluate(() => { location.hash = "#/"; });
+      await page.evaluate(() => { location.hash = "#/record"; });   // T-083 #2: the Checkpoints block is on Proof now
       await page.waitForSelector("#view [data-cp-week]", { timeout: 8000 });
       const line = await page.textContent("#view [data-cp-week]");
       check("T-069: problems solved this week counts the items marked got it or checked right in the last 7 days (today and the six before), nothing else",

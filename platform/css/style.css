@@ -1088,7 +1088,7 @@ tr:last-child td { border-bottom: none; }
 .cal-cell.sel { background: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
 .cal-cell.rest { background: var(--bg-2); }
 .cal-cell .dnum {
-  font-family: var(--font-body); font-size: 0.68rem; color: var(--ink-3); line-height: 1;
+  font-family: var(--font-body); font-size: 0.8125rem; color: var(--ink-3); line-height: 1;   /* T-083 #9: 13px floor (was 0.68rem) */
   font-variant-numeric: lining-nums tabular-nums;
 }
 /* The day itself. Solid is a day completed, half is one started, an open ring
@@ -1096,7 +1096,7 @@ tr:last-child td { border-bottom: none; }
    at all — a Saturday is not a hole in the record. */
 .cal-cell .cmark, i.cmark {
   width: 14px; height: 14px; border-radius: 50%; display: block;
-  font-size: 0.5rem; line-height: 14px; text-align: center; color: var(--accent);
+  font-size: 0.8125rem; line-height: 14px; text-align: center; color: var(--accent);   /* T-083 #9: 13px floor (was 0.5rem) */
 }
 i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
 .cmark.dfull { background: var(--good); }
@@ -1179,9 +1179,10 @@ i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
   .cal-cell { min-height: 46px; padding: 3px 2px; align-items: center; gap: 2px; }
   /* The dot IS the cell now, so it needs no narrow-width special case. */
   .cal-cell { min-height: 40px; padding: 5px 1px 4px; }
-  .cal-cell .dnum { font-size: 0.72rem; gap: 0; flex-direction: column; }
-  .cal-cell .cmark { position: static; font-size: 0.6rem; }
-  .cal-dow { font-size: 0.5rem; letter-spacing: 0.02em; padding: 5px 0; }
+  /* T-083 #9: 13px floor on the phone's day numbers, marks and weekday letters (were 0.72, 0.6 and 0.5rem). */
+  .cal-cell .dnum { font-size: 0.8125rem; gap: 0; flex-direction: column; }
+  .cal-cell .cmark { position: static; font-size: 0.8125rem; }
+  .cal-dow { font-size: 0.8125rem; letter-spacing: 0; padding: 5px 0; }
 }
 
 
@@ -1204,7 +1205,8 @@ i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
   position: absolute; text-align: center; font-family: var(--font-rounded); font-variant-numeric: tabular-nums;
   font-size: 1.15rem; font-weight: 500; color: var(--ink); line-height: 1.1;
 }
-.ring-wrap .ring-label small { display: block; font-family: var(--font-body); font-size: 0.56rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; margin-top: 2px; }
+.ring-wrap .ring-label small { display: block; font-family: var(--font-body); font-size: 0.8125rem; letter-spacing: 0.01em;   /* T-083 #9: 13px floor (was 0.56rem, 0.06em) */
+  text-transform: uppercase; color: var(--ink-3); font-weight: 600; margin-top: 2px; }
 
 
 /* Staggered entrance for a list of cards or rows. */
@@ -2054,7 +2056,8 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
   .railbar.off { display: none; }
   .railbar .rb-main { flex: 1; min-width: 0; }
   .railbar .rb-label {
-    font-size: 0.6rem; letter-spacing: 0.07em; text-transform: uppercase;
+    font-size: 0.8125rem; letter-spacing: 0.04em;   /* T-083 #9: 13px floor (was 0.6rem) */
+    text-transform: uppercase;
     color: var(--ink-3); font-weight: 600;
   }
   .railbar .rb-t {
@@ -2666,7 +2669,8 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
 .tl-ring circle { fill: none; stroke-width: 4; }
 .tl-ring .tr-bg { stroke: var(--line); }
 .tl-ring .tr-fg { stroke: var(--fac, var(--accent)); }
-.tl-pct { position: relative; font-size: 0.6875rem; line-height: 1; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.tl-pct { position: relative; font-size: 0.8125rem;   /* T-083 #9: 13px floor (was 0.6875rem) */
+  line-height: 1; color: var(--ink-2); font-variant-numeric: tabular-nums; }
 
 /* ---- opens later ---- */
 .at-chips { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -3606,3 +3610,24 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 .owed-fold .u-name { font-size: var(--fs-body); }
 .owed-fold .owed-hint { order: 3; flex-basis: 100%; font-size: var(--fs-footnote); color: var(--ink-2); }
 .owed-fold .owed-list { margin-top: 4px; }
+/* #5: the toast with an Undo in it takes presses; the button is a 44px target
+   in the toast's own ink (white on navy, 8.2:1). */
+.toast.has-act { display: flex; align-items: center; gap: 12px; padding: 0 6px 0 20px; pointer-events: auto; }
+.toast.has-act .toast-t { padding: 11px 0; }
+.toast-undo {
+  min-width: 44px; min-height: 44px; padding: 0 12px; border: 0; border-radius: var(--r-md);
+  background: none; color: inherit; font: inherit; font-weight: 700; cursor: pointer;
+  text-decoration: underline; text-underline-offset: 3px;
+}
+/* The restore confirm: the backup and this device side by side. */
+.rs-cmp { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 4px 0 12px; }
+.rs-col { display: flex; flex-direction: column; gap: 2px; padding: 12px; border-radius: var(--r-md); background: var(--surface-2); }
+.rs-col b { color: var(--ink); font-size: var(--fs-body); }
+.rs-col span { color: var(--ink-2); font-size: var(--fs-footnote); font-variant-numeric: tabular-nums; }
+.rs-warn { color: var(--bad); font-size: var(--fs-footnote); margin: 0 0 12px; }
+/* The Settings row that replaces this device's progress says so in red. */
+.set-row.set-danger .g-t, .set-row.set-danger .g-lead { color: var(--bad); }
+/* #14 */
+.wk-none { margin-top: 0; }
+/* #9: Practice's fields are fingertip targets too (they measured 39-40px). */
+.pr-form input:not([type="checkbox"]):not([type="radio"]), .pr-form select, .pr-in, .pr-name { min-height: 44px; }

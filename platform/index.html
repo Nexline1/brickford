@@ -45,7 +45,7 @@
   if (meta) meta.setAttribute("content", PANEL[theme]);
 })();
 </script>
-<link rel="manifest" href="manifest.json?v=20261128a">
+<link rel="manifest" href="manifest.json?v=20261129a">
 <!-- iOS reads the apple-* pair; `mobile-web-app-capable` is the standard one that
      replaced it. Both, because Safari still honours only its own. -->
 <meta name="mobile-web-app-capable" content="yes">
@@ -56,17 +56,17 @@
 <meta name="apple-mobile-web-app-title" content="Brickford">
 <!-- Must be a PNG. Safari ignores SVG for apple-touch-icon, which is why these
      are real files rather than the inline data URI the favicon uses. -->
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20261128a">
-<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=20261128a">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20261129a">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=20261129a">
 <title>Brickford</title>
 <!-- Browser tab: the SAME full crest as the home-screen icon, at the sizes
      browsers actually request. PNG rather than the previous inline SVG,
      because an SVG gets scaled to 16px and the laurels turn to mud —
      rendering each size separately means 32px (what retina tabs use) is
      drawn properly instead of squeezed. -->
-<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=20261128a">
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=20261128a">
-<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png?v=20261128a">
+<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=20261129a">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=20261129a">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png?v=20261129a">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- Every heading, label and number is the platform's own face (SF on his
@@ -78,7 +78,7 @@
      app's Playfair Display Bold (T-080), self-hosted from fonts/ the same way. -->
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
-<link rel="stylesheet" href="css/style.css?v=20261128a">
+<link rel="stylesheet" href="css/style.css?v=20261129a">
 </head>
 <body>
 <!-- T-083 #11: the first thing a keyboard reaches; it lands on the page itself. -->
@@ -242,7 +242,7 @@
     <div class="ghead">Your data</div>
     <div class="glist set-list">
       <button class="grow set-row" type="button" id="exportBtn"><span class="g-lead"><svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3 V12 M6.5 8.5 L10 12 L13.5 8.5 M3.5 13.5 V16 A1 1 0 0 0 4.5 17 H15.5 A1 1 0 0 0 16.5 16 V13.5"/></svg></span><span class="g-main"><span class="g-t">Backup</span><span class="g-s">save everything on this device as one file</span></span></button>
-      <button class="grow set-row" type="button" id="importBtn"><span class="g-lead"><svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 12 V3 M6.5 6.5 L10 3 L13.5 6.5 M3.5 13.5 V16 A1 1 0 0 0 4.5 17 H15.5 A1 1 0 0 0 16.5 16 V13.5"/></svg></span><span class="g-main"><span class="g-t">Restore backup</span><span class="g-s">load a backup file into this device</span></span></button>
+      <button class="grow set-row set-danger" type="button" id="importBtn"><span class="g-lead"><svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 12 V3 M6.5 6.5 L10 3 L13.5 6.5 M3.5 13.5 V16 A1 1 0 0 0 4.5 17 H15.5 A1 1 0 0 0 16.5 16 V13.5"/></svg></span><span class="g-main"><span class="g-t">Restore backup</span><span class="g-s">load a backup file into this device</span></span></button>
       <a class="grow set-row" href="#/sync"><span class="g-lead"><svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8 A6.5 6.5 0 0 1 15 4.8 M16.5 12 A6.5 6.5 0 0 1 5 15.2 M3.5 4.5 V8 H7 M16.5 15.5 V12 H13"/></svg></span><span class="g-main"><span class="g-t">Sync devices</span><span class="g-s">keep the phone and the computer in step</span></span></a>
     </div>
     <div class="sheet-go"><button class="btn ghost" type="button" data-settings-done>Done</button></div>
@@ -253,40 +253,40 @@
 
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
-<script defer src="data/curriculum.js?v=20261128a"></script>
-<script defer src="data/prerequisites.js?v=20261128a"></script>
-<script defer src="js/figures.js?v=20261128a"></script>
-<script defer src="js/lab.js?v=20261128a"></script>
-<script defer src="data/concepts-linear-algebra.js?v=20261128a"></script>
-<script defer src="data/summaries-math110.js?v=20261128a"></script>
-<script defer src="data/summaries-math110-mit.js?v=20261128a"></script>
-<script defer src="data/summaries-math120.js?v=20261128a"></script>
-<script defer src="data/summaries-math130.js?v=20261128a"></script>
-<script defer src="data/summaries-phys100.js?v=20261128a"></script>
-<script defer src="data/summaries-math210.js?v=20261128a"></script>
-<script defer src="data/summaries-sys250.js?v=20261128a"></script>
-<script defer src="data/summaries-ai200.js?v=20261128a"></script>
-<script defer src="data/summaries-ai210.js?v=20261128a"></script>
-<script defer src="data/summaries-ai310.js?v=20261128a"></script>
-<script defer src="data/summaries-res400.js?v=20261128a"></script>
-<script defer src="data/practice-math110.js?v=20261128a"></script>
-<script defer src="data/practice-math120.js?v=20261128a"></script>
-<script defer src="data/practice-math130.js?v=20261128a"></script>
-<script defer src="data/practice-phys100.js?v=20261128a"></script>
-<script defer src="data/practice-ai200.js?v=20261128a"></script>
-<script defer src="data/practice-cs100.js?v=20261128a"></script>
-<script defer src="data/checkpoints.js?v=20261128a"></script>
-<script defer src="data/workshop.js?v=20261128a"></script>
-<script defer src="data/storytelling.js?v=20261128a"></script>
-<script defer src="data/quiz-linear-algebra.js?v=20261128a"></script>
-<script defer src="data/quiz-calculus.js?v=20261128a"></script>
-<script defer src="data/quiz-probability.js?v=20261128a"></script>
-<script defer src="data/quiz-zero-to-hero.js?v=20261128a"></script>
-<script defer src="data/quiz-dsa.js?v=20261128a"></script>
-<script defer src="data/quiz-math-for-ml.js?v=20261128a"></script>
-<script defer src="data/quiz-llm-engineering.js?v=20261128a"></script>
-<script defer src="js/quiz-engine.js?v=20261128a"></script>
-<script defer src="js/app.js?v=20261128a"></script>
+<script defer src="data/curriculum.js?v=20261129a"></script>
+<script defer src="data/prerequisites.js?v=20261129a"></script>
+<script defer src="js/figures.js?v=20261129a"></script>
+<script defer src="js/lab.js?v=20261129a"></script>
+<script defer src="data/concepts-linear-algebra.js?v=20261129a"></script>
+<script defer src="data/summaries-math110.js?v=20261129a"></script>
+<script defer src="data/summaries-math110-mit.js?v=20261129a"></script>
+<script defer src="data/summaries-math120.js?v=20261129a"></script>
+<script defer src="data/summaries-math130.js?v=20261129a"></script>
+<script defer src="data/summaries-phys100.js?v=20261129a"></script>
+<script defer src="data/summaries-math210.js?v=20261129a"></script>
+<script defer src="data/summaries-sys250.js?v=20261129a"></script>
+<script defer src="data/summaries-ai200.js?v=20261129a"></script>
+<script defer src="data/summaries-ai210.js?v=20261129a"></script>
+<script defer src="data/summaries-ai310.js?v=20261129a"></script>
+<script defer src="data/summaries-res400.js?v=20261129a"></script>
+<script defer src="data/practice-math110.js?v=20261129a"></script>
+<script defer src="data/practice-math120.js?v=20261129a"></script>
+<script defer src="data/practice-math130.js?v=20261129a"></script>
+<script defer src="data/practice-phys100.js?v=20261129a"></script>
+<script defer src="data/practice-ai200.js?v=20261129a"></script>
+<script defer src="data/practice-cs100.js?v=20261129a"></script>
+<script defer src="data/checkpoints.js?v=20261129a"></script>
+<script defer src="data/workshop.js?v=20261129a"></script>
+<script defer src="data/storytelling.js?v=20261129a"></script>
+<script defer src="data/quiz-linear-algebra.js?v=20261129a"></script>
+<script defer src="data/quiz-calculus.js?v=20261129a"></script>
+<script defer src="data/quiz-probability.js?v=20261129a"></script>
+<script defer src="data/quiz-zero-to-hero.js?v=20261129a"></script>
+<script defer src="data/quiz-dsa.js?v=20261129a"></script>
+<script defer src="data/quiz-math-for-ml.js?v=20261129a"></script>
+<script defer src="data/quiz-llm-engineering.js?v=20261129a"></script>
+<script defer src="js/quiz-engine.js?v=20261129a"></script>
+<script defer src="js/app.js?v=20261129a"></script>
 <!-- Offline (T-058): the service worker, ../sw.js at the site root so its
      scope covers revision/ as well as platform/. Its ?v= is the same token as
      every file above, so bumping the tokens installs a new worker with a new
@@ -295,7 +295,7 @@
 <script>
 if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol))
   window.addEventListener("load", function () {
-    navigator.serviceWorker.register("../sw.js?v=20261128a").catch(function () {});
+    navigator.serviceWorker.register("../sw.js?v=20261129a").catch(function () {});
   });
 </script>
 </body>

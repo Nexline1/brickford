@@ -7,26 +7,26 @@
   "id": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#000000",
-  "theme_color": "#1c1c1e",
+  "background_color": "#12141c",
+  "theme_color": "#1e2230",
   "lang": "en",
   "dir": "ltr",
   "categories": ["education", "productivity"],
   "icons": [
     {
-      "src": "icons/icon-192.png?v=20261123a",
+      "src": "icons/icon-192.png?v=20261125a",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icons/icon-512.png?v=20261123a",
+      "src": "icons/icon-512.png?v=20261125a",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icons/icon-maskable-512.png?v=20261123a",
+      "src": "icons/icon-maskable-512.png?v=20261125a",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

@@ -154,6 +154,10 @@
     }
   }
   const CHECK_SVG = '<svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M3 8 L6.2 11 L12 4.5"/></svg>';
+  // T-080: the same check, standalone, where a "\u2713" text glyph used to stand in
+  // for an icon (a font's tick, which changes shape and weight with the face).
+  // 1em square, so it takes the size its container's glyph had.
+  const TICK = CHECK_SVG.replace("<svg ", '<svg class="tick" aria-hidden="true" ');
 
   // ---------- state ----------
   const DEFAULT = {
@@ -2699,7 +2703,7 @@
           '<div class="rl-meta">' + esc(a.hint) + "</div>" +
           '<a class="btn" href="' + a.href + '">' + esc(a.verb) + " ▸</a>") +
       (studied
-        ? '<div class="rl-foot"><span>Day sealed</span><b style="color:var(--good);">✓</b></div>'
+        ? '<div class="rl-foot"><span>Day sealed</span><b style="color:var(--good);">' + TICK + "</b></div>"
         : '<div class="rl-foot"><span>Streak</span><b>' + streak() + "d</b></div>") +
       "</div>";
 
@@ -3568,7 +3572,7 @@
       '<div class="card one' + (canVerify ? " one-clear" : "") + '">' +
       '<div class="bar sweep"><i style="--w:' + (gatesOk / 4) + '; transform:scaleX(' + (gatesOk / 4) + ');"></i></div>' +
       '<div class="gates" style="margin-top:12px;">' +
-      gates.map(g => '<div class="gate-row' + (g.ok ? " ok" : "") + '"><span class="gmark">' + (g.ok ? "✓" : "") + "</span>" +
+      gates.map(g => '<div class="gate-row' + (g.ok ? " ok" : "") + '"><span class="gmark">' + (g.ok ? TICK : "") + "</span>" +
         '<span class="gtext">' + esc(g.label) + (g.ok ? "" : ' <span style="color:var(--ink-3);">— ' + esc(g.hint) + "</span>") + "</span></div>").join("") +
       "</div>" +
 
@@ -3605,7 +3609,7 @@
       '<div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;">' +
       '<button class="btn ghost" data-act="saveLesson">Save</button>' +
       (st.verified
-        ? '<span class="pill good">✓ Verified ' + esc(st.verifiedAt || "") + "</span>" +
+        ? '<span class="pill good">' + TICK + ' Verified ' + esc(st.verifiedAt || "") + "</span>" +
           '<button class="btn ghost" data-act="unverify">Unverify</button>'
         : '<button class="btn" data-act="verify"' + (canVerify ? "" : ' disabled title="Finish the four gates first"') + ">Verify mastery</button>") +
       "</div></div>" +
@@ -3642,7 +3646,7 @@
     const today = realSched(todayISO()).some(it => it.cid === cid && it.ui === +ui && it.li === +li);
     const qr = st.quiz || {};
     const passHTML = () =>
-      '<div class="card lq-pass"><span class="lq-big" aria-hidden="true">✓</span>' +
+      '<div class="card lq-pass"><span class="lq-big" aria-hidden="true">' + TICK + "</span>" +
       '<div class="lq-pass-body"><div class="lq-pass-t">Lecture passed</div>' +
       '<div class="lq-pass-m">' + (qr.total || quiz.length) + " of " + (qr.total || quiz.length) + " · " +
       (qr.firstTry || 0) + " right on the first try · " + (today ? "counted for today" : "counted") + "</div></div>" +
@@ -3678,7 +3682,7 @@
       (watchedBar
         ? '<div class="lq-watched" id="lqWatched" data-src="' + esc(srcBase) + '" data-k="' + k + '" data-v="' + esc(l.v) + '" data-title="' + esc(l.t) + '">' +
           thumbHTML(c, ui, li) +
-          '<div class="lq-wm"><div class="lq-wt"><span class="lq-tick" aria-hidden="true">✓</span> Watched' + (l.min ? " · " + l.min + " min" : "") + "</div>" +
+          '<div class="lq-wm"><div class="lq-wt"><span class="lq-tick" aria-hidden="true">' + TICK + "</span> Watched" + (l.min ? " · " + l.min + " min" : "") + "</div>" +
           '<div class="lq-ws">' + esc(c.title) + "</div></div>" +
           '<button class="btn ghost lq-rewatch" type="button" data-act="rewatch">Rewatch</button></div>'
         : src
@@ -4449,7 +4453,7 @@
       return '<a class="cd-blk ' + (c ? facClass(c) : "") + (dn ? " done" : "") + (lk ? " locked" : "") + '" href="#/lesson/' + (lk ? lk.cid + "/" + lk.ui + "/" + lk.li : it.cid + "/" + it.ui + "/" + it.li) + '">' +
         '<span class="cd-bar" aria-hidden="true"></span>' +
         '<span class="cd-main"><span class="cd-k">' + esc(it.code) + " · " + esc(it.track) + "</span>" +
-        '<span class="cd-t">' + (dn ? '<span class="cd-ok" role="img" aria-label="done">✓</span>'
+        '<span class="cd-t">' + (dn ? '<span class="cd-ok" role="img" aria-label="done">' + TICK + "</span>"
           : (S.lessons[it.cid + "." + it.ui + "." + it.li] || {}).done ? '<span class="cd-st cd-part" role="img" aria-label="watched, quiz not passed"></span>'
           : '<span class="cd-st cd-ring" role="img" aria-label="not watched"></span>') +
         (lk ? '<span class="cd-lock" role="img" aria-label="locked">' + lockSVG() + "</span>" : "") + esc(it.l.t) + "</span></span>" +
@@ -4784,7 +4788,7 @@
       '<div class="sub">One record on every device, kept in your own repo.</div></div>' +
 
       '<div class="card"><div class="vseal">' +
-      '<div class="vico ' + (state === "ok" ? "ok" : "bad") + '">' + (state === "ok" ? "\u2713" : "!") + "</div>" +
+      '<div class="vico ' + (state === "ok" ? "ok" : "bad") + '">' + (state === "ok" ? TICK : "!") + "</div>" +
       '<div class="vtext"><div class="vhead" data-sync-head>' + syncHead() + "</div>" +
       '<div class="muted">' +
       (last ? "Last successful sync " + esc(agoLabel(last)) : "This device has never synced.") +
@@ -5073,7 +5077,7 @@
       // ---- draw it before you are shown it ----
       '<div class="card"><div style="display:flex; align-items:baseline; justify-content:space-between; gap:10px; flex-wrap:wrap;">' +
       "<h2>Draw it from memory</h2>" +
-      (st.proven ? '<span class="pill good">✓ proven</span>' : "") + "</div>" +
+      (st.proven ? '<span class="pill good">' + TICK + " proven</span>" : "") + "</div>" +
       '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin:2px 0 10px;">Sketch first — then compare. Producing beats recognising.</p>' +
       '<canvas id="sketchPad" class="sketchpad" width="640" height="360"></canvas>' +
       '<div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;">' +
@@ -5215,7 +5219,7 @@
           "<div><b>" + due.length + "</b><span>due now</span></div>" +
           "<div><b>" + all.length + "</b><span>scheduled</span></div>" +
           "</div>" + due.slice(0, 8).map(card).join("")
-        : '<div class="card"><div class="vseal"><div class="vico ok">✓</div><div class="vtext"><div class="vhead">Nothing due</div>' +
+        : '<div class="card"><div class="vseal"><div class="vico ok">' + TICK + '</div><div class="vtext"><div class="vhead">Nothing due</div>' +
           '<div style="font-size:var(--fs-small); color:var(--ink-2);">' +
           (all.length ? all.length + " lecture" + (all.length === 1 ? "" : "s") + " scheduled ahead." : "Prove a lecture and it enters the rotation.") +
           "</div></div></div></div>") +
@@ -6187,7 +6191,7 @@
   const TX_MODEL = "onnx-community/whisper-large-v3-turbo";
   const TX_REVISION = "360ebcde2559d60bb474678be3c1de9ef347d01a";
   const TX_MODEL_MB = 1115;
-  const TX_WORKER = "js/transcribe-worker.js?v=20261123a";
+  const TX_WORKER = "js/transcribe-worker.js?v=20261125a";
   const TX_MSG = {
     unsupported: "This browser cannot run the speech model, so this one stays audio only.",
     download: "Could not download the speech model. The recording is kept.",

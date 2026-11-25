@@ -45,7 +45,7 @@
   if (meta) meta.setAttribute("content", PANEL[theme]);
 })();
 </script>
-<link rel="manifest" href="manifest.json?v=20261125a">
+<link rel="manifest" href="manifest.json?v=20261126a">
 <!-- iOS reads the apple-* pair; `mobile-web-app-capable` is the standard one that
      replaced it. Both, because Safari still honours only its own. -->
 <meta name="mobile-web-app-capable" content="yes">
@@ -56,17 +56,17 @@
 <meta name="apple-mobile-web-app-title" content="Brickford">
 <!-- Must be a PNG. Safari ignores SVG for apple-touch-icon, which is why these
      are real files rather than the inline data URI the favicon uses. -->
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20261125a">
-<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=20261125a">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20261126a">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=20261126a">
 <title>Brickford</title>
 <!-- Browser tab: the SAME full crest as the home-screen icon, at the sizes
      browsers actually request. PNG rather than the previous inline SVG,
      because an SVG gets scaled to 16px and the laurels turn to mud —
      rendering each size separately means 32px (what retina tabs use) is
      drawn properly instead of squeezed. -->
-<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=20261125a">
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=20261125a">
-<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png?v=20261125a">
+<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=20261126a">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=20261126a">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png?v=20261126a">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- Every heading, label and number is the platform's own face (SF on his
@@ -78,7 +78,7 @@
      app's Playfair Display Bold (T-080), self-hosted from fonts/ the same way. -->
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
-<link rel="stylesheet" href="css/style.css?v=20261125a">
+<link rel="stylesheet" href="css/style.css?v=20261126a">
 </head>
 <body>
 
@@ -112,33 +112,22 @@
       <div class="est">Self-built university</div>
     </div>
 
+    <!-- T-080 PR 2 (owner, 25 Nov 2026: "fewer buttons per page ... group them
+         into categories"): seven top-level rows where there were fourteen. Five
+         places you go every day, then two groups that fold — Study tools and
+         Life — each a native <details>, so it opens by keyboard and by tap with no
+         script, and app.js opens the one that holds the current page. Every
+         route is still one link here (twelve), and the settings that were four
+         rows in the footer are one sheet behind one Settings row. -->
     <nav class="nav" id="nav">
       <a href="#/" data-route="/">
         <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 10 L10 3 L17 10 M5 8.5 V17 H15 V8.5"/></svg>
-        Dashboard
+        Today
       </a>
-      <a href="#/atlas" data-route="/atlas">
-        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.5 5 L7 3 L13 5.5 L17.5 3.5 V15 L13 17 L7 14.5 L2.5 16.5 Z M7 3 V14.5 M13 5.5 V17"/></svg>
-        The Atlas
-      </a>
-      <div class="nav-group-label">Academics</div>
       <a href="#/courses" data-route="/courses">
         <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4 Q7 2.5 10 4.5 Q13 2.5 17 4 V15 Q13 13.5 10 15.5 Q7 13.5 3 15 Z M10 4.5 V15.5"/></svg>
         Courses
       </a>
-      <a href="#/workshop" data-route="/workshop">
-        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2.5 H12 M9 2.5 V7.5 L4.5 15.5 Q3.8 17.5 5.5 17.5 H14.5 Q16.2 17.5 15.5 15.5 L11 7.5 V2.5 M6.5 12 H13.5"/></svg>
-        Problems
-      </a>
-      <a href="#/exams" data-route="/exams">
-        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 2.5 H15 V17.5 H5 Z M7.5 6 H12.5 M7.5 9 H12.5 M7.5 12 H10.5"/></svg>
-        Exams
-      </a>
-      <a href="#/record" data-route="/record">
-        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 3.5 H13 L16 6.5 V16.5 H4 Z M12.5 3.5 V7 H16 M6.5 10.5 H13.5 M6.5 13 H11"/></svg>
-        Proof
-      </a>
-      <div class="nav-group-label">Rhythm</div>
       <a href="#/practice" data-route="/practice">
         <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 3v9"/><path d="M7 6.5a3 3 0 0 1 6 0v2a3 3 0 0 1-6 0z"/><path d="M5 9.5a5 5 0 0 0 10 0M7.5 16.5h5"/></svg>
         Practice
@@ -147,48 +136,53 @@
         <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 10 A6.5 6.5 0 1 1 14 4.9 M16.5 2.5 V5.5 H13.5"/><path d="M7 10.2 L9.2 12.4 L13.2 8.4"/></svg>
         Week
       </a>
-      <a href="#/calendar" data-route="/calendar">
-        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="14" height="13" rx="2"/><path d="M3 8 H17 M6.5 11 H8 M9.5 11 H11 M12.5 11 H14 M6.5 14 H8"/></svg>
-        Calendar
+      <a href="#/record" data-route="/record">
+        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 3.5 H13 L16 6.5 V16.5 H4 Z M12.5 3.5 V7 H16 M6.5 10.5 H13.5 M6.5 13 H11"/></svg>
+        Proof
       </a>
-      <a href="#/monk" data-route="/monk">
-        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="7.5"/><path d="M10 2.5 A7.5 7.5 0 0 1 10 17.5 Z" fill="currentColor" stroke="none"/></svg>
-        Monk Mode
-      </a>
-      <a href="#/treasury" data-route="/treasury">
-        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="7.5"/><path d="M10 6 V14 M12.5 7.5 Q10 6 8.5 7.7 Q7 9.5 10 10 Q13 10.5 11.5 12.3 Q10 14 7.5 12.5"/></svg>
-        Treasury
-      </a>
-      <a href="#/library" data-route="/library">
-        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 3 H8 V17 H4 Z M8 3 H12 V17 H8 Z M12.5 3.5 L16.5 4.5 L13.5 17 L10 16"/></svg>
-        Library
-      </a>
+      <details class="nav-group" id="navTools">
+        <summary><svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><rect x="3" y="3" width="6" height="6" rx="1.5"/><rect x="11" y="3" width="6" height="6" rx="1.5"/><rect x="3" y="11" width="6" height="6" rx="1.5"/><rect x="11" y="11" width="6" height="6" rx="1.5"/></svg><span class="ng-t">Study tools</span><svg class="ng-chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 2.5 L8 6 L4.5 9.5"/></svg></summary>
+        <a href="#/workshop" data-route="/workshop">
+          <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2.5 H12 M9 2.5 V7.5 L4.5 15.5 Q3.8 17.5 5.5 17.5 H14.5 Q16.2 17.5 15.5 15.5 L11 7.5 V2.5 M6.5 12 H13.5"/></svg>
+          Problems
+        </a>
+        <a href="#/exams" data-route="/exams">
+          <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 2.5 H15 V17.5 H5 Z M7.5 6 H12.5 M7.5 9 H12.5 M7.5 12 H10.5"/></svg>
+          Exams
+        </a>
+        <a href="#/atlas" data-route="/atlas">
+          <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.5 5 L7 3 L13 5.5 L17.5 3.5 V15 L13 17 L7 14.5 L2.5 16.5 Z M7 3 V14.5 M13 5.5 V17"/></svg>
+          The Atlas
+        </a>
+        <a href="#/calendar" data-route="/calendar">
+          <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="14" height="13" rx="2"/><path d="M3 8 H17 M6.5 11 H8 M9.5 11 H11 M12.5 11 H14 M6.5 14 H8"/></svg>
+          Calendar
+        </a>
+        <a href="#/library" data-route="/library">
+          <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 3 H8 V17 H4 Z M8 3 H12 V17 H8 Z M12.5 3.5 L16.5 4.5 L13.5 17 L10 16"/></svg>
+          Library
+        </a>
+      </details>
+      <details class="nav-group" id="navLife">
+        <summary><svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 16.5 C5 13 3 10.5 3 7.5 A3.5 3.5 0 0 1 10 6 A3.5 3.5 0 0 1 17 7.5 C17 10.5 15 13 10 16.5 Z"/></svg><span class="ng-t">Life</span><svg class="ng-chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 2.5 L8 6 L4.5 9.5"/></svg></summary>
+        <a href="#/monk" data-route="/monk">
+          <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="7.5"/><path d="M10 2.5 A7.5 7.5 0 0 1 10 17.5 Z" fill="currentColor" stroke="none"/></svg>
+          Monk Mode
+        </a>
+        <a href="#/treasury" data-route="/treasury">
+          <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="7.5"/><path d="M10 6 V14 M12.5 7.5 Q10 6 8.5 7.7 Q7 9.5 10 10 Q13 10.5 11.5 12.3 Q10 14 7.5 12.5"/></svg>
+          Treasury
+        </a>
+      </details>
     </nav>
 
     <div class="sidebar-foot">
-      <div class="theme-menu" id="themeMenu">
-        <!-- Three choices (T-025): Auto follows the phone's light/dark setting,
-             live, and is stored as the string "auto"; Dark is the default. -->
-        <button data-theme-pick="auto"><span class="swatch" style="background:linear-gradient(90deg, #f2f1ee 50%, #12141c 50%);"></span>Auto</button>
-        <button data-theme-pick="dark"><span class="swatch" style="background:#12141c;"></span>Dark</button>
-        <button data-theme-pick="light"><span class="swatch" style="background:#f2f1ee;"></span>Light</button>
-      </div>
-      <button class="navrow" id="themeBtn">
-        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="7"/><path d="M10 3 A7 7 0 0 1 10 17 Z" fill="currentColor" stroke="none"/></svg>
-        Theme
+      <!-- T-080 PR 2: Theme, Backup, Restore and Sync were four rows here; they
+           are one sheet (#settingsSheet, below) behind this one row. -->
+      <button class="navrow" id="settingsBtn" type="button" aria-haspopup="dialog">
+        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="2.6"/><path d="M10 2.5 V4.5 M10 15.5 V17.5 M2.5 10 H4.5 M15.5 10 H17.5 M4.7 4.7 L6.1 6.1 M13.9 13.9 L15.3 15.3 M4.7 15.3 L6.1 13.9 M13.9 6.1 L15.3 4.7"/><circle cx="10" cy="10" r="5.5"/></svg>
+        Settings
       </button>
-      <button class="navrow" id="exportBtn">
-        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3 V12 M6.5 8.5 L10 12 L13.5 8.5 M3.5 13.5 V16 A1 1 0 0 0 4.5 17 H15.5 A1 1 0 0 0 16.5 16 V13.5"/></svg>
-        Backup
-      </button>
-      <button class="navrow" id="importBtn">
-        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 12 V3 M6.5 6.5 L10 3 L13.5 6.5 M3.5 13.5 V16 A1 1 0 0 0 4.5 17 H15.5 A1 1 0 0 0 16.5 16 V13.5"/></svg>
-        Restore backup
-      </button>
-      <a class="navrow" href="#/sync">
-        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8 A6.5 6.5 0 0 1 15 4.8 M16.5 12 A6.5 6.5 0 0 1 5 15.2 M3.5 4.5 V8 H7 M16.5 15.5 V12 H13"/></svg>
-        Sync devices
-      </a>
       <input type="file" id="importFile" accept=".json" style="display:none;">
       <div class="motto">From imitation to invention</div>
     </div>
@@ -221,52 +215,78 @@
     <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2.5 H12 M9 2.5 V7.5 L4.5 15.5 Q3.8 17.5 5.5 17.5 H14.5 Q16.2 17.5 15.5 15.5 L11 7.5 V2.5 M6.5 12 H13.5"/></svg>
     Problems
   </a>
-  <a href="#/review" data-route="/review">
-    <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 10 A6.5 6.5 0 1 1 14 4.9 M16.5 2.5 V5.5 H13.5"/><path d="M7 10.2 L9.2 12.4 L13.2 8.4"/></svg>
-    Review
+  <!-- T-080 PR 2: the fifth tab is More — the same grouped list as the
+       sidebar (Practice, Week, Proof, Study tools, Life, Settings). The due
+       reviews' badge rides on it, since Week is in it. -->
+  <a href="#/more" data-route="/more" aria-label="More">
+    <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="4.5" cy="10" r="1.3" fill="currentColor"/><circle cx="10" cy="10" r="1.3" fill="currentColor"/><circle cx="15.5" cy="10" r="1.3" fill="currentColor"/></svg>
+    More
     <span class="tab-badge" id="tabBadge" aria-hidden="true" hidden></span>
   </a>
 </nav>
 
+<!-- T-080 PR 2: Settings, one sheet with sections — what were four sidebar
+     rows (Theme, Backup, Restore backup, Sync devices). A native modal <dialog>,
+     the same .sheet as the gate and Monk Mode sheets: Escape, a tap outside or
+     Done closes it. The ids the app wires (themeMenu, exportBtn, importBtn) are
+     the ones the rows had. -->
+<dialog class="sheet set-sheet" id="settingsSheet" aria-labelledby="setTitle">
+  <div class="sheet-in">
+    <h2 id="setTitle">Settings</h2>
+    <div class="ghead">Appearance</div>
+    <div class="set-theme" id="themeMenu" role="group" aria-label="Theme">
+      <button type="button" data-theme-pick="auto"><span class="swatch" style="background:linear-gradient(90deg, #f2f1ee 50%, #12141c 50%);"></span>Auto</button>
+      <button type="button" data-theme-pick="dark"><span class="swatch" style="background:#12141c;"></span>Dark</button>
+      <button type="button" data-theme-pick="light"><span class="swatch" style="background:#f2f1ee;"></span>Light</button>
+    </div>
+    <div class="ghead">Your data</div>
+    <div class="glist set-list">
+      <button class="grow set-row" type="button" id="exportBtn"><span class="g-lead"><svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3 V12 M6.5 8.5 L10 12 L13.5 8.5 M3.5 13.5 V16 A1 1 0 0 0 4.5 17 H15.5 A1 1 0 0 0 16.5 16 V13.5"/></svg></span><span class="g-main"><span class="g-t">Backup</span><span class="g-s">save everything on this device as one file</span></span></button>
+      <button class="grow set-row" type="button" id="importBtn"><span class="g-lead"><svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 12 V3 M6.5 6.5 L10 3 L13.5 6.5 M3.5 13.5 V16 A1 1 0 0 0 4.5 17 H15.5 A1 1 0 0 0 16.5 16 V13.5"/></svg></span><span class="g-main"><span class="g-t">Restore backup</span><span class="g-s">load a backup file into this device</span></span></button>
+      <a class="grow set-row" href="#/sync"><span class="g-lead"><svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8 A6.5 6.5 0 0 1 15 4.8 M16.5 12 A6.5 6.5 0 0 1 5 15.2 M3.5 4.5 V8 H7 M16.5 15.5 V12 H13"/></svg></span><span class="g-main"><span class="g-t">Sync devices</span><span class="g-s">keep the phone and the computer in step</span></span></a>
+    </div>
+    <div class="sheet-go"><button class="btn ghost" type="button" data-settings-done>Done</button></div>
+  </div>
+</dialog>
 <div class="toast" id="toast"></div>
 <div class="chart-tip" id="chartTip"></div>
 
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
-<script defer src="data/curriculum.js?v=20261125a"></script>
-<script defer src="data/prerequisites.js?v=20261125a"></script>
-<script defer src="js/figures.js?v=20261125a"></script>
-<script defer src="js/lab.js?v=20261125a"></script>
-<script defer src="data/concepts-linear-algebra.js?v=20261125a"></script>
-<script defer src="data/summaries-math110.js?v=20261125a"></script>
-<script defer src="data/summaries-math110-mit.js?v=20261125a"></script>
-<script defer src="data/summaries-math120.js?v=20261125a"></script>
-<script defer src="data/summaries-math130.js?v=20261125a"></script>
-<script defer src="data/summaries-phys100.js?v=20261125a"></script>
-<script defer src="data/summaries-math210.js?v=20261125a"></script>
-<script defer src="data/summaries-sys250.js?v=20261125a"></script>
-<script defer src="data/summaries-ai200.js?v=20261125a"></script>
-<script defer src="data/summaries-ai210.js?v=20261125a"></script>
-<script defer src="data/summaries-ai310.js?v=20261125a"></script>
-<script defer src="data/summaries-res400.js?v=20261125a"></script>
-<script defer src="data/practice-math110.js?v=20261125a"></script>
-<script defer src="data/practice-math120.js?v=20261125a"></script>
-<script defer src="data/practice-math130.js?v=20261125a"></script>
-<script defer src="data/practice-phys100.js?v=20261125a"></script>
-<script defer src="data/practice-ai200.js?v=20261125a"></script>
-<script defer src="data/practice-cs100.js?v=20261125a"></script>
-<script defer src="data/checkpoints.js?v=20261125a"></script>
-<script defer src="data/workshop.js?v=20261125a"></script>
-<script defer src="data/storytelling.js?v=20261125a"></script>
-<script defer src="data/quiz-linear-algebra.js?v=20261125a"></script>
-<script defer src="data/quiz-calculus.js?v=20261125a"></script>
-<script defer src="data/quiz-probability.js?v=20261125a"></script>
-<script defer src="data/quiz-zero-to-hero.js?v=20261125a"></script>
-<script defer src="data/quiz-dsa.js?v=20261125a"></script>
-<script defer src="data/quiz-math-for-ml.js?v=20261125a"></script>
-<script defer src="data/quiz-llm-engineering.js?v=20261125a"></script>
-<script defer src="js/quiz-engine.js?v=20261125a"></script>
-<script defer src="js/app.js?v=20261125a"></script>
+<script defer src="data/curriculum.js?v=20261126a"></script>
+<script defer src="data/prerequisites.js?v=20261126a"></script>
+<script defer src="js/figures.js?v=20261126a"></script>
+<script defer src="js/lab.js?v=20261126a"></script>
+<script defer src="data/concepts-linear-algebra.js?v=20261126a"></script>
+<script defer src="data/summaries-math110.js?v=20261126a"></script>
+<script defer src="data/summaries-math110-mit.js?v=20261126a"></script>
+<script defer src="data/summaries-math120.js?v=20261126a"></script>
+<script defer src="data/summaries-math130.js?v=20261126a"></script>
+<script defer src="data/summaries-phys100.js?v=20261126a"></script>
+<script defer src="data/summaries-math210.js?v=20261126a"></script>
+<script defer src="data/summaries-sys250.js?v=20261126a"></script>
+<script defer src="data/summaries-ai200.js?v=20261126a"></script>
+<script defer src="data/summaries-ai210.js?v=20261126a"></script>
+<script defer src="data/summaries-ai310.js?v=20261126a"></script>
+<script defer src="data/summaries-res400.js?v=20261126a"></script>
+<script defer src="data/practice-math110.js?v=20261126a"></script>
+<script defer src="data/practice-math120.js?v=20261126a"></script>
+<script defer src="data/practice-math130.js?v=20261126a"></script>
+<script defer src="data/practice-phys100.js?v=20261126a"></script>
+<script defer src="data/practice-ai200.js?v=20261126a"></script>
+<script defer src="data/practice-cs100.js?v=20261126a"></script>
+<script defer src="data/checkpoints.js?v=20261126a"></script>
+<script defer src="data/workshop.js?v=20261126a"></script>
+<script defer src="data/storytelling.js?v=20261126a"></script>
+<script defer src="data/quiz-linear-algebra.js?v=20261126a"></script>
+<script defer src="data/quiz-calculus.js?v=20261126a"></script>
+<script defer src="data/quiz-probability.js?v=20261126a"></script>
+<script defer src="data/quiz-zero-to-hero.js?v=20261126a"></script>
+<script defer src="data/quiz-dsa.js?v=20261126a"></script>
+<script defer src="data/quiz-math-for-ml.js?v=20261126a"></script>
+<script defer src="data/quiz-llm-engineering.js?v=20261126a"></script>
+<script defer src="js/quiz-engine.js?v=20261126a"></script>
+<script defer src="js/app.js?v=20261126a"></script>
 <!-- Offline (T-058): the service worker, ../sw.js at the site root so its
      scope covers revision/ as well as platform/. Its ?v= is the same token as
      every file above, so bumping the tokens installs a new worker with a new
@@ -275,7 +295,7 @@
 <script>
 if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol))
   window.addEventListener("load", function () {
-    navigator.serviceWorker.register("../sw.js?v=20261125a").catch(function () {});
+    navigator.serviceWorker.register("../sw.js?v=20261126a").catch(function () {});
   });
 </script>
 </body>

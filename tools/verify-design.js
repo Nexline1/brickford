@@ -3208,9 +3208,14 @@ function t28SeedClips(list) {
       check(at + ": the Review tab's badge counts the due reviews in a solid fill at >= 4.5:1",
         !!t.badge && t.badge.inReview && t.badge.text === "1" && t.badge.bg[3] === 255 && t.badge.ratio >= 4.5,
         t.badge ? "\"" + t.badge.text + "\" " + hx(t.badge.bg) + " " + t.badge.ratio.toFixed(2) + ":1" : "no badge shown");
-      // The Next card over the capsule, on /review, where it is on screen (on
-      // Today it is stowed while the hero's own button shows).
-      await go(page, "/review");
+      // The Next card over the capsule. T-080 PR 2: it exists on the dashboard
+      // only now (every other page has its own one primary), where it is stowed
+      // while the hero's own button shows — so the page is scrolled to its end,
+      // the button leaves, and the card is measured once it has slid in.
+      await go(page, "/");
+      await page.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "instant" }));
+      await page.waitForFunction(() => { const rb = document.querySelector("#railbar");
+        return !!rb && !rb.classList.contains("stowed") && rb.getAnimations().length === 0; }, null, { timeout: 4000 }).catch(() => {});
       const n = await page.evaluate(() => {
         const z = window.__dz, rb = document.querySelector("#railbar"), tb = document.querySelector("#tabbar");
         if (!rb || !rb.checkVisibility({ opacityProperty: true })) return null;
@@ -3222,7 +3227,7 @@ function t28SeedClips(list) {
                  btn: bb ? { w: bb.width, h: bb.height } : null };
       });
       const card = at.replace("floating tab bar", "Next card");
-      check(card + ": on screen above the capsule on /review", !!n, n ? "" : "not visible");
+      check(card + ": on screen above the capsule on / once the hero's button has scrolled away", !!n, n ? "" : "not visible");
       if (n) {
         check(card + ": the capsule's insets (+/-1)", Math.abs(n.l) <= 1 && Math.abs(n.r) <= 1, "left " + n.l.toFixed(1) + ", right " + n.r.toFixed(1) + " from the capsule's");
         check(card + ": radius >= 20px and 8px (+/-1) above the capsule", n.radius >= 20 && Math.abs(n.gap - 8) <= 1, "radius " + n.radius + ", gap " + n.gap.toFixed(1));
@@ -5224,16 +5229,17 @@ function t28SeedClips(list) {
           c43(at + ": one card, no video: \"Pass the quiz for “…” first\", a lock glyph, the kicker and title above, --surface",
             !!m.lock && L.cards === 1 && !m.frame && !m.mark && /^Pass the quiz for “.+” first$/.test(L.text || "") && L.glyph && L.bg &&
               /^2\. /.test(L.h1 || "") && /^MATH 120/.test(L.kicker || ""), JSON.stringify(L));
-          c43(at + ": its one primary goes to the previous lecture's quiz", filled.join() === "Go to the quiz ▸" && L.btn === "#/lesson/math120/1/0" && L.ahead === "1", JSON.stringify({ filled, href: L.btn }));
+          // T-080 PR 2: button labels lose the \u25b8 glyph (now a drawn chevron, checked in the T-080 block).
+          c43(at + ": its one primary goes to the previous lecture's quiz", filled.join() === "Go to the quiz" && L.btn === "#/lesson/math120/1/0" && L.ahead === "1", JSON.stringify({ filled, href: L.btn }));
         } else if (st.name === "the dashboard pointing at a quiz") {
           // Review r1: nothing watched, so the first lecture in the chain is
           // to be watched first — not called a quiz.
-          c43(at + ": nothing watched — the Next card says \"Watch: <title>, then its quiz\" for the root of today's chain (which starts at the gate, not at lecture 1), and its \"Open ▸\" is the one primary",
-            /^Watch: .+, then its quiz$/.test(m.kind || "") && !!m.todayRoot && m.go === m.todayRoot && m.go !== "#/lesson/math120/0/0" && filled.join() === "Open ▸",
+          c43(at + ": nothing watched — the Next card says \"Watch: <title>, then its quiz\" for the root of today's chain (which starts at the gate, not at lecture 1), and its \"Open\" is the one primary",
+            /^Watch: .+, then its quiz$/.test(m.kind || "") && !!m.todayRoot && m.go === m.todayRoot && m.go !== "#/lesson/math120/0/0" && filled.join() === "Open",
             JSON.stringify({ kind: m.kind, go: m.go, root: m.todayRoot, filled }));
         } else {
-          c43(at + ": a watched lecture with its quiz to pass — the Next card says \"Quiz: <title>\" and its \"Start ▸\" is the one primary",
-            m.kind === "Quiz: Rate of Change" && m.go === "#/lesson/math120/1/0" && filled.join() === "Start ▸", JSON.stringify({ kind: m.kind, go: m.go, filled }));
+          c43(at + ": a watched lecture with its quiz to pass — the Next card says \"Quiz: <title>\" and its \"Start\" is the one primary",
+            m.kind === "Quiz: Rate of Change" && m.go === "#/lesson/math120/1/0" && filled.join() === "Start", JSON.stringify({ kind: m.kind, go: m.go, filled }));
         }
         const w1 = await writesNow(page);
         c43(at + ": measuring wrote nothing, no page errors", w1 === w0 && errors.length === 0, "writes " + w0 + " -> " + w1 + (errors.length ? ", " + errors.join(" | ") : ""));

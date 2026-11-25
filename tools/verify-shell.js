@@ -387,6 +387,11 @@ async function freshContext(browser, opts) {
       await page.goto(URL + r, { waitUntil: "load" });
       await page.waitForSelector("#view > *");
       await page.waitForTimeout(250);
+      // T-080 PR 2: the Next card is the dashboard's only (stowed while the
+      // hero's button shows), so each page is measured at the end of its scroll,
+      // where on "/" the button has left and the card is in.
+      await page.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "instant" }));
+      await page.waitForTimeout(400);
       const m = await page.evaluate(() => {
         const probe = document.createElement("div");
         probe.style.cssText = "position:fixed;left:env(safe-area-inset-left,0px);top:0;width:calc(env(safe-area-inset-right,0px) + 1px);height:calc(env(safe-area-inset-bottom,0px) + 1px)";

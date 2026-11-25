@@ -45,7 +45,7 @@
   if (meta) meta.setAttribute("content", PANEL[theme]);
 })();
 </script>
-<link rel="manifest" href="manifest.json?v=20261129a">
+<link rel="manifest" href="manifest.json?v=20261130a">
 <!-- iOS reads the apple-* pair; `mobile-web-app-capable` is the standard one that
      replaced it. Both, because Safari still honours only its own. -->
 <meta name="mobile-web-app-capable" content="yes">
@@ -56,17 +56,17 @@
 <meta name="apple-mobile-web-app-title" content="Brickford">
 <!-- Must be a PNG. Safari ignores SVG for apple-touch-icon, which is why these
      are real files rather than the inline data URI the favicon uses. -->
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20261129a">
-<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=20261129a">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20261130a">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=20261130a">
 <title>Brickford</title>
 <!-- Browser tab: the SAME full crest as the home-screen icon, at the sizes
      browsers actually request. PNG rather than the previous inline SVG,
      because an SVG gets scaled to 16px and the laurels turn to mud —
      rendering each size separately means 32px (what retina tabs use) is
      drawn properly instead of squeezed. -->
-<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=20261129a">
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=20261129a">
-<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png?v=20261129a">
+<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=20261130a">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=20261130a">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png?v=20261130a">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- Every heading, label and number is the platform's own face (SF on his
@@ -78,7 +78,7 @@
      app's Playfair Display Bold (T-080), self-hosted from fonts/ the same way. -->
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
-<link rel="stylesheet" href="css/style.css?v=20261129a">
+<link rel="stylesheet" href="css/style.css?v=20261130a">
 </head>
 <body>
 <!-- T-083 #11: the first thing a keyboard reaches; it lands on the page itself. -->
@@ -199,29 +199,30 @@
 
 <nav class="tabbar" id="tabbar" aria-label="Quick navigation">
   <span class="tab-bubble" aria-hidden="true"></span>
+  <!-- T-083 #7: the phone's one navigation (no drawer below 861px): Today,
+       Courses, Practice, Week, More, the first four in the sidebar's order and
+       under the sidebar's names. More holds the rest, grouped, and Settings. -->
   <a href="#/" data-route="/">
     <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 10 L10 3 L17 10 M5 8.5 V17 H15 V8.5"/></svg>
-    Home
+    Today
   </a>
   <a href="#/courses" data-route="/courses">
     <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4 Q7 2.5 10 4.5 Q13 2.5 17 4 V15 Q13 13.5 10 15.5 Q7 13.5 3 15 Z M10 4.5 V15.5"/></svg>
     Courses
   </a>
-  <a href="#/exams" data-route="/exams">
-    <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 2.5 H15 V17.5 H5 Z M7.5 6 H12.5 M7.5 9 H12.5 M7.5 12 H10.5"/></svg>
-    Exams
+  <a href="#/practice" data-route="/practice">
+    <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 3v9"/><path d="M7 6.5a3 3 0 0 1 6 0v2a3 3 0 0 1-6 0z"/><path d="M5 9.5a5 5 0 0 0 10 0M7.5 16.5h5"/></svg>
+    Practice
   </a>
-  <a href="#/workshop" data-route="/workshop">
-    <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2.5 H12 M9 2.5 V7.5 L4.5 15.5 Q3.8 17.5 5.5 17.5 H14.5 Q16.2 17.5 15.5 15.5 L11 7.5 V2.5 M6.5 12 H13.5"/></svg>
-    Problems
+  <!-- The due reviews' badge rides on Week, as the More row for Week carried it. -->
+  <a href="#/review" data-route="/review" aria-label="Week">
+    <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 10 A6.5 6.5 0 1 1 14 4.9 M16.5 2.5 V5.5 H13.5"/><path d="M7 10.2 L9.2 12.4 L13.2 8.4"/></svg>
+    Week
+    <span class="tab-badge" id="tabBadge" aria-hidden="true" hidden></span>
   </a>
-  <!-- T-080 PR 2: the fifth tab is More — the same grouped list as the
-       sidebar (Practice, Week, Proof, Study tools, Life, Settings). The due
-       reviews' badge rides on it, since Week is in it. -->
   <a href="#/more" data-route="/more" aria-label="More">
     <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="4.5" cy="10" r="1.3" fill="currentColor"/><circle cx="10" cy="10" r="1.3" fill="currentColor"/><circle cx="15.5" cy="10" r="1.3" fill="currentColor"/></svg>
     More
-    <span class="tab-badge" id="tabBadge" aria-hidden="true" hidden></span>
   </a>
 </nav>
 
@@ -253,40 +254,40 @@
 
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
-<script defer src="data/curriculum.js?v=20261129a"></script>
-<script defer src="data/prerequisites.js?v=20261129a"></script>
-<script defer src="js/figures.js?v=20261129a"></script>
-<script defer src="js/lab.js?v=20261129a"></script>
-<script defer src="data/concepts-linear-algebra.js?v=20261129a"></script>
-<script defer src="data/summaries-math110.js?v=20261129a"></script>
-<script defer src="data/summaries-math110-mit.js?v=20261129a"></script>
-<script defer src="data/summaries-math120.js?v=20261129a"></script>
-<script defer src="data/summaries-math130.js?v=20261129a"></script>
-<script defer src="data/summaries-phys100.js?v=20261129a"></script>
-<script defer src="data/summaries-math210.js?v=20261129a"></script>
-<script defer src="data/summaries-sys250.js?v=20261129a"></script>
-<script defer src="data/summaries-ai200.js?v=20261129a"></script>
-<script defer src="data/summaries-ai210.js?v=20261129a"></script>
-<script defer src="data/summaries-ai310.js?v=20261129a"></script>
-<script defer src="data/summaries-res400.js?v=20261129a"></script>
-<script defer src="data/practice-math110.js?v=20261129a"></script>
-<script defer src="data/practice-math120.js?v=20261129a"></script>
-<script defer src="data/practice-math130.js?v=20261129a"></script>
-<script defer src="data/practice-phys100.js?v=20261129a"></script>
-<script defer src="data/practice-ai200.js?v=20261129a"></script>
-<script defer src="data/practice-cs100.js?v=20261129a"></script>
-<script defer src="data/checkpoints.js?v=20261129a"></script>
-<script defer src="data/workshop.js?v=20261129a"></script>
-<script defer src="data/storytelling.js?v=20261129a"></script>
-<script defer src="data/quiz-linear-algebra.js?v=20261129a"></script>
-<script defer src="data/quiz-calculus.js?v=20261129a"></script>
-<script defer src="data/quiz-probability.js?v=20261129a"></script>
-<script defer src="data/quiz-zero-to-hero.js?v=20261129a"></script>
-<script defer src="data/quiz-dsa.js?v=20261129a"></script>
-<script defer src="data/quiz-math-for-ml.js?v=20261129a"></script>
-<script defer src="data/quiz-llm-engineering.js?v=20261129a"></script>
-<script defer src="js/quiz-engine.js?v=20261129a"></script>
-<script defer src="js/app.js?v=20261129a"></script>
+<script defer src="data/curriculum.js?v=20261130a"></script>
+<script defer src="data/prerequisites.js?v=20261130a"></script>
+<script defer src="js/figures.js?v=20261130a"></script>
+<script defer src="js/lab.js?v=20261130a"></script>
+<script defer src="data/concepts-linear-algebra.js?v=20261130a"></script>
+<script defer src="data/summaries-math110.js?v=20261130a"></script>
+<script defer src="data/summaries-math110-mit.js?v=20261130a"></script>
+<script defer src="data/summaries-math120.js?v=20261130a"></script>
+<script defer src="data/summaries-math130.js?v=20261130a"></script>
+<script defer src="data/summaries-phys100.js?v=20261130a"></script>
+<script defer src="data/summaries-math210.js?v=20261130a"></script>
+<script defer src="data/summaries-sys250.js?v=20261130a"></script>
+<script defer src="data/summaries-ai200.js?v=20261130a"></script>
+<script defer src="data/summaries-ai210.js?v=20261130a"></script>
+<script defer src="data/summaries-ai310.js?v=20261130a"></script>
+<script defer src="data/summaries-res400.js?v=20261130a"></script>
+<script defer src="data/practice-math110.js?v=20261130a"></script>
+<script defer src="data/practice-math120.js?v=20261130a"></script>
+<script defer src="data/practice-math130.js?v=20261130a"></script>
+<script defer src="data/practice-phys100.js?v=20261130a"></script>
+<script defer src="data/practice-ai200.js?v=20261130a"></script>
+<script defer src="data/practice-cs100.js?v=20261130a"></script>
+<script defer src="data/checkpoints.js?v=20261130a"></script>
+<script defer src="data/workshop.js?v=20261130a"></script>
+<script defer src="data/storytelling.js?v=20261130a"></script>
+<script defer src="data/quiz-linear-algebra.js?v=20261130a"></script>
+<script defer src="data/quiz-calculus.js?v=20261130a"></script>
+<script defer src="data/quiz-probability.js?v=20261130a"></script>
+<script defer src="data/quiz-zero-to-hero.js?v=20261130a"></script>
+<script defer src="data/quiz-dsa.js?v=20261130a"></script>
+<script defer src="data/quiz-math-for-ml.js?v=20261130a"></script>
+<script defer src="data/quiz-llm-engineering.js?v=20261130a"></script>
+<script defer src="js/quiz-engine.js?v=20261130a"></script>
+<script defer src="js/app.js?v=20261130a"></script>
 <!-- Offline (T-058): the service worker, ../sw.js at the site root so its
      scope covers revision/ as well as platform/. Its ?v= is the same token as
      every file above, so bumping the tokens installs a new worker with a new
@@ -295,7 +296,7 @@
 <script>
 if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol))
   window.addEventListener("load", function () {
-    navigator.serviceWorker.register("../sw.js?v=20261129a").catch(function () {});
+    navigator.serviceWorker.register("../sw.js?v=20261130a").catch(function () {});
   });
 </script>
 </body>

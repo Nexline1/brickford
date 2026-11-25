@@ -368,26 +368,53 @@ const PRESS_ROUTES = ["/", "/course/math110"];
 // branch's #0b1a2b is DARKER than the card and the sidebar's current pill read
 // 1.03:1 against it (this file's own press check) — the branch had moved the
 // pill to --accent-fill, which T-051-1 does not.
+// T-080 (owner, 25 Nov 2026: "match the phone app"; loop/design/brief.md §0):
+// the table moves to the phone app's identity (app/lib/theme/tokens.dart).
+// Same tokens, same elements, new values; nothing is dropped from the table.
+// Each change, old -> new, and why:
+//   light --bg/--bg-2/--surface-2  #f2f2f7 -> #f2f1ee  the app's warm off-white under its white sheet
+//   light --line/--line-strong     #c6c6c8/#aeaeb2 -> #dcdad5/#b4b1aa  the same hairlines, warm
+//   light --ink                    #1d1d1f -> #12141c  Tokens.ink (16.3:1 on the page)
+//   light --ink-2/--ink-3          #6e6e73 -> #55596a  Tokens.ink2 (6.2:1 on the page)
+//   light --accent/--panel-accent  #0066cc -> #1e4f8f  the navy, Tokens.accent (7.2:1)
+//   light --accent-fill/--btn-bg   #0071e3 -> #1e4f8f  the filled button is Tokens.primary (white on it 8.2:1)
+//   light --accent-soft            #e0eefc -> #e6edf6  Tokens.accentWash (navy on it 6.9:1)
+//   light --gold                   #c93400 -> #8a5f12  wins are gold again, Tokens.goldInk (5.6:1 on white)
+//   light --panel-ink              #1d1d1f -> #12141c  the sidebar's ink is the page's
+//   dark  --bg/--bg-2              #000000 -> #12141c  Tokens.midnight, not pure black
+//   dark  --surface/--panel        #1c1c1e -> #1e2230  cells step up from midnight (Tokens.badge)
+//   dark  --surface-2/-float       #2c2c2e -> #2a2f40  the fill a step above the cell
+//   dark  --line/--line-strong     #38383a/#48484a -> #363c50/#474e66  the same steps, in the midnight hue
+//   dark  --ink-2/--ink-3          #98989d -> #a9aec2  Tokens.onMidnight2 (8.3:1 on the page, 6.0:1 on the fill)
+//   dark  --accent/--panel-accent  #409cff -> #78aef0  Tokens.navyOnDark (8.0:1)
+//   dark  --accent-fill/--btn-bg   #0071e3 -> #1e4f8f  Tokens.primary, the same navy button as Light
+//   dark  --accent-soft            #212e3e -> #2b364b  the tint 14% into the new card, as before (accent on it 5.3:1)
+//   dark  --gold                   #ff9f0a -> #c89b60  Tokens.gold: wins, today's ring (7.3:1); kept apart from --crest, as the sidebar check asks
+//   dark  --crest                  #e0b35a -> #dfb46b  the owner's artwork's own gold (T-079), exactly
+// Unchanged: every --good/--bad/--urgent, every --fac hue, --ink in both,
+// --accent-2, the white labels, light --crest. The --fac and --bad inks were
+// re-measured on the new dark fills (the lowest, --bad on --surface-2, 4.7:1).
+// Before T-080 (T-051-1): the iOS palette, read from loop/specs/T-051-apple-system.
 const BRIEF = {
-  light: { "--bg": "#f2f2f7", "--bg-2": "#f2f2f7", "--surface": "#ffffff", "--surface-2": "#f2f2f7", "--surface-float": "#ffffff",
-           "--line": "#c6c6c8", "--line-strong": "#aeaeb2",
-           "--ink": "#1d1d1f", "--ink-2": "#6e6e73", "--ink-3": "#6e6e73", "--accent": "#0066cc",
-           "--accent-fill": "#0071e3", "--accent-soft": "#e0eefc", "--gold": "#c93400", "--accent-2": "#2a68c0",
+  light: { "--bg": "#f2f1ee", "--bg-2": "#f2f1ee", "--surface": "#ffffff", "--surface-2": "#f2f1ee", "--surface-float": "#ffffff",
+           "--line": "#dcdad5", "--line-strong": "#b4b1aa",
+           "--ink": "#12141c", "--ink-2": "#55596a", "--ink-3": "#55596a", "--accent": "#1e4f8f",
+           "--accent-fill": "#1e4f8f", "--accent-soft": "#e6edf6", "--gold": "#8a5f12", "--accent-2": "#2a68c0",
            "--good": "#1f7a35", "--bad": "#d70015", "--urgent": "#c93400",
-           "--btn-bg": "#0071e3", "--btn-ink": "#ffffff", "--accent-fill-ink": "#ffffff",
+           "--btn-bg": "#1e4f8f", "--btn-ink": "#ffffff", "--accent-fill-ink": "#ffffff",
            "--fac-math": "#4947c3", "--fac-ai": "#a22a00", "--fac-sys": "#09616b", "--fac-phys": "#a90010", "--fac-res": "#793c97", "--fac-speech": "#aa0c38",
-           "--panel": "#ffffff", "--panel-ink": "#1d1d1f", "--panel-accent": "#0066cc",
+           "--panel": "#ffffff", "--panel-ink": "#12141c", "--panel-accent": "#1e4f8f",
            // T-051-1 r1: the crest, pinned to what it painted before T-051.
            "--crest": "#d3a874" },
-  dark:  { "--bg": "#000000", "--bg-2": "#000000", "--surface": "#1c1c1e", "--surface-2": "#2c2c2e", "--surface-float": "#2c2c2e",
-           "--line": "#38383a", "--line-strong": "#48484a",
-           "--ink": "#f5f5f7", "--ink-2": "#98989d", "--ink-3": "#98989d", "--accent": "#409cff",
-           "--accent-fill": "#0071e3", "--accent-soft": "#212e3e", "--gold": "#ff9f0a", "--accent-2": "#64a8ff",
+  dark:  { "--bg": "#12141c", "--bg-2": "#12141c", "--surface": "#1e2230", "--surface-2": "#2a2f40", "--surface-float": "#2a2f40",
+           "--line": "#363c50", "--line-strong": "#474e66",
+           "--ink": "#f5f5f7", "--ink-2": "#a9aec2", "--ink-3": "#a9aec2", "--accent": "#78aef0",
+           "--accent-fill": "#1e4f8f", "--accent-soft": "#2b364b", "--gold": "#c89b60", "--accent-2": "#64a8ff",
            "--good": "#30d158", "--bad": "#ff6961", "--urgent": "#ff9f0a",
-           "--btn-bg": "#0071e3", "--btn-ink": "#ffffff", "--accent-fill-ink": "#ffffff",
+           "--btn-bg": "#1e4f8f", "--btn-ink": "#ffffff", "--accent-fill-ink": "#ffffff",
            "--fac-math": "#9b99ff", "--fac-ai": "#ff9f0a", "--fac-sys": "#40c8e0", "--fac-phys": "#ff766e", "--fac-res": "#da8fff", "--fac-speech": "#ff7691",
-           "--panel": "#1c1c1e", "--panel-ink": "#f5f5f7", "--panel-accent": "#409cff",
-           "--crest": "#e0b35a" },
+           "--panel": "#1e2230", "--panel-ink": "#f5f5f7", "--panel-accent": "#78aef0",
+           "--crest": "#dfb46b" },
 };
 // Each theme's --panel: the sidebar's fill (T-025) and what the Home Screen
 // status bar is painted from (meta theme-color).
@@ -400,9 +427,11 @@ const GLOW_ROUTES = ["/", "/course/math110", "/calendar", "/record"];
 // The primary action's pair: in light a white label on the fill; in dark
 // (T-025) the restored light-grey fill with its dark label. T-051-1: in both,
 // white on the filled tint, as iOS draws a filled button.
+// T-080: the filled tint is the app's navy, Tokens.primary, in both themes
+// (was #0071e3, 4.70:1).
 const PRIMARY = {
-  light: { bg: "#0071e3", ink: "#ffffff", what: "a white label on the filled tint (#0071e3, 4.70:1)" },
-  dark:  { bg: "#0071e3", ink: "#ffffff", what: "a white label on the filled tint (#0071e3, 4.70:1)" },
+  light: { bg: "#1e4f8f", ink: "#ffffff", what: "a white label on the navy fill (#1e4f8f, Tokens.primary, 8.17:1)" },
+  dark:  { bg: "#1e4f8f", ink: "#ffffff", what: "a white label on the navy fill (#1e4f8f, Tokens.primary, 8.17:1)" },
 };
 const hexBytes = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)).concat(255);
 // T-051-1 (the owner's iPhone, 2026-10-29: row titles on five lines, section
@@ -5100,7 +5129,10 @@ function t28SeedClips(list) {
       quiz: card ? { title: txt("#view .lq-title"), sub: txt("#view .lq-head .lq-note"), n: txt("#view .lq-n"),
         segs: [...card.querySelectorAll(".lq-segs i")].map(i => i.className), note: txt("#view .lq-foot .lq-note"),
         why: txt("#view #qFeedback"), bg: bgOk(card), opts: vis("#view .lq-card .opt").map(box) } : null,
-      pass: pass ? { text: txt("#view .lq-pass"), bg: bgOk(pass), btn: txt("#view .lq-pass .btn") } : null,
+      // T-080: the pass mark is the inline SVG check now, not a "\u2713" text glyph, so it is
+      // asked for as that element rather than read as the first character of the text.
+      pass: pass ? { text: txt("#view .lq-pass"), bg: bgOk(pass), btn: txt("#view .lq-pass .btn"),
+        tick: !!pass.querySelector(".lq-big > svg.tick") && !/\u2713/.test(pass.querySelector(".lq-big").textContent) } : null,
       // Review r1: the Go deeper heading and its caption on one line.
       deepHead: (() => { const h = document.querySelector("#view .lq-deep-head"), m = h && h.querySelector(".gh-meta");
         if (!h || !m) return null; const rg = document.createRange(); rg.selectNodeContents(h.firstChild);
@@ -5176,7 +5208,7 @@ function t28SeedClips(list) {
             m.railRule === "A lecture counts once its quiz is passed" && m.railLock, JSON.stringify({ rule: m.railRule, lock: m.railLock }));
         } else if (st.name === "passed, with Go deeper") {
           c43(at + ": the pass card — \"Lecture passed\", \"3 of 3 · 2 right on the first try\", --surface, \"Next lecture →\" the one primary",
-            !!m.pass && /^✓\s*Lecture passed\s*3 of 3 · 2 right on the first try · counted/.test(m.pass.text) && m.pass.bg && m.pass.btn === "Next lecture →" &&
+            !!m.pass && m.pass.tick && /^Lecture passed\s*3 of 3 · 2 right on the first try · counted/.test(m.pass.text) && m.pass.bg && m.pass.btn === "Next lecture →" &&
               filled.join() === "Next lecture →", JSON.stringify({ pass: m.pass, filled }));
           c43(at + ": Go deeper is three tiles — Sketch it, Recall it cold, Practice problems — each --surface and >= 44px",
             m.tiles.map(t => t.t).join("|") === "Sketch it|Recall it cold|Practice problems" && m.tiles.every(t => t.bg && t.h >= 44), JSON.stringify(m.tiles));
@@ -5511,6 +5543,87 @@ function t28SeedClips(list) {
     }
   }
 
+  // ---- T-080: the phone app's identity (loop/specs/T-080-redesign, PR 1) ----
+  // Three things the token table alone could not say:
+  //   - the page in dark is midnight, not pure black: every layer that could
+  //     paint the page (html, body, the shell, .main, #view) is asked, in Dark
+  //     and in Auto on a dark phone, so a black slab put back on any of them fails;
+  //   - the page titles are Playfair Display: the large title (a detail page's
+  //     h1, the phone dashboard's large title) and the dashboard hero name it
+  //     first, the self-hosted FontFace has LOADED (not merely been declared),
+  //     and the title's text measures differently in it than in the fallback
+  //     serif behind it, so it is the face actually rendering;
+  //   - the filled button is the navy, Tokens.primary #1e4f8f, under white:
+  //     the dashboard hero's one action and every filled .btn on the course page.
+  let t80 = 0;
+  {
+    console.log("\nT-080: the phone app's identity");
+    const NAVY = rgb("#1e4f8f"), WHITE = "rgb(255, 255, 255)", MIDNIGHT = rgb(BRIEF.dark["--bg"]);
+    const identity = () => {
+      const vis = s => [...document.querySelectorAll(s)].filter(n => n.checkVisibility());
+      const cv = document.createElement("canvas").getContext("2d");
+      const face = n => {
+        if (!n) return null;
+        const s = getComputedStyle(n), text = n.textContent.trim().replace(/\s+/g, " ");
+        const fam = s.fontFamily, rest = fam.split(",").slice(1).join(",") || "serif";
+        const w = f => { cv.font = s.fontWeight + " " + s.fontSize + " " + f; return cv.measureText(text).width; };
+        return { text: text.slice(0, 30), family: fam, first: fam.split(",")[0].replace(/["']/g, "").trim(),
+                 own: w(fam), fallback: w(rest) };
+      };
+      const layers = ["html", "body", ".shell", ".main", "#view"].map(sel => {
+        const n = document.querySelector(sel); return { sel, bg: n ? getComputedStyle(n).backgroundColor : null }; });
+      const btns = vis("#view .btn").filter(b => !b.matches(".ghost, .danger, .bare") && !b.matches(":disabled"))
+        .map(b => { const s = getComputedStyle(b); return { text: b.textContent.trim().slice(0, 24), bg: s.backgroundColor, color: s.color, hero: b.matches(".one-go") }; });
+      return {
+        theme: document.documentElement.dataset.theme, layers, btns,
+        playfair: [...document.fonts].filter(f => f.family.replace(/["']/g, "") === "Playfair Display").map(f => f.status),
+        h1: face(vis("#view h1:not(.folio)")[0] || null),
+        large: face(vis("#view h1.folio.dash-title")[0] || null),
+        hero: face(vis("#view .one.lead .one-kind")[0] || null),
+      };
+    };
+    const isPlayfair = f => !!f && f.first === "Playfair Display" && Math.abs(f.own - f.fallback) > 1;
+    const faceText = f => f ? "\"" + f.text + "\" " + f.family + " (" + f.own.toFixed(1) + "px in it, " + f.fallback.toFixed(1) + "px in the fallback)" : "none visible";
+    for (const [label, theme, scheme] of [["dark", "dark", "dark"], ["auto, phone dark", "auto", "dark"], ["light", "light", "light"]]) {
+      for (const [w, h, mobile] of [[390, 844, true], [1280, 800, false]]) {
+        const at = "T-080 " + w + "px " + label;
+        const { ctx, page, errors } = await fresh(browser, { viewport: { width: w, height: h }, isMobile: mobile, hasTouch: mobile, colorScheme: scheme }, theme);
+        await page.goto(URL + "/__boot", { waitUntil: "load" });
+        await page.waitForSelector("#view > *");
+        const want = theme === "auto" ? scheme : theme;
+        await themePainted(page, want, at);
+        const seen = {};
+        for (const route of ["/", "/course/math110"]) {
+          await go(page, route);
+          await page.evaluate(() => document.fonts.ready);
+          seen[route] = await page.evaluate(identity);
+        }
+        const a = seen["/"], b = seen["/course/math110"];
+        if (want === "dark") {
+          const black = a.layers.concat(b.layers).filter(l => l.bg === "rgb(0, 0, 0)");
+          t80++;
+          check(at + ": the page is midnight " + BRIEF.dark["--bg"] + ", not #000 — body paints it and no page layer (html, body, shell, .main, #view) is pure black",
+            a.theme === "dark" && black.length === 0 && a.layers[1].bg === MIDNIGHT && b.layers[1].bg === MIDNIGHT,
+            "data-theme " + a.theme + "; " + a.layers.map(l => l.sel + " " + l.bg).join(", ") + (black.length ? "; black: " + black.map(l => l.sel).join(", ") : ""));
+        }
+        const titles = [["the course page's large title (h1)", b.h1], ["the dashboard hero", a.hero]].concat(mobile ? [["the dashboard's large title", a.large]] : []);
+        const off = titles.filter(([, f]) => !isPlayfair(f));
+        t80++;
+        check(at + ": Playfair Display (self-hosted) is loaded and renders on the page titles — " + titles.map(t => t[0]).join(", "),
+          a.playfair.length === 1 && a.playfair[0] === "loaded" && b.playfair[0] === "loaded" && off.length === 0,
+          "FontFace " + (b.playfair.join(", ") || "none") + "; " + titles.map(([n, f]) => n + " " + faceText(f)).join("; "));
+        const filled = a.btns.concat(b.btns);
+        const notNavy = filled.filter(x => x.bg !== NAVY || x.color !== WHITE);
+        t80++;
+        check(at + ": the filled button is the navy " + PRIMARY[want].bg + " (Tokens.primary) under white — the hero's one action and every filled .btn on / and /course/math110",
+          a.btns.some(x => x.hero) && notNavy.length === 0,
+          notNavy.length ? notNavy.slice(0, 3).map(x => "\"" + x.text + "\" " + x.color + " on " + x.bg).join("; ") : filled.length + " filled (" + filled.map(x => x.text).join(" | ").slice(0, 80) + ")");
+        check(at + ": no page errors", errors.length === 0, errors.join(" | "));
+        await ctx.close();
+      }
+    }
+  }
+
   await browser.close();
 
   console.log("");
@@ -5545,6 +5658,7 @@ function t28SeedClips(list) {
       "T-043: the lecture quiz gate at 1440/390 x 2 themes — before watched, the quiz after a miss, the pass with Go deeper, the locked lecture and the dashboard pointing at a quiz, one primary each, Rewatch >= 44x44 (" + t43Checks + " checks)" + "; " +
       "T-045: Problems as what's due now at 1440/390 x 2 themes — one quiz waiting, one catch-up, one pset, one lab, nothing due, the daily review, a grandfathered unlock — the rows, tags and why-lines worked out from storage, Coming up <= 3, the empty state, and the dashboard's line (" + t45Checks + " checks)" + "; " +
       "T-054: Monk Mode at 1440/390 x 2 themes x 2 states, Full day shut and open — one filled primary at most, every control >= 44x44, nothing clipped, every text at 4.5:1, the 3 x 7 map, the Priorities first and the ring of five, and no clip at 7 widths x roots 16/24 (" + t54Checks + " checks)" + "; " +
+      "T-080: the midnight page, Playfair on the titles and the navy filled button at 390/1280 in Dark, Auto-dark and Light (" + t80 + " checks); " +
       "T-046: the transcript card, its struck fillers and chips >= 4.5:1, its controls and the question's >= 44x44 at 1440 x 2 themes, and nothing of it on a phone at 390 (" + t46Checks + " checks)"
     : "FAIL — " + fails + " of " + checks + " design checks failed"));
   process.exit(fails === 0 ? 0 : 1);

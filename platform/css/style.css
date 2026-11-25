@@ -64,6 +64,21 @@
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 
+
+/* Playfair Display Bold, self-hosted (T-080; OFL, platform/fonts/OFL-playfair.txt):
+   the phone app's title face (app/assets/fonts/playfair/PlayfairDisplay-Bold.ttf,
+   re-encoded to woff2 unchanged, so sw.js precaches it with Inter and
+   tools/verify-offline.js holds it). One weight, 700: it sets page titles —
+   the large title and the dashboard hero (--font-title below) — and nothing
+   else. swap, like Inter: a title paints at once in the fallback serif and
+   changes face when the file lands. */
+@font-face {
+  font-family: "Playfair Display";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url("../fonts/playfair-display-bold.woff2") format("woff2");
+}
 :root {
   /* The one property only the browser can act on: it makes the caret,
      the scrollbars and native form chrome follow the page instead of the
@@ -76,40 +91,42 @@
      failure hides: the same token passes on one surface and fails on the next,
      so nobody can check it by reading the stylesheet. Each value below was
      solved against the worst surface it can land on and clears 4.5:1 there. */
-  /* T-051 (owner, 2026-10-21; re-planned 2026-10-29 as T-051-1, colours
-     first): the iOS palette, in Apple's accessible shades where a colour is
-     text — the values loop/specs/T-051-apple-system measured on the
-     reference branch (bc4416b). Grouped background #f2f2f7, white cells, ink
-     #1d1d1f, grey text #6e6e73, tint #0066cc, filled buttons #0071e3, red
-     #d70015. It replaces brief.md §3's warm light (#f2f1ee) and its navy and
-     gold: the crest stays as the logo, the brand colours leave. */
-  --bg: #f2f2f7;          /* grouped page background */
-  --bg-2: #f2f2f7;        /* section bands — how sections separate */
-  --surface: #ffffff;     /* cells, cards */
-  --surface-2: #f2f2f7;   /* gray fills, pressed cells */
+  /* T-080 (owner, 25 Nov 2026: "match the phone app"; loop/design/brief.md
+     §0): the phone app's identity (app/lib/theme/tokens.dart). Light is the
+     app's white sheet on a warm off-white, its ink #12141c and grey #55596a,
+     and the brand back where T-051 had put the iOS palette: navy #1e4f8f
+     (Tokens.primary) for the tint and the filled button, gold for wins.
+     Ratios, measured: ink 16.3:1 on the page, grey 6.2:1, navy 7.2:1 (6.9:1
+     on --accent-soft), white on the navy fill 8.2:1, gold 5.0:1.
+     Before T-080 (T-051): page #f2f2f7, ink #1d1d1f, grey #6e6e73, tint
+     #0066cc, fill #0071e3, gold iOS orange #c93400. */
+  --bg: #f2f1ee;          /* grouped page background: warm, not iOS's #f2f2f7 */
+  --bg-2: #f2f1ee;        /* section bands — how sections separate */
+  --surface: #ffffff;     /* cells, cards: the app's white sheet */
+  --surface-2: #f2f1ee;   /* gray fills, pressed cells */
   /* The lightest surface, for the few things drawn over the page (the chart
      tooltip). It was called --float until --float became the shadow below. */
   --surface-float: #ffffff;
-  --line: #c6c6c8;        /* hairline separators; not text */
-  --line-strong: #aeaeb2;
-  --ink: #1d1d1f;         /* primary label */
-  --ink-2: #6e6e73;       /* secondary label */
-  --ink-3: #6e6e73;       /* tertiary — still text, so still 4.5:1 */
-  --accent: #0066cc;      /* tint: links, the active tab, tinted-button labels */
-  /* The filled button and the done-day fill. Its label is --accent-fill-ink:
-     white, in both themes (4.70:1). */
-  --accent-fill: #0071e3;
-  /* The tinted-button fill; its label is --accent (4.9:1). */
-  --accent-soft: #e0eefc;
-  /* The streak and achievement moments. Never an action. iOS orange,
-     increased contrast. */
-  --gold: #c93400;
+  --line: #dcdad5;        /* hairline separators; not text */
+  --line-strong: #b4b1aa;
+  --ink: #12141c;         /* primary label (Tokens.ink) */
+  --ink-2: #55596a;       /* secondary label (Tokens.ink2) */
+  --ink-3: #55596a;       /* tertiary — still text, so still 4.5:1 */
+  --accent: #1e4f8f;      /* tint: links, the active tab, tinted-button labels */
+  /* The filled button and the done-day fill: the navy (Tokens.primary). Its
+     label is --accent-fill-ink: white, in both themes (8.2:1). */
+  --accent-fill: #1e4f8f;
+  /* The tinted-button fill (Tokens.accentWash); its label is --accent (6.9:1). */
+  --accent-soft: #e6edf6;
+  /* Wins: the streak, achievement moments, today's ring. Never an action.
+     The gold that sits on the white sheet (Tokens.goldInk), 5.6:1 on white. */
+  --gold: #8a5f12;
   /* The crest: the brand's own colour, pinned, and not --gold (T-051-1 review
      r1). When --gold became iOS orange the sidebar's seal went with it and
      stopped matching the home-screen icon (icons/, caramel on espresso),
      which the approved mockup keeps as the logo. These are the values the
      crest painted before T-051: caramel in Light (the espresso sidebar's
-     --panel-accent), gold in Dark. */
+     --panel-accent); in Dark the owner's own crest gold (T-080). */
   --crest: #d3a874;
   /* --accent-fill is set for the lead pair only; the other five themes
      inherit the light value until T-008 paints with it. --accent-soft is the
@@ -129,14 +146,13 @@
   /* The one thing that is due. Derived from --bad's hue but pulled back, so it
      reads as attention rather than as something having gone wrong. */
   --urgent: #c93400;
-  --btn-bg: #0071e3;
+  --btn-bg: #1e4f8f;
   --btn-ink: #ffffff;
-  /* Hover, solid (T-051-1 r1): the filled tint 15% toward black (white on it
-     6.1:1), and the tinted kinds' deeper labels — --accent and --bad 15%
-     toward black here, 20% toward white in dark — each >= 5.2:1 on its
-     hover tint. */
-  --btn-bg-hover: #0060c1;
-  --accent-hover: #0057ad;
+  /* Hover, solid: the navy fill 15% toward black (white on it 9.9:1), and the
+     tinted kinds' deeper labels — --accent and --bad 15% toward black here,
+     20% toward white in dark — each >= 5.2:1 on its hover tint. */
+  --btn-bg-hover: #1a437a;
+  --accent-hover: #1a437a;
   --bad-hover: #b70012;
   /* The label on a FILLED accent: the primary .btn (on --btn-bg), the toast,
      anything painted --accent-fill (T-024). White on light's fills; dark's
@@ -188,8 +204,8 @@
      sidebar (white beside the #f2f2f7 page, #1c1c1e beside black), so the
      page's own inks apply on it and light no longer re-scopes them. */
   --panel: #ffffff;
-  --panel-ink: #1d1d1f;
-  --panel-accent: #0066cc;
+  --panel-ink: #12141c;
+  --panel-accent: #1e4f8f;
   /* Emphasis is a rule, not a fill: --feature is the colour of the line along
      the top of a feature card. It used to be a dark background that re-scoped
      eight ink tokens, and every child that assumed light-theme values broke
@@ -210,6 +226,10 @@
      to be mono for alignment are the body face with tabular-nums. */
   --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, system-ui, sans-serif;
   --font-display: var(--font-body);
+  /* T-080: page titles — the large title and the dashboard hero — are the
+     phone app's Playfair Display Bold. Body, labels and every other heading
+     stay the body face. */
+  --font-title: "Playfair Display", Georgia, "Times New Roman", serif;
   --font-rounded: ui-rounded, -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", Consolas, monospace;
   /* The iOS text styles (brief §3), in rem so a larger text setting scales the
@@ -283,48 +303,58 @@
   color-scheme: dark;
   --urgent: #ff9f0a;
   --shade: #000000;
-  /* The dark half of the iOS palette (T-051): iOS's own dark system neutrals
-     — a black grouped background, #1c1c1e cells, #2c2c2e fills — with the
-     increased-contrast tints where a colour is text. Two are not the stock
-     values: tint text #409cff and grey text #98989d, because #0a84ff and
-     #8e8e93 fall under 4.5:1 on any tinted or elevated dark fill; and red
-     text is #ff6961, because #ff453a is 4.09:1 on the #2c2c2e hover. */
+  /* T-080 (owner, 25 Nov 2026: "match the phone app"; loop/design/brief.md
+     §0): the phone app's midnight. The page is Tokens.midnight #12141c, not
+     iOS's pure #000000, and the surfaces step up from it — cells #1e2230
+     (Tokens.badge), fills #2a2f40 — so a card reads by its fill, not by a
+     ring. Grey text is the app's onMidnight2 #a9aec2 (8.3:1 on the page, 6.0:1
+     on the fill), the tint text its navyOnDark #78aef0 (8.0:1; 5.3:1 on the
+     current pill), and the filled button is the navy itself, Tokens.primary
+     #1e4f8f, with white on it at 8.2:1 — the same button as Light. The crest
+     is the owner's gold #dfb46b; wins and today's ring are the app's gold
+     #c89b60. Red text
+     stays #ff6961 and the faculty hues stay; each is re-measured on the new
+     fills (>= 4.5:1 on the lightest, #2a2f40).
+     Before T-080 (T-051): page #000000, cells #1c1c1e, fills #2c2c2e, grey
+     #98989d, tint #409cff, fill #0071e3, gold iOS orange #ff9f0a. */
   --fac-math: #9b99ff; --fac-ai: #ff9f0a; --fac-sys: #40c8e0; --fac-phys: #ff766e; --fac-res: #da8fff; --fac-speech: #ff7691;
   --cover-k: 55%;          /* a typeset cover is --fac this far toward black (T-016) */
-  --bg: #000000;
-  --bg-2: #000000;
-  --surface: #1c1c1e;
-  --surface-2: #2c2c2e;
-  --surface-float: #2c2c2e;
-  --line: #38383a;
-  --line-strong: #48484a;
+  --bg: #12141c;
+  --bg-2: #12141c;
+  --surface: #1e2230;
+  --surface-2: #2a2f40;
+  --surface-float: #2a2f40;
+  --line: #363c50;
+  --line-strong: #474e66;
   --ink: #f5f5f7;
-  --ink-2: #98989d;
-  --ink-3: #98989d;
-  --accent: #409cff;
-  --accent-fill: #0071e3;
-  /* The tint 14% into the #1c1c1e card: the sidebar's current pill and the
-     tinted fills stand off the card (1.24:1) and carry --accent at 4.9:1. The
-     reference branch's #0b1a2b was darker than the card, 1.03:1 against it. */
-  --accent-soft: #212e3e;
-  --gold: #ff9f0a;
-  --crest: #e0b35a;
+  --ink-2: #a9aec2;
+  --ink-3: #a9aec2;
+  --accent: #78aef0;
+  --accent-fill: #1e4f8f;
+  /* The tint 14% into the #1e2230 card: the sidebar's current pill and the
+     tinted fills stand off the card (1.31:1) and carry --accent at 5.3:1. */
+  --accent-soft: #2b364b;
+  /* Wins (the streak, achievements, today's ring): the app's Tokens.gold,
+     7.3:1 on the page. Not --crest: the crest is the owner's own #dfb46b and
+     stays its own colour (T-051-1 r1's rule, held by verify-design). */
+  --gold: #c89b60;
+  --crest: #dfb46b;
   --accent-2: #64a8ff;
   --good: #30d158;
   --bad: #ff6961;
-  --btn-bg: #0071e3;
+  --btn-bg: #1e4f8f;
   --btn-ink: #ffffff;
-  --btn-bg-hover: #0060c1;
-  --accent-hover: #66b0ff;
+  --btn-bg-hover: #1a437a;
+  --accent-hover: #9ac3f4;
   --bad-hover: #ff8781;
-  /* White on the filled tint, as iOS draws a filled button in both themes. */
+  /* White on the navy fill, as Light draws it. */
   --accent-fill-ink: #ffffff;
   /* A dark shadow on a near-black page is not a shadow: what floats gets a ring. */
   --float: 0 0 0 1px var(--line);
   /* The sidebar, and the status bar (meta theme-color): the card colour. */
-  --panel: #1c1c1e;
+  --panel: #1e2230;
   --panel-ink: #f5f5f7;
-  --panel-accent: #409cff;
+  --panel-accent: #78aef0;
   --feature: var(--accent);
 }
 
@@ -360,6 +390,10 @@ h1, h2, .display {
   font-family: var(--font-display);
   font-optical-sizing: auto;
 }
+/* T-080: the page title is the app's serif. The desktop folio (a small-caps
+   running head, not a title) and prose headings keep the body face through
+   their own class rules below. */
+h1, .display { font-family: var(--font-title); }
 /* A two-line lecture title that drops one word onto the second line reads as
    a mistake. balance evens the lines of a heading; pretty keeps orphans out of
    running text. Both degrade to normal wrapping where unsupported. */
@@ -805,6 +839,11 @@ textarea { min-height: 90px; resize: vertical; line-height: 1.6; }
               box-shadow var(--t-micro) ease;
 }
 .checkbox svg { position: absolute; inset: 1px; opacity: 0; transition: opacity var(--t-micro) ease; }
+/* T-080: the same check drawn standalone, where a "\2713" text glyph used to
+   be the icon. 1em, so it takes the size of the glyph it replaced, in the
+   colour of the text around it. */
+.tick { display: inline-block; width: 1em; height: 1em; flex: none; vertical-align: -0.125em; }
+.gate-row .gmark .tick { width: 12px; height: 12px; }
 /* Filled: there is no recess left to show, so it loses the well with the gap. */
 .check-row input:checked + .checkbox { background: var(--ink); border-color: var(--ink); box-shadow: none; }
 .check-row input:checked + .checkbox svg { opacity: 1; color: var(--surface); }
@@ -942,7 +981,7 @@ tr:last-child td { border-bottom: none; }
 .chart-tip.show { opacity: 1; }
 .chart svg { display: block; width: 100%; height: auto; }
 .chart .grid-line { stroke: var(--line); stroke-width: 1; }
-.chart .axis-label { fill: var(--ink-3); font-size: 12px; font-family: var(--font-body); font-variant-numeric: tabular-nums; }
+.chart .axis-label { fill: var(--ink-3); font-size: 13px; font-family: var(--font-body); font-variant-numeric: tabular-nums; }
 
 /* ---------- Toast ---------- */
 .toast {
@@ -1140,6 +1179,9 @@ i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
 }
 .ring .fill.teal { stroke: var(--accent-2); }
 .ring .fill.good { stroke: var(--good); }
+/* T-080: today's ring is gold, the app's colour for wins (brief §0); a
+   finished day still closes in --good. */
+.rl-ring .ring .fill:not(.good) { stroke: var(--gold); }
 @keyframes ringDraw { to { stroke-dashoffset: var(--to, 100); } }
 .ring-wrap { position: relative; display: grid; place-items: center; flex-shrink: 0; }
 .ring-wrap .ring-label {
@@ -1277,6 +1319,8 @@ html { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
   font-family: var(--font-display); font-weight: 700; font-size: var(--fs-h2);
   letter-spacing: -0.004em; line-height: 1.2; color: var(--ink);
 }
+/* T-080: the dashboard hero's title is a page title, in the app's serif. */
+.one.lead .one-kind { font-family: var(--font-title); }
 .one-more {
   font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: var(--fs-tiny); font-weight: 500;
   color: var(--ink-3); letter-spacing: 0; vertical-align: 0.35em;
@@ -1599,7 +1643,7 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
 .cg-wrap { overflow-x: auto; padding-bottom: 6px; }
 .cg { height: auto; max-width: none; }
 .cg-node rect { fill: var(--surface-2); stroke: var(--line-strong); stroke-width: 1.3; transition: fill var(--t-hover) ease, stroke var(--t-hover) ease; }
-.cg-node text { font-family: var(--font-body); font-size: 12px; fill: var(--ink-2); }
+.cg-node text { font-family: var(--font-body); font-size: 13px; fill: var(--ink-2); }
 .cg-node { cursor: pointer; }
 .cg-node:hover rect, .cg-node:focus-visible rect { stroke: var(--accent); fill: var(--bg-2); }
 .cg-node.seen rect { fill: color-mix(in srgb, var(--accent) 12%, var(--surface)); }
@@ -1617,7 +1661,7 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
 
 /* ---------- Method: curves, steps, spacing ---------- */
 .curve { width: 100%; height: auto; display: block; }
-.curve .ctick { font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: 12px; fill: var(--ink-3); }
+.curve .ctick { font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: 13px; fill: var(--ink-3); }
 /* Draw the good curve on rather than snapping it in. */
 .curve-draw { stroke-dasharray: 1400; stroke-dashoffset: 1400; animation: drawLine 1400ms var(--ease) 120ms forwards; }
 @keyframes drawLine { to { stroke-dashoffset: 0; } }
@@ -1817,6 +1861,7 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
      here, without the day meta the capsule carries. */
   .folio {
     display: block; margin: 0 0 var(--sp-3); padding: 0; border: 0;
+    font-family: var(--font-title);
     font-size: var(--fs-large); font-weight: 700; letter-spacing: var(--tr-large);
     line-height: var(--lh-large); text-transform: none; color: var(--ink);
   }
@@ -1911,13 +1956,14 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
   .tabbar a.active { color: var(--accent); }
   /* Due reviews. A solid red with white text, 5.4:1, in every theme. Anchored
      from the tab's right so it can never leave the tab: a one-digit badge
-     (18px) starts 3px right of the centre as before, and a wider one ("99+",
+     (20px since T-080, whose 13px floor took the count from 11px) starts
+     1px right of the centre, and a wider one ("99+",
      the most it says) grows toward the glyph instead of off the capsule. */
   .tabbar .tab-badge {
     position: absolute; top: 4px; right: max(2px, calc(50% - 21px));
-    min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px;
+    min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px;
     background: #c4342a; color: #fff;
-    font-size: 11px; font-weight: 700; line-height: 18px; text-align: center; font-variant-numeric: tabular-nums;
+    font-size: 13px; font-weight: 700; line-height: 20px; text-align: center; font-variant-numeric: tabular-nums;
   }
   .tabbar .tab-badge[hidden] { display: none; }
 
@@ -2819,11 +2865,11 @@ summary.pd-row::-webkit-details-marker { display: none; }
    piece when it is taller than the screen: nothing in it is fixed. */
 .sheet {
   position: fixed; inset: auto 0 0 0; margin: 0 auto;
-  width: 100%; max-width: 560px; max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 24px); overflow: auto;
+  width: 100%; max-width: 560px; max-height: calc(100vh - env(safe-area-inset-top, 0px) - 24px); max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 24px); overflow: auto;
   padding: 0; border: 0; border-radius: var(--r-xl) var(--r-xl) 0 0;
   background: var(--surface); color: var(--ink); box-shadow: var(--float);
 }
-@media (min-width: 861px) { .sheet { inset: 0; margin: auto; height: fit-content; max-height: calc(100dvh - 48px); border-radius: var(--r-xl); } }
+@media (min-width: 861px) { .sheet { inset: 0; margin: auto; height: fit-content; max-height: calc(100vh - 48px); max-height: calc(100dvh - 48px); border-radius: var(--r-xl); } }
 /* --shade with a fallback: a ::backdrop that does not inherit custom
    properties (older WebKit) still dims. */
 .sheet::backdrop { background: color-mix(in srgb, var(--shade, #000) 55%, transparent); }

@@ -3064,7 +3064,8 @@ function t28SeedClips(list) {
         a.menu.w >= 44 && a.menu.h >= 44 && a.menu.left >= 0 && a.menu.left < 24 && __same(a.menu.color, a.menu.accent),
         Math.round(a.menu.w) + "x" + Math.round(a.menu.h) + " at x=" + Math.round(a.menu.left) + ", " + hx(a.menu.color));
       check(where + ": the day/week capsule trails, on --surface, in tabular numerals",
-        /^Day \d{3} · Week \d+$/.test(a.chip.text) && a.chip.bg[3] === 255 && __same(a.chip.bg, a.chip.surface) &&
+        // T-080 PR 3: "Day 35", never zero-padded (was \d{3}, "Day 035").
+        /^Day [1-9]\d* · Week \d+$/.test(a.chip.text) && a.chip.bg[3] === 255 && __same(a.chip.bg, a.chip.surface) &&
         /tabular-nums/.test(a.chip.fvn) && !/mono/i.test(a.chip.family) && a.chip.radius >= a.chip.h / 2 && a.chip.right >= a.vw - 16,
         "\"" + a.chip.text + "\" on " + hx(a.chip.bg) + ", " + a.chip.fvn + ", right edge " + Math.round(a.chip.right) + " of " + a.vw);
       check(where + ": the page h1 is the large title (34px/700, sentence case, no day meta in it)",
@@ -4968,9 +4969,11 @@ function t28SeedClips(list) {
         m.prompt === "Tell one story from this week" && m.hint === "Under 90 seconds. Beginning, turn, ending." && m.time === "0:00 / 1:30", JSON.stringify([m.prompt, m.hint, m.time]));
       c28(at + " /practice: the record button is a <button type=button> labelled \"Start recording\", in the tab order, at least 88x88 (" + (r.w || 0).toFixed(0) + "x" + (r.h || 0).toFixed(0) + "), its disc round",
         !!m.rec && r.tag === "BUTTON" && r.type === "button" && r.label === "Start recording" && r.tab === 0 && r.w >= 88 && r.h >= 88 && r.round, JSON.stringify(m.rec));
-      c28(at + " /practice: the record button is centred in its card (centre within 1px of the card's)",
-        !!m.rec && Math.abs(r.cx - r.card.cx) <= 1 && r.x >= r.card.x && r.x + r.w <= r.card.x + r.card.w,
-        m.rec ? "button centre " + r.cx.toFixed(1) + ", card centre " + r.card.cx.toFixed(1) : "no button");
+      // T-080 PR 3 (owner: Practice "left-aligned like the rest"): the card reads from the left, so the
+      // button starts at the card's 24px content edge (within 1px), still wholly inside the card.
+      c28(at + " /practice: the record button starts at its card's left content edge (24px in, within 1px)",
+        !!m.rec && Math.abs((r.x - r.card.x) - 24) <= 1 && r.x >= r.card.x && r.x + r.w <= r.card.x + r.card.w,
+        m.rec ? "button left " + (r.x - r.card.x).toFixed(1) + "px into the card" : "no button");
       c28(at + " /practice: its red is the theme's --bad (" + (r.bad || "?") + "), which beats #ff453a on the card (" + (r.redRatio || 0).toFixed(2) + ":1 against " + (r.sysRatio || 0).toFixed(2) + ":1 on " + (r.cardBg || "?") + "), and clears 3:1",
         !!m.rec && r.red === r.bad && r.redRatio >= r.sysRatio && r.redRatio >= 3, JSON.stringify({ red: r.red, bad: r.bad, cardBg: r.cardBg }));
       c28(at + " /practice: its ring is --ink (" + (r.ink || "?") + "), " + (r.ringW || 0) + "px, at " + (r.ringRatio || 0).toFixed(2) + ":1 on the card (>= 3:1)",
@@ -5156,7 +5159,9 @@ function t28SeedClips(list) {
         kicker: txt("#view .page-head .kicker"), btn: (lock.querySelector("a.btn") || { getAttribute: () => null }).getAttribute("href"),
         cards: document.querySelectorAll("#view .card").length, ahead: lock.dataset.ahead } : null,
       kind: txt(".card.one.lead .one-kind"), go: (document.querySelector(".card.one.lead a.one-go") || { getAttribute: () => null }).getAttribute("href"),
-      railLock: !!document.querySelector("#rail .rl-lock"), railRule: txt("#rail .rl-rule"),
+      // T-080 PR 3: the rail's card is the lecture page's side column now (#view .lsn-side), visible there.
+      railLock: !!document.querySelector("#view .lsn-side .rl-lock") && document.querySelector("#view .lsn-side .rl-lock").checkVisibility(),
+      railRule: txt("#view .lsn-side .rl-rule"),
       todayRoot: (r => r ? "#/lesson/" + r.split(".").join("/") : null)(window.__brickfordTest.lockRoot("math120", 1, 0)),
     };
   }
@@ -5618,9 +5623,12 @@ function t28SeedClips(list) {
           await go(page, "/courses");
           const r1 = await page.evaluate(() => ({ disp: getComputedStyle(document.querySelector("#rail")).display, w: document.querySelector("#rail").getBoundingClientRect().width }));
           await go(page, "/lesson/math110/0/13");
-          const r2 = await page.evaluate(() => getComputedStyle(document.querySelector("#rail")).display);
-          c8(at + ": the Next up rail takes no room on /courses, and is on a lecture page", r1.disp === "none" && r1.w === 0 && r2 !== "none",
-            "/courses display " + r1.disp + " width " + r1.w + "; lecture display " + r2);
+          // T-080 PR 3: on a lecture the same card is the top of the page's own side
+          // column (the reading layout's second column), so the rail itself takes no room there either.
+          const r2 = await page.evaluate(() => { const c = document.querySelector("#view .lsn-side .rail-card");
+            return { rail: getComputedStyle(document.querySelector("#rail")).display, card: !!c && c.checkVisibility() }; });
+          c8(at + ": the Next up rail takes no room on /courses, and on a lecture page its card is shown in the page's side column",
+            r1.disp === "none" && r1.w === 0 && r2.card, "/courses display " + r1.disp + " width " + r1.w + "; lecture " + JSON.stringify(r2));
         }
         // one filled button on each main route
         const many = [];

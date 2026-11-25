@@ -5819,6 +5819,18 @@ function t28SeedClips(list) {
         c8(at + ": the sidebar's BRICKFORD is Playfair Display Bold, tracked 0.14em, loaded and rendering (the app's lockup)",
           wm.first === "Playfair Display" && wm.weight === "700" && Math.abs(wm.ls - 0.14) < 0.005 && wm.status.includes("loaded") && Math.abs(wm.own - wm.fb) > 1,
           JSON.stringify(wm));
+        // T-081 (owner, 25 Nov: "the logo too big", "too much empty space"): the header is one
+        // row, a crest at most 40px tall with BRICKFORD beside it (same centre within 4px), and the
+        // sidebar's footer sits under the nav, not pinned to the window's bottom edge.
+        if (!mobile) {
+          const hd = await page.evaluate(() => {
+            const sv = document.querySelector(".sidebar .crest svg").getBoundingClientRect(), nm = document.querySelector(".sidebar .crest .name-en").getBoundingClientRect();
+            const nav = document.querySelector(".sidebar .nav").getBoundingClientRect(), ft = document.querySelector(".sidebar-foot").getBoundingClientRect();
+            return { h: Math.round(sv.height), dy: Math.abs((sv.top + sv.bottom) / 2 - (nm.top + nm.bottom) / 2), right: nm.left > sv.right, gap: Math.round(ft.top - nav.bottom) };
+          });
+          c8(at + ": the sidebar header is one row, a crest of at most 40px with BRICKFORD beside it, and the footer sits under the nav (T-081)",
+            hd.h > 0 && hd.h <= 40 && hd.right && hd.dy <= 4 && hd.gap <= 48, JSON.stringify(hd));
+        }
         c8(at + ": no page errors", errors.length === 0, errors.join(" | "));
         await ctx.close();
       }

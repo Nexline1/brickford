@@ -169,7 +169,13 @@ async function freshContext(browser, opts) {
     await page.click("#menuBtn");
     const open = await arrive(s => s.x === 0 && s.open);
     check(open.x === 0 && open.open, w + "px: drawer did not open (x=" + open.x + ")");
-    await page.click("#scrim", { force: true });
+    // Tap the scrim where a thumb would: right of the drawer. The scrim's centre is under the
+    // drawer itself, and clicking there only "closed" it by landing on a nav link, which stopped
+    // being true once the T-081 header moved the nav up.
+    const vw = page.viewportSize();
+    const dw = await page.evaluate(() => document.querySelector(".sidebar").getBoundingClientRect().right);
+    check(dw < vw.width - 8, w + "px: the open drawer leaves no scrim to tap (right edge " + dw + ")");
+    await page.mouse.click(vw.width - 6, Math.round(vw.height / 2));
     const shut1 = await arrive(s => s.x <= -180 && !s.open);
     check(shut1.x <= -180, w + "px: drawer did not close (x=" + shut1.x + ")");
     console.log("  " + String(w).padStart(5) + "px  drawer opens and closes");

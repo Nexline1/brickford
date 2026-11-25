@@ -919,7 +919,7 @@ function tabState() {
       const e = bar.querySelector(".tab-badge");
       if (!e || !e.checkVisibility()) return null;
       const bs = getComputedStyle(e), bg = z.bytes(bs.backgroundColor), fg = z.bytes(bs.color);
-      return { text: e.textContent.trim(), bg, ratio: z.ratio(z.over(fg, bg), bg), inReview: !!e.closest("a[data-route='/review']") };
+      return { text: e.textContent.trim(), bg, ratio: z.ratio(z.over(fg, bg), bg), inReview: !!e.closest("a[data-route='/more']") };   // T-080 PR 2: the fifth tab is More (it holds Week); the badge rides there
     })(),
     tabs: [...bar.querySelectorAll("a")].map(a => {
       const t = getComputedStyle(a), g = a.querySelector(".glyph").getBoundingClientRect();
@@ -2691,7 +2691,7 @@ function t28SeedClips(list) {
     const { ctx, page, errors } = await fresh(browser, { viewport: { width: 1280, height: 800 }, colorScheme: "dark" }, null);
     await page.goto(URL + "/", { waitUntil: "load" });
     await page.waitForSelector("#view > *");
-    await page.click("#themeBtn");
+    await page.click("#settingsBtn");   // T-080 PR 2: the theme is in the Settings sheet (it was the Theme row's menu)
     await page.click("#themeMenu [data-theme-pick='auto']");
     const r = await page.evaluate(() => {
       const el = document.createElement("div"); document.body.appendChild(el);
@@ -2776,7 +2776,7 @@ function t28SeedClips(list) {
   // switches to navy once. With the marker, or any other theme, nothing moves.
   console.log("\nT-024: the navy switch");
   const pickTheme = async (page, t) => {
-    await page.click("#themeBtn");
+    await page.click("#settingsBtn");   // T-080 PR 2: the theme is in the Settings sheet (it was the Theme row's menu)
     await page.click("#themeMenu [data-theme-pick='" + t + "']");
   };
   await acrossReload({ label: "switch (c)", check, fail: why => check(why, false), session: true }, async (check, reload) => {
@@ -3205,12 +3205,19 @@ function t28SeedClips(list) {
       check(at + ": the active label on the bubble is at least 4.5:1", !!bb && bb.labelRatio >= 4.5,
         bb ? bb.labelRatio.toFixed(2) + ":1" : "no bubble");
       // The seed has one due review.
-      check(at + ": the Review tab's badge counts the due reviews in a solid fill at >= 4.5:1",
+      check(at + ": the More tab's badge (T-080 PR 2; it was the Review tab) counts the due reviews in a solid fill at >= 4.5:1",
         !!t.badge && t.badge.inReview && t.badge.text === "1" && t.badge.bg[3] === 255 && t.badge.ratio >= 4.5,
         t.badge ? "\"" + t.badge.text + "\" " + hx(t.badge.bg) + " " + t.badge.ratio.toFixed(2) + ":1" : "no badge shown");
-      // The Next card over the capsule, on /review, where it is on screen (on
-      // Today it is stowed while the hero's own button shows).
-      await go(page, "/review");
+      // The Next card over the capsule. T-080 PR 2: it exists on the dashboard
+      // only now (every other page has its own one primary), where it is stowed
+      // while the hero's own button shows — so the page is scrolled to its end,
+      // the button leaves, and the card is measured once it has slid in. (The
+      // page is on "/" already; /__boot first, so go() sees a fresh render.)
+      await go(page, "/__boot");
+      await go(page, "/");
+      await page.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "instant" }));
+      await page.waitForFunction(() => { const rb = document.querySelector("#railbar");
+        return !!rb && !rb.classList.contains("stowed") && rb.getAnimations().length === 0; }, null, { timeout: 4000 }).catch(() => {});
       const n = await page.evaluate(() => {
         const z = window.__dz, rb = document.querySelector("#railbar"), tb = document.querySelector("#tabbar");
         if (!rb || !rb.checkVisibility({ opacityProperty: true })) return null;
@@ -3222,7 +3229,7 @@ function t28SeedClips(list) {
                  btn: bb ? { w: bb.width, h: bb.height } : null };
       });
       const card = at.replace("floating tab bar", "Next card");
-      check(card + ": on screen above the capsule on /review", !!n, n ? "" : "not visible");
+      check(card + ": on screen above the capsule on / once the hero's button has scrolled away", !!n, n ? "" : "not visible");
       if (n) {
         check(card + ": the capsule's insets (+/-1)", Math.abs(n.l) <= 1 && Math.abs(n.r) <= 1, "left " + n.l.toFixed(1) + ", right " + n.r.toFixed(1) + " from the capsule's");
         check(card + ": radius >= 20px and 8px (+/-1) above the capsule", n.radius >= 20 && Math.abs(n.gap - 8) <= 1, "radius " + n.radius + ", gap " + n.gap.toFixed(1));
@@ -3268,10 +3275,10 @@ function t28SeedClips(list) {
         const want = due > 99 ? "99+" : String(due);
         const inside = (x, box) => x.l >= box.l - 0.5 && x.r <= box.r + 0.5 && x.t >= box.t - 0.5 && x.b <= box.b + 0.5;
         const f = n => n.toFixed(1);
-        check(at + ": the badge reads " + want + " and the Review link's label keeps the full count",
-          !!m && m.root === root + "px" && m.shown && m.text === want && m.label === "Review, " + due + " due",
+        check(at + ": the badge reads " + want + " and the More link's label keeps the full count",
+          !!m && m.root === root + "px" && m.shown && m.text === want && m.label === "More, " + due + " due",   // T-080 PR 2: the tab is More
           m ? "root " + m.root + ", \"" + m.text + "\", aria-label \"" + m.label + "\"" : "no badge");
-        check(at + ": the badge sits inside the Review tab and the capsule",
+        check(at + ": the badge sits inside the More tab and the capsule",
           !!m && inside(m.badge, m.tab) && inside(m.badge, m.bar),
           m ? "badge " + f(m.badge.l) + ".." + f(m.badge.r) + ", tab " + f(m.tab.l) + ".." + f(m.tab.r) + ", capsule " + f(m.bar.l) + ".." + f(m.bar.r) : "no badge");
         check(at + ": no page errors", errors.length === 0, errors.join(" | "));
@@ -3467,13 +3474,16 @@ function t28SeedClips(list) {
   let ringsSeen = 0;
   for (const { w, h, mobile } of WIDTHS) {
     for (const theme of THEMES) {
-      const at = w + "px " + theme + " / keyboard ring";
+      // T-080 PR 2: measured on /more, whose Settings section is one row. The
+      // dashboard's one-row section (Monk Mode) folded into its "Needs you"
+      // strip, so "/" has none; the ring and the clip under test are the same.
+      const at = w + "px " + theme + " /more keyboard ring";
       console.log("\nthe keyboard ring, " + w + "px " + theme);
       const { ctx, page, errors } = await fresh(browser,
         { viewport: { width: w, height: h }, isMobile: mobile, hasTouch: mobile, colorScheme: theme }, theme);
       await page.goto(URL + "/__boot", { waitUntil: "load" });
       await page.waitForSelector("#view > *");
-      await go(page, "/");
+      await go(page, "/more");
       const label = await page.evaluate(markOneRow);
       let tabs = 0, reached = false;
       if (label) {
@@ -3486,7 +3496,7 @@ function t28SeedClips(list) {
         }
       }
       check(at + ": Tab reaches the row of a one-row section", !!label && reached,
-        !label ? "no one-row .glist on /" : reached ? "\"" + label + "\" after " + tabs + " Tab presses" : "not reached in " + tabs + " presses");
+        !label ? "no one-row .glist on /more" : reached ? "\"" + label + "\" after " + tabs + " Tab presses" : "not reached in " + tabs + " presses");
       if (!reached) { await ctx.close(); continue; }
       await frames(page);
       const r = await page.evaluate(ringState);
@@ -5224,16 +5234,17 @@ function t28SeedClips(list) {
           c43(at + ": one card, no video: \"Pass the quiz for “…” first\", a lock glyph, the kicker and title above, --surface",
             !!m.lock && L.cards === 1 && !m.frame && !m.mark && /^Pass the quiz for “.+” first$/.test(L.text || "") && L.glyph && L.bg &&
               /^2\. /.test(L.h1 || "") && /^MATH 120/.test(L.kicker || ""), JSON.stringify(L));
-          c43(at + ": its one primary goes to the previous lecture's quiz", filled.join() === "Go to the quiz ▸" && L.btn === "#/lesson/math120/1/0" && L.ahead === "1", JSON.stringify({ filled, href: L.btn }));
+          // T-080 PR 2: button labels lose the \u25b8 glyph (now a drawn chevron, checked in the T-080 block).
+          c43(at + ": its one primary goes to the previous lecture's quiz", filled.join() === "Go to the quiz" && L.btn === "#/lesson/math120/1/0" && L.ahead === "1", JSON.stringify({ filled, href: L.btn }));
         } else if (st.name === "the dashboard pointing at a quiz") {
           // Review r1: nothing watched, so the first lecture in the chain is
           // to be watched first — not called a quiz.
-          c43(at + ": nothing watched — the Next card says \"Watch: <title>, then its quiz\" for the root of today's chain (which starts at the gate, not at lecture 1), and its \"Open ▸\" is the one primary",
-            /^Watch: .+, then its quiz$/.test(m.kind || "") && !!m.todayRoot && m.go === m.todayRoot && m.go !== "#/lesson/math120/0/0" && filled.join() === "Open ▸",
+          c43(at + ": nothing watched — the Next card says \"Watch: <title>, then its quiz\" for the root of today's chain (which starts at the gate, not at lecture 1), and its \"Open\" is the one primary",
+            /^Watch: .+, then its quiz$/.test(m.kind || "") && !!m.todayRoot && m.go === m.todayRoot && m.go !== "#/lesson/math120/0/0" && filled.join() === "Open",
             JSON.stringify({ kind: m.kind, go: m.go, root: m.todayRoot, filled }));
         } else {
-          c43(at + ": a watched lecture with its quiz to pass — the Next card says \"Quiz: <title>\" and its \"Start ▸\" is the one primary",
-            m.kind === "Quiz: Rate of Change" && m.go === "#/lesson/math120/1/0" && filled.join() === "Start ▸", JSON.stringify({ kind: m.kind, go: m.go, filled }));
+          c43(at + ": a watched lecture with its quiz to pass — the Next card says \"Quiz: <title>\" and its \"Start\" is the one primary",
+            m.kind === "Quiz: Rate of Change" && m.go === "#/lesson/math120/1/0" && filled.join() === "Start", JSON.stringify({ kind: m.kind, go: m.go, filled }));
         }
         const w1 = await writesNow(page);
         c43(at + ": measuring wrote nothing, no page errors", w1 === w0 && errors.length === 0, "writes " + w0 + " -> " + w1 + (errors.length ? ", " + errors.join(" | ") : ""));
@@ -5543,6 +5554,120 @@ function t28SeedClips(list) {
     }
   }
 
+  // ---- T-080 PR 2: fewer buttons, grouped (loop/specs/T-080-redesign) ----
+  //   - the sidebar is at most 7 top-level rows in its nav (links and groups)
+  //     and one row under it (Settings), and every route is still a link in it;
+  //   - the Settings sheet opens from that row and holds the theme's three picks,
+  //     Backup, Restore backup and Sync devices, every control >= 44x44;
+  //   - the rail takes no room on /courses (display none), and is on a lecture;
+  //   - exactly one filled .btn on screen on each main route — the view, the
+  //     rail and the phone's Next bar counted alike, visibility included (a
+  //     stowed rail is visibility:hidden and is not on screen);
+  //   - no button label carries a "▸" glyph, and the hero's, the course page's
+  //     and the rail's go-buttons end in the drawn chevron;
+  //   - the hero's "due on Problems" note is on its own line, above the button;
+  //   - the sidebar's wordmark is Playfair Display, loaded and rendering
+  //     (the owner, on the live PR 1: the app's lockup).
+  let t80b = 0;
+  {
+    console.log("\nT-080 PR 2: fewer buttons, grouped");
+    const MAIN = ["/", "/courses", "/course/math110", "/practice", "/review"];
+    const c8 = (n, ok, d) => { t80b++; return check(n, ok, d); };
+    const onScreenFilled = () => {
+      const z = window.__dz, fill = z.tok("--btn-bg");
+      return [...document.querySelectorAll("#view .btn, #rail .btn, #railbar .btn")]
+        .filter(n => n.checkVisibility({ visibilityProperty: true, opacityProperty: true }) && !n.closest(".stowed, .off"))
+        .filter(n => (b => b[3] === 255 && z.same(b, fill, 2))(z.bytes(getComputedStyle(n).backgroundColor)))
+        .map(n => (n.closest("#rail") ? "rail: " : n.closest("#railbar") ? "Next bar: " : "") + n.textContent.trim().replace(/\s+/g, " ").slice(0, 30));
+    };
+    for (const theme of THEMES) {
+      for (const [w, h, mobile] of [[390, 844, true], [1280, 800, false]]) {
+        const at = "T-080 PR 2 " + w + "px " + theme;
+        const { ctx, page, errors } = await fresh(browser, { viewport: { width: w, height: h }, isMobile: mobile, hasTouch: mobile, colorScheme: theme }, theme);
+        await page.goto(URL + "/__boot", { waitUntil: "load" });
+        await page.waitForSelector("#view > *");
+        await themePainted(page, theme, at);
+        // the sidebar's shape, and every route still in it
+        const nav = await page.evaluate(() => {
+          const n = document.querySelector("#nav");
+          const top = [...n.children].filter(c => c.matches("a, details"));
+          return { top: top.map(c => c.matches("details") ? "[" + c.querySelector("summary").textContent.trim() + "]" : c.textContent.trim()),
+                   foot: [...document.querySelectorAll(".sidebar-foot button, .sidebar-foot a")].map(b => b.textContent.trim()),
+                   hrefs: [...n.querySelectorAll("a")].map(a => a.getAttribute("href")) };
+        });
+        const ROUTES12 = ["#/", "#/courses", "#/practice", "#/review", "#/record", "#/workshop", "#/exams", "#/atlas", "#/calendar", "#/library", "#/monk", "#/treasury"];
+        c8(at + ": the sidebar's nav is at most 7 top-level rows (links and folding groups) and one Settings row under it, and all 12 routes are still links in it",
+          nav.top.length <= 7 && nav.foot.length === 1 && nav.foot[0] === "Settings" && ROUTES12.every(r => nav.hrefs.includes(r)) && nav.hrefs.length === 12,
+          nav.top.length + " rows: " + nav.top.join(" | ") + "; under it: " + nav.foot.join(" | ") + "; " + nav.hrefs.length + " links");
+        // the Settings sheet, opened the way a person does
+        if (mobile) { await go(page, "/more"); await page.click("#view [data-open-settings]"); }
+        else await page.click("#settingsBtn");
+        await page.waitForSelector("#settingsSheet[open]", { timeout: 4000 }).catch(() => {});
+        const set = await page.evaluate(() => {
+          const d = document.querySelector("#settingsSheet");
+          const ctl = d ? [...d.querySelectorAll("button, a")].filter(n => n.checkVisibility()) : [];
+          return { open: !!d && d.open, picks: d ? [...d.querySelectorAll("[data-theme-pick]")].map(b => b.dataset.themePick) : [],
+                   rows: ["#exportBtn", "#importBtn", "a[href='#/sync']"].map(q => !!d && !!d.querySelector(q) && d.querySelector(q).checkVisibility()),
+                   small: ctl.map(n => n.getBoundingClientRect()).filter(r => r.width < 44 || r.height < 44).map(r => Math.round(r.width) + "x" + Math.round(r.height)) };
+        });
+        c8(at + ": Settings opens one sheet (from " + (mobile ? "the More page" : "the sidebar") + ") with the theme's three picks, Backup, Restore backup and Sync devices, every control >= 44x44",
+          set.open && set.picks.join() === "auto,dark,light" && set.rows.every(Boolean) && set.small.length === 0, JSON.stringify(set));
+        await page.keyboard.press("Escape");
+        // the rail: gone from /courses, there on a lecture (desktop, where it exists)
+        if (!mobile) {
+          await go(page, "/courses");
+          const r1 = await page.evaluate(() => ({ disp: getComputedStyle(document.querySelector("#rail")).display, w: document.querySelector("#rail").getBoundingClientRect().width }));
+          await go(page, "/lesson/math110/0/13");
+          const r2 = await page.evaluate(() => getComputedStyle(document.querySelector("#rail")).display);
+          c8(at + ": the Next up rail takes no room on /courses, and is on a lecture page", r1.disp === "none" && r1.w === 0 && r2 !== "none",
+            "/courses display " + r1.disp + " width " + r1.w + "; lecture display " + r2);
+        }
+        // one filled button on each main route
+        const many = [];
+        for (const route of MAIN) {
+          await go(page, route);
+          const f = await page.evaluate(onScreenFilled);
+          if (f.length !== 1) many.push(route + " " + f.length + (f.length ? " (" + f.join(" | ") + ")" : ""));
+        }
+        c8(at + ": exactly one filled button on screen on each of " + MAIN.join(", ") + " (view, rail and Next bar counted)", many.length === 0, many.join("; ") || "one each");
+        // the go-buttons: no glyph arrows anywhere, the chevron on the three
+        const arrows = [];
+        for (const route of MAIN) {
+          await go(page, route);
+          arrows.push(...await page.evaluate(() => [...document.querySelectorAll(".btn")].filter(b => /▸|▶/.test(b.textContent))
+            .map(b => location.hash + " \"" + b.textContent.trim().slice(0, 24) + "\"")));
+        }
+        await go(page, "/");
+        const hero = await page.evaluate(() => {
+          const b = document.querySelector(".card.one.lead a.one-go"), d = document.querySelector(".card.one.lead .one-due"), r = document.querySelector("#rail .btn");
+          const bb = b && b.getBoundingClientRect(), db = d && d.getBoundingClientRect();
+          return { chev: !!b && !!b.querySelector("svg.chev"), rail: !r || !!r.querySelector("svg.chev"), due: !!d, below: !d || (bb && db && bb.top >= db.bottom - 0.5), w: bb ? bb.width : 0,
+                   col: b ? b.parentElement.getBoundingClientRect().width : 0 };
+        });
+        await go(page, "/course/math110");
+        const cc = await page.evaluate(() => { const b = document.querySelector("#view a.one-go"); return !!b && !!b.querySelector("svg.chev"); });
+        c8(at + ": no button label carries a ▸ glyph, and the hero's, the rail's and the course page's go-buttons end in the drawn chevron",
+          arrows.length === 0 && hero.chev && hero.rail && cc, arrows.slice(0, 3).join("; ") + JSON.stringify({ hero: hero.chev, rail: hero.rail, course: cc }));
+        c8(at + ": the hero's due note is on its own line above its button" + (mobile ? "" : ", and the button is content-sized (under half the card)"),
+          hero.due && hero.below && (mobile || hero.w < hero.col / 2), JSON.stringify(hero));
+        // the lockup's wordmark
+        const wm = await page.evaluate(async () => {
+          await document.fonts.ready;
+          const n = document.querySelector(".crest .name-en"), cs = getComputedStyle(n), cv = document.createElement("canvas").getContext("2d");
+          const text = n.textContent.trim().toUpperCase(), fam = cs.fontFamily, rest = fam.split(",").slice(1).join(",") || "serif";
+          const w = f => { cv.font = cs.fontWeight + " " + cs.fontSize + " " + f; return cv.measureText(text).width; };
+          return { first: fam.split(",")[0].replace(/["']/g, "").trim(), weight: cs.fontWeight, ls: parseFloat(cs.letterSpacing) / parseFloat(cs.fontSize),
+                   status: [...document.fonts].filter(f => f.family.replace(/["']/g, "") === "Playfair Display").map(f => f.status), own: w(fam), fb: w(rest) };
+        });
+        c8(at + ": the sidebar's BRICKFORD is Playfair Display Bold, tracked 0.14em, loaded and rendering (the app's lockup)",
+          wm.first === "Playfair Display" && wm.weight === "700" && Math.abs(wm.ls - 0.14) < 0.005 && wm.status.includes("loaded") && Math.abs(wm.own - wm.fb) > 1,
+          JSON.stringify(wm));
+        c8(at + ": no page errors", errors.length === 0, errors.join(" | "));
+        await ctx.close();
+      }
+    }
+  }
+
   // ---- T-080: the phone app's identity (loop/specs/T-080-redesign, PR 1) ----
   // Three things the token table alone could not say:
   //   - the page in dark is midnight, not pure black: every layer that could
@@ -5658,6 +5783,7 @@ function t28SeedClips(list) {
       "T-043: the lecture quiz gate at 1440/390 x 2 themes — before watched, the quiz after a miss, the pass with Go deeper, the locked lecture and the dashboard pointing at a quiz, one primary each, Rewatch >= 44x44 (" + t43Checks + " checks)" + "; " +
       "T-045: Problems as what's due now at 1440/390 x 2 themes — one quiz waiting, one catch-up, one pset, one lab, nothing due, the daily review, a grandfathered unlock — the rows, tags and why-lines worked out from storage, Coming up <= 3, the empty state, and the dashboard's line (" + t45Checks + " checks)" + "; " +
       "T-054: Monk Mode at 1440/390 x 2 themes x 2 states, Full day shut and open — one filled primary at most, every control >= 44x44, nothing clipped, every text at 4.5:1, the 3 x 7 map, the Priorities first and the ring of five, and no clip at 7 widths x roots 16/24 (" + t54Checks + " checks)" + "; " +
+      "T-080 PR 2: the grouped sidebar, the Settings sheet, the rail's routes, one filled button per main route, the chevrons, the due note and the Playfair wordmark at 390/1280 x 2 themes (" + t80b + " checks); " +
       "T-080: the midnight page, Playfair on the titles and the navy filled button at 390/1280 in Dark, Auto-dark and Light (" + t80 + " checks); " +
       "T-046: the transcript card, its struck fillers and chips >= 4.5:1, its controls and the question's >= 44x44 at 1440 x 2 themes, and nothing of it on a phone at 390 (" + t46Checks + " checks)"
     : "FAIL — " + fails + " of " + checks + " design checks failed"));

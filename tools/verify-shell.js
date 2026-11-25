@@ -66,7 +66,7 @@ async function freshContext(browser, opts) {
   for (const w of DESKTOP) {
     const ctx = await freshContext(browser, { viewport: { width: w, height: 880 }, reducedMotion: "reduce" });
     const page = await ctx.newPage();
-    const columns = new Set();
+    const columns = new Set(), railCols = new Set();
     for (const r of ROUTES) {
       await page.goto(URL + r, { waitUntil: "load" });
       await page.waitForTimeout(200);
@@ -83,6 +83,8 @@ async function freshContext(browser, opts) {
           monk: !!side.querySelector(".nav a[href='#/monk']"),
           menu: getComputedStyle(document.querySelector(".menu-btn")).display,
           col: Math.round(vb.x) + "-" + Math.round(vb.right),
+          // T-080 PR 2: whether the rail takes room on this route.
+          rail: getComputedStyle(document.querySelector("#rail")).display !== "none",
         };
       });
       check(m.visible && m.x === 0 && m.w > 180, w + "px " + r + ": sidebar off-screen (x=" + m.x + ")");
@@ -90,12 +92,20 @@ async function freshContext(browser, opts) {
       // T-054: 12 links since Monk Mode joined Rhythm (was ">= 10" with 11).
       check(m.links === 12 && m.monk, w + "px " + r + ": " + m.links + " nav links, not 12 with Monk Mode (#/monk)");
       check(m.menu === "none", w + "px " + r + ": hamburger showing beside the sidebar");
-      columns.add(m.col);
+      (m.rail ? railCols : columns).add(m.col);
     }
     // The reading column must not change width or position between routes —
     // it did, because the dashboard stows the rail and .main is flex:1.
-    check(columns.size === 1, w + "px: reading column varies by route (" + [...columns].join(" | ") + ")");
-    console.log("  " + String(w).padStart(5) + "px  sidebar shown, column " + [...columns][0]);
+    // T-080 PR 2 (owner: Courses, a course and Practice "get their width
+    // back"): the rail is on the dashboard (stowed, its track kept) and a
+    // lecture only, so there are now two layouts, each held to one column:
+    // every route without the rail shares one, every route with it shares
+    // one, and both start at the same x, so the column never slides sideways.
+    // Below 1040px there is no rail and every route is one column, as before.
+    const all = [...columns, ...railCols], lefts = new Set(all.map(c => c.split("-")[0]));
+    check(columns.size <= 1 && railCols.size <= 1 && lefts.size === 1 && (w >= 1040 || railCols.size === 0),
+      w + "px: reading column varies by route (" + [...columns].join(" | ") + (railCols.size ? "; with the rail " + [...railCols].join(" | ") : "") + ")");
+    console.log("  " + String(w).padStart(5) + "px  sidebar shown, column " + [...columns][0] + (railCols.size ? ", with the rail " + [...railCols][0] : ""));
     await ctx.close();
   }
 
@@ -110,7 +120,12 @@ async function freshContext(browser, opts) {
     await page.goto(URL + "/", { waitUntil: "load" });
     await page.waitForTimeout(250);
     for (const to of ["/atlas", "/courses", "/exams", "/calendar", "/"]) {
-      await page.click(".sidebar .nav a[href='#" + to + "']");
+      // T-080 PR 2: Atlas, Exams and Calendar sit in the folding "Study tools"
+      // group; a person opens it first, so this does too (when it is closed).
+      const sel = ".sidebar .nav a[href='#" + to + "']";
+      if (await page.evaluate(sel => { const d = document.querySelector(sel).closest("details"); return !!d && !d.open; }, sel))
+        await page.click(".sidebar .nav details:has(a[href='#" + to + "']) > summary");
+      await page.click(sel);
       await page.waitForTimeout(450);
       const m = await page.evaluate(() => {
         const side = document.querySelector(".sidebar");
@@ -387,6 +402,11 @@ async function freshContext(browser, opts) {
       await page.goto(URL + r, { waitUntil: "load" });
       await page.waitForSelector("#view > *");
       await page.waitForTimeout(250);
+      // T-080 PR 2: the Next card is the dashboard's only (stowed while the
+      // hero's button shows), so each page is measured at the end of its scroll,
+      // where on "/" the button has left and the card is in.
+      await page.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "instant" }));
+      await page.waitForTimeout(400);
       const m = await page.evaluate(() => {
         const probe = document.createElement("div");
         probe.style.cssText = "position:fixed;left:env(safe-area-inset-left,0px);top:0;width:calc(env(safe-area-inset-right,0px) + 1px);height:calc(env(safe-area-inset-bottom,0px) + 1px)";

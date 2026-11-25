@@ -443,15 +443,26 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 
 .crest { text-align: center; padding-bottom: var(--sp-3); border-bottom: 1px solid var(--line); margin-bottom: var(--sp-2); }
 .crest svg { width: 46px; height: 46px; color: var(--accent); }
+/* T-080 PR 2 (owner): the phone app's lockup (app/lib/widgets/crest.dart,
+   CrestLockup; app/web/index.html #boot), in its proportions of the crest's
+   height h = 110px: the wordmark Playfair Display Bold at 0.2h (22px), tracked
+   0.14em, 0.16h under the crest; a 1px gold rule 0.3h wide with 0.07h either
+   side; the descriptor Inter SemiBold at 0.085h, tracked 0.2em. In px, not
+   rem: a lockup is a mark and keeps its proportions at every text size (the
+   rem wordmark grew past the drawer's column at a 24px root, T-002). CSS
+   tracking adds space after the last letter too, so each line is padded by
+   the same amount on the left to stay centred, as #boot does. */
 .crest .name-en {
-  font-family: var(--font-display); font-weight: 700; font-size: 1.3rem; color: var(--ink);
-  /* A seal is letterspaced wider than a logotype. */
-  margin-top: 8px; letter-spacing: 0.14em; text-transform: uppercase;
+  font-family: var(--font-title); font-weight: 700; font-size: 22px; line-height: 1.1; color: var(--ink);
+  margin-top: 17.6px; letter-spacing: 0.14em; padding-left: 0.14em; text-transform: uppercase;
 }
 /* A hairline between name and descriptor — the lockup device every institutional
    identity in the references uses to say "this is a seal, not a logotype". */
-.crest .wordrule { width: 34px; height: 1px; background: var(--crest); margin: 7px auto 6px; opacity: 0.85; }
-.crest .est { font-size: 0.6rem; color: var(--ink-3); letter-spacing: 0.2em; text-transform: uppercase; }
+.crest .wordrule { width: 33px; height: 1px; background: var(--crest); margin: 7.7px auto; }
+.crest .est {
+  font-family: var(--font-body); font-weight: 600; font-size: 9.35px; line-height: 1.2; color: var(--ink-2);
+  letter-spacing: 0.2em; padding-left: 0.2em; text-transform: uppercase;
+}
 
 .nav-group-label { font-size: var(--fs-tiny); text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-3); margin: var(--sp-2) var(--sp-2) 2px; }
 /* The sidebar is one column of rows under a crest. The footer used to hold
@@ -580,6 +591,9 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
      slid sideways every time you left the page. The track stays reserved and
      simply holds nothing. */
   .rail.stowed { visibility: hidden; }
+  /* T-080 PR 2: off the layout on every page but the dashboard and a lecture
+     (mountRail), so Courses, a course, Practice and the rest get its 300px. */
+  .rail.gone { display: none; }
 }
 .rail-card {
   background: none; border: 0;
@@ -596,7 +610,8 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .rail-card .rl-code { font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: var(--fs-tiny); font-weight: 600; color: var(--fac, var(--accent)); margin-top: 8px; }
 .rail-card .rl-title { font-family: var(--font-display); font-weight: 700; font-size: 1.02rem; letter-spacing: 0; line-height: 1.3; color: var(--ink); margin-top: 2px; }
 .rail-card .rl-meta { font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: var(--fs-tiny); color: var(--ink-3); margin-top: 5px; }
-.rail-card .btn { width: 100%; justify-content: center; margin-top: var(--sp-3); }
+/* T-080 PR 2: content-sized, like the hero's (it was the rail's full width). */
+.rail-card .btn { margin-top: var(--sp-3); padding-left: 18px; padding-right: 14px; }
 .rail-card .rl-foot {
   display: flex; justify-content: space-between; gap: 8px;
   margin-top: var(--sp-3); padding-top: var(--sp-2);
@@ -1214,7 +1229,7 @@ i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
    until T-051-1 made --gold iOS orange), and the cut-outs are the --panel the
    sidebar is painted with, so the device reads as holes in the seal (T-025:
    the sidebar is the panel again). */
-.crest svg { width: 62px; height: 70px; display: block; margin: 0 auto; }
+.crest svg { width: 98px; height: 110px; display: block; margin: 0 auto; }   /* T-080 PR 2: h = 110px, the lockup above is in its proportions */
 /* The crest (owner's artwork, 23 Nov 2026): one gold mark on an open field, so
    the panel it sits on shows through the shield. tools/crest-gen.js writes it. */
 .crest .cr-mark { fill: var(--crest); }
@@ -1328,7 +1343,12 @@ html { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
 .one-hint { font-size: var(--fs-small); color: var(--ink-2); margin-top: 4px; }
 .one-body { margin-top: var(--sp-4); }
 .one-go { margin-top: var(--sp-4); width: 100%; justify-content: center; }
-@media (min-width: 700px) { .one-go { width: auto; min-width: 200px; } }
+/* T-080 PR 2 (owner, on the live hero): content-sized from 700px up, with the
+   button's own padding — it was a 200px minimum, a wide pill with its label
+   floating in the middle. A phone keeps the full-width primary (T-051-1). */
+@media (min-width: 700px) { .one-go { width: auto; padding-left: 22px; padding-right: 18px; } }
+/* The chevron a going-somewhere button ends in (CHEV in app.js), sized to the label. */
+.btn .chev { width: 0.75em; height: 0.75em; flex: none; margin-right: -2px; }
 .one-clear { border-top-color: var(--good); }
 
 /* ---------- The week, as six dots ----------
@@ -2492,7 +2512,7 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
      headless Chromium: the text was 230px and is 243px, in a 220px column at
      768 (overflow 10 -> 23px) and a 206px column at 1024 and 1280 (24 ->
      37px). At a 16px root it is 162px (was 153) and fits every column. */
-  .crest .name-en { font-size: min(1.3rem, 29px); }
+  /* T-080 PR 2: the wordmark is a fixed 22px lockup now (see .crest .name-en), so it needs no cap here. */
 }
 
 /* ============================================================
@@ -2796,7 +2816,9 @@ summary.pd-row::-webkit-details-marker { display: none; }
   .pd-how { grid-template-columns: 1fr; }
   .pd-how > div + div { border-left: 0; border-top: 0.5px solid var(--line); }
 }
-.one-due { display: inline-flex; align-items: center; min-height: 44px; font-size: var(--fs-small); font-weight: 600; color: var(--ink); }
+/* T-080 PR 2: its own line under the subtitle, muted — it sat inline and ran
+   straight into the hero's button. Still a 44px target (it is a link). */
+.one-due { display: flex; width: fit-content; align-items: center; min-height: 44px; font-size: var(--fs-small); font-weight: 500; color: var(--ink-2); }
 
 /* ---- Exams: the next one, the open ones, the locked ones ---- */
 .ex-rec { margin-top: 6px; font-size: var(--fs-footnote); color: var(--ink-3); font-variant-numeric: tabular-nums; }
@@ -3455,3 +3477,39 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 .cp .checkbox { margin-top: 0; }
 .cp .check-row input:focus-visible + .checkbox { outline: 2px solid var(--accent); outline-offset: 2px; }
 .cp .check-row.cp-auto { cursor: default; }
+
+/* ---------- T-080 PR 2: grouped navigation and the Settings sheet ----------
+   The sidebar's two groups are native <details>: the summary is a row like the
+   links (44px, the same glyph column), with a chevron that turns when open. */
+.nav details.nav-group > summary {
+  list-style: none; display: flex; align-items: center; gap: 10px; min-height: 44px;
+  padding: 0 var(--sp-2); border-radius: var(--r-sm); cursor: pointer;
+  color: var(--ink-2); font-size: var(--fs-small); font-weight: 500;
+}
+.nav details.nav-group > summary .glyph { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.85; }
+.nav details.nav-group > summary::-webkit-details-marker { display: none; }
+.nav details.nav-group > summary:hover { background: var(--bg-2); color: var(--ink); }
+.nav details.nav-group > summary .ng-t { flex: 1; }
+.nav details.nav-group > summary .ng-chev { width: 12px; height: 12px; color: var(--ink-3); transition: transform var(--t-hover) ease; }
+.nav details.nav-group[open] > summary .ng-chev { transform: rotate(90deg); }
+.nav details.nav-group > a { padding-left: calc(var(--sp-2) + 12px); }
+/* A drawn glyph in a list row's leading slot (the More page, Settings, the
+   dashboard's Monk Mode row) sits at the glyph size the sidebar uses. */
+.grow .g-lead .glyph { width: 20px; height: 20px; }
+/* Settings: the theme as a three-way segmented control, then the data rows. */
+.set-sheet .ghead { margin-top: var(--sp-3); }
+.set-theme { display: flex; gap: 4px; padding: 4px; border-radius: var(--r-md); background: var(--surface-2); }
+.set-theme button {
+  flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px;
+  border: 0; border-radius: var(--r-sm); background: none; color: var(--ink); font: inherit; font-size: var(--fs-subhead); cursor: pointer;
+}
+.set-theme button.on { background: var(--surface); font-weight: 600; }
+.set-theme .swatch { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; border: 1.5px solid var(--line-strong); }
+.set-list { margin-top: 0; }
+/* T-080 PR 2: Treasury's forms behind one segmented control. */
+.tr-seg { margin-top: var(--sp-4); }
+.tr-pane > .card { margin-top: var(--sp-3); }
+/* T-080 PR 2: Courses' one primary, between the title and the filter. */
+.courses-go { margin: var(--sp-2) 0 var(--sp-3); }
+/* T-080 PR 2: under the due note the button needs no section's worth of space. */
+.one-due + .one-go { margin-top: var(--sp-2); }

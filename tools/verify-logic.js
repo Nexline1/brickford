@@ -956,7 +956,9 @@ async function scenario(browser, now, state, tz) {
       const a = document.querySelector("#view a.monk-row");
       return { url: T.MONK.url, row: !!a,
         href: a ? a.getAttribute("href") : null, blank: a ? a.target === "_blank" : null,
-        head: a ? a.closest(".glist").previousElementSibling.textContent : null,
+        // T-080 PR 2: Monk Mode is a row in the dashboard's one "Needs you" strip, so its title and day
+        // are the row's own text, not a section header above it.
+        head: a ? a.querySelector(".g-main").textContent : null,
         h: a ? Math.round(a.getBoundingClientRect().height) : null };
     });
     const day = await probe.page.evaluate(d => window.__brickfordTest.monkDay(d), now);
@@ -964,7 +966,7 @@ async function scenario(browser, now, state, tz) {
     // MONK.url in a new tab). The day, the head and the 44px are as they were.
     const ok = day === want && (want === null
       ? !r.row
-      : r.row && r.href === "#/monk" && r.blank === false && r.head === "Monk ModeDay " + want + " of 21" && r.h >= 44);
+      : r.row && r.href === "#/monk" && r.blank === false && new RegExp("^Monk ModeDay " + want + " of 21 \u00b7 ").test(r.head || "") && r.h >= 44);
     check("monk mode on " + now + ": " + (want === null ? "no row" : "day " + want + " of 21, a 44px row opening #/monk in the same window"), ok, JSON.stringify({ day, ...r }));
     check("no page errors (monk mode " + now + ")", probe.errors.length === 0, probe.errors.join(" | "));
     await probe.ctx.close();

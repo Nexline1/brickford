@@ -493,8 +493,9 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
         // T-043: when today's lecture is locked the card names the quiz that
         // opens it ("Quiz: <title>"), and its button opens that lecture.
         // Review r1: a lecture not yet watched is "Watch: <title>, then its quiz".
+        // T-080 PR 2: the label only; the \u25b8 glyph became a drawn chevron (CHEV), asserted in verify-design's T-080 block.
         check("(a) nothing watched: the card says to watch the first lecture in the chain, then take its quiz, with \"Open\"",
-          /^Watch: .+, then its quiz$/.test(cta.title) && cta.verb === "Open ▸", "\"" + cta.title + "\", \"" + cta.verb + "\"");
+          /^Watch: .+, then its quiz$/.test(cta.title) && cta.verb === "Open", "\"" + cta.title + "\", \"" + cta.verb + "\"");
         check("(a) its button opens that lecture", got.hash === cta.href && got.h1.includes(cta.title.replace(/^(Quiz|Watch): /, "").replace(/, then its quiz$/, "")) && got.btn,
           "at " + got.hash + ", h1 \"" + got.h1.trim() + "\"");
         await shot(page, "flow-a-open-session-" + w);
@@ -584,8 +585,9 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
       const midCta = await page.evaluate(() => ({ kind: ((document.querySelector(".card.one.lead .one-kind") || {}).textContent || "").trim(),
         verb: ((document.querySelector(".card.one.lead a.one-go") || {}).textContent || "").trim(),
         href: (document.querySelector(".card.one.lead a.one-go") || { getAttribute: () => "" }).getAttribute("href") }));
+      // T-080 PR 2: the label only; the \u25b8 glyph became a drawn chevron (CHEV), asserted in verify-design's T-080 block.
       check("(c) watched with the quiz still to pass: the card says \"Quiz: <title>\" with \"Start\", to this lecture",
-        midCta.kind === "Quiz: Rate of Change" && midCta.verb === "Start ▸" && midCta.href === "#/lesson/math120/1/0", JSON.stringify(midCta));
+        midCta.kind === "Quiz: Rate of Change" && midCta.verb === "Start" && midCta.href === "#/lesson/math120/1/0", JSON.stringify(midCta));
       check("(c) the dashboard count does not move on \"watched\" alone", !!mid && !!before && mid.done === before.done && mid.of === before.of,
         (before ? before.done + " / " + before.of : "?") + " -> " + (mid ? mid.done + " / " + mid.of : "?"));
       await go(page, "/lesson/math120/1/0");
@@ -2478,10 +2480,11 @@ export async function pipeline(task, model, opts) {
         btn: c.querySelector("a.btn").getAttribute("href"), label: c.querySelector("a.btn").textContent.trim() } : null; });
     check("(lk) the chain stops at the gate: " + ch.R.k + " (planned " + ch.rDate + ") is open, its predecessor planned " + ch.prevDate + " before " + ch.gate,
       ch.prevDate < ch.gate && ch.rDate >= ch.gate && ch.rLocked === false, JSON.stringify(ch));
+    // T-080 PR 2: the label only; the \u25b8 glyph became a drawn chevron (CHEV), asserted in verify-design's T-080 block.
     check("(lk) a chain of three: the title names the lecture before, the line says 3 quizzes, the button opens the root",
       !!L && L.t === "Pass the quiz for \u201c" + ch.R2.t + "\u201d first" && L.ahead === "3" &&
         new RegExp("^MATH 110 · 3 quizzes stand before this lecture, from lecture " + ch.no + ",").test(L.m) &&
-        L.btn === "#/lesson/math110/" + ch.R.ui + "/" + ch.R.li && L.label === "Open lecture " + ch.no + " \u25b8", JSON.stringify(L));
+        L.btn === "#/lesson/math110/" + ch.R.ui + "/" + ch.R.li && L.label === "Open lecture " + ch.no, JSON.stringify(L));
     const root = await page.evaluate(() => window.__brickfordTest.lockRoot("math120", 1, 0));
     await go(page, "/calendar");
     const blk = await page.evaluate(() => [...document.querySelectorAll("#view .cd-blk.locked")].map(b => b.getAttribute("href")));
@@ -2938,8 +2941,9 @@ export async function pipeline(task, model, opts) {
     check("(ms) the page then reads Day 1 of 21, with no Start button left", (await monkHead(page)) === "Day 1 of 21" && (await page.evaluate(() => document.querySelectorAll("[data-monk-start]").length)) === 0, await monkHead(page));
     await shot(page, "monk-started-" + w);
     await go(page, "/");
-    const dd = await page.evaluate(() => { const a = document.querySelector("#view a.monk-row"); return { head: a ? a.closest(".glist").previousElementSibling.textContent : null, start: document.querySelectorAll("[data-monk-start]").length }; });
-    check("(ms) the dashboard row then reads Monk ModeDay 1 of 21, with no Start button left", dd.head === "Monk ModeDay 1 of 21" && dd.start === 0, JSON.stringify(dd));
+    const dd = await page.evaluate(() => { const a = document.querySelector("#view a.monk-row"); return { head: a ? a.querySelector(".g-main").textContent : null, start: document.querySelectorAll("[data-monk-start]").length }; });
+    // T-080 PR 2: the row sits in the dashboard's "Needs you" strip; its own title and day are read.
+    check("(ms) the dashboard row then reads Monk ModeDay 1 of 21, with no Start button left", /^Monk ModeDay 1 of 21 \u00b7 /.test(dd.head || "") && dd.start === 0, JSON.stringify(dd));
     check("(ms) no page errors", errors.length === 0, errors.join(" | "));
     await ctx.close();
   }

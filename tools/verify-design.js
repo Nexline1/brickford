@@ -1890,6 +1890,10 @@ function t45Problems() {
   if (misses) want.push({ due: "review", id: "drill", title: "Daily review", tag: null, why: "questions you missed, served back until they stick", go: "Start", href: "#/drill" });
   const z = window.__dz, fill = z.tok("--btn-bg");
   const txt = (n, sel) => { const x = sel ? n.querySelector(sel) : n; return x ? x.textContent.replace(/\s+/g, " ").trim() : null; };
+  // T-083 #8: what is due is one fold per course, the first open. Every fold is opened here, as a reader
+  // would to see it, so each row is measured on screen.
+  document.querySelectorAll("#view #pdDue details.pd-group").forEach(d => { d.open = true; });
+  const nx = document.querySelector("#view .pd-next a"), nb = nx ? nx.getBoundingClientRect() : null;
   const rows = [...document.querySelectorAll("#view #pdDue [data-due]")].map(n => {
     const row = n.matches("details") ? n.querySelector("summary") : n, go = row.querySelector(".pd-go"), gr = go ? go.getBoundingClientRect() : null;
     const tag = row.querySelector(".pd-tag"), m = row.querySelector(".pd-m");
@@ -1910,6 +1914,11 @@ function t45Problems() {
   const empty = document.querySelector("#view .pd-empty"), ea = empty && empty.querySelector("a[href]");
   const all = document.querySelector("#view details#pbAll");
   return { phase, want, rows, soon, soonOk, count: txt(document, "#view .pd-count"),
+    next: nx ? { text: nx.textContent.trim(), href: nx.getAttribute("href"), t: nb.top, b: nb.bottom, w: nb.width, h: nb.height,
+      filled: (b => b[3] === 255 && z.same(b, fill, 2))(z.bytes(getComputedStyle(nx).backgroundColor)) } : null,
+    howFirst: (() => { const h = document.querySelector("#view .pd-how"), d = document.querySelector("#view #pdDue, #view .pd-empty");
+      return !!h && !!d && !!(h.compareDocumentPosition(d) & Node.DOCUMENT_POSITION_FOLLOWING); })(),
+    groups: [...document.querySelectorAll("#view #pdDue > details.pd-group")].map(g => ({ key: g.dataset.group, n: +g.querySelector(":scope > summary .pill").textContent, rows: g.querySelectorAll("[data-due]").length })),
     empty: empty ? { text: txt(empty), href: ea ? ea.getAttribute("href") : null } : null,
     how: [...document.querySelectorAll("#view .pd-how > div")].map(d => ({ b: txt(d, "b"), text: txt(d) })),
     howCols: new Set([...document.querySelectorAll("#view .pd-how > div")].map(d => Math.round(d.getBoundingClientRect().left))).size,
@@ -4380,22 +4389,28 @@ function t28SeedClips(list) {
     const bad = m.rows.map(r => {
       const w = m.want.find(x => key(x) === key(r)); if (!w) return null;
       const why = w.due === "lab" ? !!r.why && r.why.endsWith(w.tail) && !clauseBad(r.why.slice(0, -w.tail.length), w.req) : r.why === w.why;
-      const ok = r.title === w.title && r.tag === w.tag && why && r.go === w.go && (!w.href || r.href === w.href) && r.visible && r.goW >= 44 && r.goH >= 44 && r.rowH >= 44;
+      // T-083 #8: the row is the control (a link, or its fold's summary): no action pill of its own (was Take it / Open / Start).
+      const ok = r.title === w.title && r.tag === w.tag && why && r.go === null && (!w.href || r.href === w.href) && r.visible && r.rowH >= 44;
       return ok ? null : JSON.stringify(r) + " want " + JSON.stringify(w);
     }).filter(Boolean);
-    chk(at + " /workshop: each due row has its title, its tag, its why-line and its action (Take it / Open / Start), the action and the row >= 44px",
+    chk(at + " /workshop: each due row has its title, its tag and its why-line, is itself the control (no pill; T-083 #8), and is >= 44px, in a fold per course whose count is its rows",
+      m.groups.every(g => g.n === g.rows && g.n > 0) && new Set(m.groups.map(g => g.key)).size === m.groups.length &&
       bad.length === 0, bad.join(" | ") || m.rows.map(r => r.tag + " \"" + r.why + "\"").join("; ") || "no rows");
     // t26bPrimary reads <a>/<button>; a row's action is a span painted like
     // a button inside the row (the row is the link), so both are counted.
+    // T-083 #8: the one filled primary is "Start next quiz" over the list, opening the first quiz due (quizzes, then
+    // catch-up, in plan order); with no quiz due there is none. It was the first row's own action.
     const filled = p.filled.map(f => f.text).concat(m.rows.filter(r => r.filled).map(r => r.go));
-    chk(at + " /workshop: at most one filled primary, and it is the first row's action", filled.length <= 1 && (m.rows.length ? m.rows[0].filled : true),
-      (filled.join(" | ") || "none") + (m.rows[0] ? ", first row " + m.rows[0].go + (m.rows[0].filled ? " filled" : "") : ""));
-    if (m.rows.length) chk(at + " /workshop: the primary is inside the first viewport", inView(p, m.rows[0]), where(m.rows[0]) + ", room " + p.top.toFixed(0) + "-" + p.floor.toFixed(0));
+    const quizWant = m.want.find(x => x.due === "quiz") || m.want.find(x => x.due === "catchup") || null;
+    chk(at + " /workshop: at most one filled primary — \"Start next quiz\", opening the first quiz due — and none when no quiz is due",
+      filled.length <= 1 && (quizWant ? !!m.next && m.next.filled && /^Start next quiz/.test(m.next.text) && m.next.href === quizWant.href && filled.length === 1 : !m.next && filled.length === 0),
+      (filled.join(" | ") || "none") + "; next " + JSON.stringify(m.next) + "; first quiz " + (quizWant ? quizWant.href : "none"));
+    if (m.next) chk(at + " /workshop: the primary is inside the first viewport, and >= 44px tall", inView(p, m.next) && Math.round(m.next.h) >= 44, where(m.next) + ", room " + p.top.toFixed(0) + "-" + p.floor.toFixed(0));
     chk(at + " /workshop: the empty state shows exactly when nothing is due: \"Nothing due. Your next lecture is ‹title›.\" with a link",
       m.want.length ? !m.empty : !!m.empty && /^Nothing due\. Your next lecture is .+\.$/.test(m.empty.text) && /^#\/(lesson\/|courses)/.test(m.empty.href || ""),
       JSON.stringify(m.empty));
-    chk(at + " /workshop: \"How this works\" is three columns — Lecture quiz, Problem set, Lab — in the mockup's words",
-      m.how.length === 3 && m.how.every((h, i) => h.b === T45_HOW[i][0] && h.text === T45_HOW[i][0] + T45_HOW[i][1]) && m.howCols === (o.w >= 861 ? 3 : 1),
+    chk(at + " /workshop: \"How this works\" is three columns — Lecture quiz, Problem set, Lab — in the mockup's words, above what is due (T-083 #8: the legend first)",
+      m.howFirst && m.how.length === 3 && m.how.every((h, i) => h.b === T45_HOW[i][0] && h.text === T45_HOW[i][0] + T45_HOW[i][1]) && m.howCols === (o.w >= 861 ? 3 : 1),
       m.how.map(h => h.b).join(" | ") + ", " + m.howCols + " column(s)");
     chk(at + " /workshop: \"Coming up\" has 3 rows or fewer, each still locked and reading \"After lecture n · ‹title›\"",
       m.soon.length <= 3 && m.soonOk.length === 0, m.soon.length + " rows" + (m.soonOk.length ? "; " + m.soonOk.join("; ") : ": " + m.soon.map(r => r.meta).join(" | ")));
@@ -5246,6 +5261,7 @@ function t28SeedClips(list) {
       // T-080 PR 3: the rail's card is the lecture page's side column now (#view .lsn-side), visible there.
       railLock: !!document.querySelector("#view .lsn-side .rl-lock") && document.querySelector("#view .lsn-side .rl-lock").checkVisibility(),
       railRule: txt("#view .lsn-side .rl-rule"),
+      rail: !!document.querySelector("#view .rail-card"),
       todayRoot: (r => r ? "#/lesson/" + r.split(".").join("/") : null)(window.__brickfordTest.lockRoot("math120", 1, 0)),
     };
   }
@@ -5303,8 +5319,10 @@ function t28SeedClips(list) {
           c43(at + ": every text in the quiz card is >= 4.5:1 on what is behind it, the two marked options (wrong, correct) and their keys included",
             Array.isArray(m.lowInk) && m.lowInk.length === 0 && m.marked === 2, "marked options " + m.marked + ", their keys " + JSON.stringify(m.keyInk) + ":1; under 4.5: " + JSON.stringify(m.lowInk));
           c43(at + ": no \"Check yourself\" under the summary (the quiz is the check)", !m.check, String(m.check));
-          if (o.w === 1440) c43(at + ": the rail says how the ring counts and shows the next lecture locked",
-            m.railRule === "A lecture counts once its quiz is passed" && m.railLock, JSON.stringify({ rule: m.railRule, lock: m.railLock }));
+          // T-083 #6 (the owner's "design fixes"): no rail card on a lecture page — the side column holds the quiz and
+          // the practice only. (T-043 had the rail say how the ring counts and show the next lecture locked.)
+          if (o.w === 1440) c43(at + ": no rail card on the lecture page; the side column is the quiz and the practice (T-083 #6)",
+            m.railRule === null && !m.railLock && !m.rail, JSON.stringify({ rule: m.railRule, lock: m.railLock, rail: m.rail }));
         } else if (st.name === "passed, with Go deeper") {
           c43(at + ": the pass card — \"Lecture passed\", \"3 of 3 · 2 right on the first try\", --surface, \"Next lecture →\" the one primary",
             !!m.pass && m.pass.tick && /^Lecture passed\s*3 of 3 · 2 right on the first try · counted/.test(m.pass.text) && m.pass.bg && m.pass.btn === "Next lecture →" &&
@@ -5409,8 +5427,9 @@ function t28SeedClips(list) {
         t45Seen[key + st.name] = { count: +m.count, line: lineN };
         if (st.twin) {
           const tw = t45Seen[key + st.twin] || null, rv = m.rows[m.rows.length - 1] || {};
-          c45(at + ": the Daily review row is last, goes to #/drill, and it and its Start are >= 44px",
-            rv.due === "review" && rv.href === "#/drill" && rv.rowH >= 44 && rv.goW >= 44 && rv.goH >= 44 && rv.visible, JSON.stringify(rv));
+          // T-083 #8: the row is the control now (no Start pill).
+          c45(at + ": the Daily review row is last, goes to #/drill, and is itself the control, >= 44px",
+            rv.due === "review" && rv.href === "#/drill" && rv.rowH >= 44 && rv.go === null && rv.visible, JSON.stringify(rv));
           c45(at + ": it adds exactly 1 to the count and to the dashboard line (\"" + st.twin + "\": " + (tw ? tw.count + " / " + tw.line : "not measured") + ")",
             !!tw && +m.count === tw.count + 1 && lineN === tw.line + 1, "count " + m.count + ", line " + lineN);
         }
@@ -5835,8 +5854,10 @@ function t28SeedClips(list) {
           // column (the reading layout's second column), so the rail itself takes no room there either.
           const r2 = await page.evaluate(() => { const c = document.querySelector("#view .lsn-side .rail-card");
             return { rail: getComputedStyle(document.querySelector("#rail")).display, card: !!c && c.checkVisibility() }; });
-          c8(at + ": the Next up rail takes no room on /courses, and on a lecture page its card is shown in the page's side column",
-            r1.disp === "none" && r1.w === 0 && r2.card, "/courses display " + r1.disp + " width " + r1.w + "; lecture " + JSON.stringify(r2));
+          // T-083 #6 (the owner's "design fixes"): no rail card on a lecture page either — its side column is the
+          // quiz and the practice. (T-080 PR 3 drew the card at the top of that column.)
+          c8(at + ": the Next up rail takes no room on /courses, and a lecture page draws no rail card (T-083 #6)",
+            r1.disp === "none" && r1.w === 0 && !r2.card && r2.rail === "none" && !(await page.evaluate(() => !!document.querySelector("#view .rail-card"))), "/courses display " + r1.disp + " width " + r1.w + "; lecture " + JSON.stringify(r2));
         }
         // one filled button on each main route
         const many = [];

@@ -2,6 +2,43 @@
 
 Owner decision, 2026-09-25: the app should look and feel like a premium app on the App Store, phone first and desktop too. Every design spec (T-005 onward) points here. If a spec and this brief disagree, the brief wins until the owner changes it.
 
+## 0. 25 Nov 2026: the phone app's identity
+
+**Owner decision (T-080).** The owner asked for the website to be improved and, asked which way, answered "match the phone app". The site was iOS settings (pure black, bright blue `#0A84FF` pills, the system font for titles); the Flutter app and the new crest are midnight, navy, gold and Playfair. The site now wears the app's identity. Where this section and the rest of the brief disagree, this section wins.
+
+**What it supersedes:**
+- **§3's colour table and T-051's iOS palette.** The iOS blue tint and filled button, the pure-black dark page and the iOS-orange gold all go.
+- **§8's "keep the true black".** The dark page is midnight now, by the owner's choice.
+- **The single type family for titles.** Page titles are a serif again; everything else stays the body face.
+
+**Tokens (from `app/lib/theme/tokens.dart`; every ratio measured):**
+
+| Token | Light | Dark | Source / role |
+|---|---|---|---|
+| `--bg` | `#f2f1ee` | `#12141c` | warm off-white / `Tokens.midnight`; never `#000` |
+| `--surface` | `#ffffff` | `#1e2230` | the app's white sheet / `Tokens.badge`, one step up from midnight |
+| `--surface-2` | `#f2f1ee` | `#2a2f40` | fills, pressed cells |
+| `--ink` | `#12141c` | `#f5f5f7` | `Tokens.ink` |
+| `--ink-2` | `#55596a` | `#a9aec2` | `Tokens.ink2` / `Tokens.onMidnight2` (6.2:1, 8.3:1 on the page) |
+| `--accent` | `#1e4f8f` | `#78aef0` | navy tint / `Tokens.navyOnDark` |
+| `--accent-fill`, `--btn-bg` | `#1e4f8f` | `#1e4f8f` | **`Tokens.primary`**: the filled button is navy in both themes, white label 8.2:1 |
+| `--accent-soft` | `#e6edf6` | `#2b364b` | `Tokens.accentWash` / the tint 14% into the card |
+| `--gold` | `#8a5f12` | `#dfb46b` | wins: the streak, achievements, today's ring (`Tokens.goldInk` / the crest's gold) |
+| `--crest` | `#d3a874` | `#dfb46b` | the crest (the owner's artwork, T-079) |
+| `--panel` | `#ffffff` | `#1e2230` | sidebar and tab bar only |
+
+`--good`, `--bad`, `--urgent` and the faculty hues are unchanged and were re-measured on the new dark fills (the lowest is `--bad` on `--surface-2`, 4.7:1).
+
+**Type.** Page titles — the large title (`h1`, the phone's large-title folio) and the dashboard hero — are **Playfair Display Bold**, the app's bundled file, re-encoded to woff2 and self-hosted in `platform/fonts/` like Inter, so the service worker precaches it. Body, labels, row titles and every other heading stay Inter (the system face on Apple).
+
+**Themes.** Only Light, Dark and Auto exist since T-025; Auto follows the phone into the same two palettes. (The spec's "other five themes" were removed before this decision; nothing is left to inherit.)
+
+**What does not change.** The structure rules of §1 and §2 (one primary action per screen, lists for what repeats, numbers on the right), the radius and spacing scales of §3, and every CONTENT-STANDARD rule: solid inks only, 4.5:1 everywhere, `--panel` only on the sidebar and tab bar, 44×44 targets, a render is a read.
+
+**Detector fixes carried with it (design-detect, 25 Nov):** every `100dvh` has a `100vh` fallback before it; chart, concept-graph and curve labels and the tab badge are at least 13px; the icon ticks (✓ glyphs standing alone) are the app's inline SVG check. The placeholder-only inputs it named (`ghTok`, `aiKeyIn`, `anWhere`, `anUrl`, `rvShipped`, `diagScore`) already had real `<label for>`s.
+
+**Next (T-080 PR 2 and 3):** fewer buttons per page, grouped navigation, and a layout of its own for each page. See `loop/specs/T-080-redesign/spec.md`.
+
 ## 1. The decision, and what it replaces
 
 **What it replaces.** `platform/css/style.css` opens with "a register, not an app". That stance means:

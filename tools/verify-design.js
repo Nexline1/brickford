@@ -1200,7 +1200,10 @@ function pressState(sel) {
 // Every lecture row on the page and its thumbnail, against the curriculum
 // (window.DAR, the data file the page loaded) by the row's own href. `fmt` is
 // the harness's own reading of a whole-minute length.
-function thumbState() {
+// T-080 PR 3: `scope` — the course page's rows lost their frames (the owner's
+// "fake thumbnails"), so the frames are measured where they still are: a
+// lecture page's "In this unit" rows (#view .lsn-nav).
+function thumbState(scope) {
   const z = window.__dz;
   const T = { s2: z.tok("--surface-2") };
   const fmt = min => {
@@ -1219,7 +1222,7 @@ function thumbState() {
     return { r: z.ratio(fg, bg), fg: z.hex(fg), bg: z.hex(bg) };
   };
   const rows = [];
-  document.querySelectorAll('#view a.grow[href^="#/lesson/"]').forEach(a => {
+  document.querySelectorAll((scope || "#view") + ' a.grow[href^="#/lesson/"]').forEach(a => {
     const [, , cid, ui, li] = a.getAttribute("href").slice(1).split("/");
     const c = window.DAR.COURSES.find(x => x.id === cid);
     const l = c && c.units[+ui] && c.units[+ui].lessons[+li];
@@ -1554,8 +1557,7 @@ function atlasState() {
 function coursesState() {
   const z = window.__dz;
   const vis = sel => [...document.querySelectorAll(sel)].filter(n => n.checkVisibility());
-  const surface = z.tok("--surface"), bg = z.tok("--bg");
-  const mix = (a, b, p) => [0, 1, 2].map(i => a[i] * p + b[i] * (1 - p));
+  const surface = z.tok("--surface");
   return {
     seg: vis("#view .seg [data-shelf]").map(b => ({ k: b.dataset.shelf, t: b.textContent.trim(), on: b.getAttribute("aria-pressed") === "true",
       w: b.getBoundingClientRect().width, h: b.getBoundingClientRect().height })),
@@ -1565,13 +1567,20 @@ function coursesState() {
       return { head, cols: getComputedStyle(s).gridTemplateColumns.split(" ").filter(Boolean).length,
         books: [...s.querySelectorAll(".book")].map(b => {
           const fac = [...b.classList].find(c => /^fac-/.test(c)), ft = fac ? z.tok("--" + fac) : null;
-          const cover = b.querySelector(".cover"), code = b.querySelector(".cv-code"), later = b.classList.contains("later");
-          const want = ft ? (later ? mix(mix(ft, surface, 0.14), bg, 0.45) : mix(ft, surface, 0.14)) : null;
+          // T-080 PR 3: a card, not a cover — the card itself is --surface (a later one --bg-2),
+          // its code in the faculty colour, and a running course's bar filled in it too.
+          const code = b.querySelector(".cv-code"), later = b.classList.contains("later"), bar = b.querySelector(".bk-bar i");
+          const want = later ? z.tok("--bg-2") : surface;
           const r = b.getBoundingClientRect();
           return { href: b.getAttribute("href"), code: code ? code.textContent.trim() : "", meta: (b.querySelector(".bk-m") || {}).textContent || "",
+                   title: (b.querySelector(".bk-t") || {}).textContent || "",
                    later, fac, w: r.width, h: r.height, left: Math.round(r.left),
                    codeCol: code ? z.bytes(getComputedStyle(code).color) : null, facCol: ft,
-                   coverBg: cover ? z.bytes(getComputedStyle(cover).backgroundColor) : null, coverWant: want };
+                   barCol: bar ? z.bytes(getComputedStyle(bar).backgroundColor) : null, barW: bar ? bar.style.width : null,
+                   barAria: b.querySelector(".bk-bar") ? b.querySelector(".bk-bar").getAttribute("aria-label") : null,
+                   coverBg: z.bytes(getComputedStyle(b).backgroundColor), coverWant: want,
+                   titleSize: (b.querySelector(".bk-t") ? parseFloat(getComputedStyle(b.querySelector(".bk-t")).fontSize) : 0),
+                   codeSize: code ? parseFloat(getComputedStyle(code).fontSize) : 0 };
         }) };
     }),
   };
@@ -3064,7 +3073,8 @@ function t28SeedClips(list) {
         a.menu.w >= 44 && a.menu.h >= 44 && a.menu.left >= 0 && a.menu.left < 24 && __same(a.menu.color, a.menu.accent),
         Math.round(a.menu.w) + "x" + Math.round(a.menu.h) + " at x=" + Math.round(a.menu.left) + ", " + hx(a.menu.color));
       check(where + ": the day/week capsule trails, on --surface, in tabular numerals",
-        /^Day \d{3} · Week \d+$/.test(a.chip.text) && a.chip.bg[3] === 255 && __same(a.chip.bg, a.chip.surface) &&
+        // T-080 PR 3: "Day 35", never zero-padded (was \d{3}, "Day 035").
+        /^Day [1-9]\d* · Week \d+$/.test(a.chip.text) && a.chip.bg[3] === 255 && __same(a.chip.bg, a.chip.surface) &&
         /tabular-nums/.test(a.chip.fvn) && !/mono/i.test(a.chip.family) && a.chip.radius >= a.chip.h / 2 && a.chip.right >= a.vw - 16,
         "\"" + a.chip.text + "\" on " + hx(a.chip.bg) + ", " + a.chip.fvn + ", right edge " + Math.round(a.chip.right) + " of " + a.vw);
       check(where + ": the page h1 is the large title (34px/700, sentence case, no day meta in it)",
@@ -3610,18 +3620,22 @@ function t28SeedClips(list) {
       await page.goto(URL + "/__boot", { waitUntil: "load" });
       await page.waitForSelector("#view > *");
       await themePainted(page, theme, at + " thumbnails");
-      await go(page, "/course/math110");
-      // Every unit open, so every row is on the page to measure.
-      await page.evaluate(() => document.querySelectorAll("#view details.unit").forEach(d => { d.open = true; }));
+      // T-080 PR 3: measured on lecture pages' "In this unit" rows (the course page's rows have no
+      // frame now). Lecture 13's page has the proven lecture 14 as its next row; lecture 2's has the
+      // watched lecture 1 as its previous row and lecture 3 as its next, and is the page measured through.
+      await go(page, "/lesson/math110/0/12");
       await frames(page);
-      const where = at + " /course/math110";
-      const pre = await page.evaluate(thumbState);
+      const preP = await page.evaluate(thumbState, "#view .lsn-nav");
+      await go(page, "/lesson/math110/0/1");
+      await frames(page);
+      const where = at + " /lesson/math110/0/1 (In this unit)";
+      const pre = await page.evaluate(thumbState, "#view .lsn-nav");
       const vids = pre.filter(r => r.v);
       thumbRows += pre.length;
       const badSrc = pre.filter(r => !r.thumb || (r.v ? r.imgs !== 1 || r.src !== ytimg(r.v) : r.imgs !== 0));
       check(where + ": every video lecture row leads with an <img> of i.ytimg.com/vi/<its v>/hqdefault.jpg",
-        pre.length === lessonsOf("math110") && vids.length > 0 && badSrc.length === 0,
-        badSrc.length ? show(badSrc, r => r.at + " src " + r.src + " (v " + r.v + ")") : vids.length + " of " + pre.length + " rows (" + lessonsOf("math110") + " lectures in the course)");
+        pre.length === 2 && vids.length > 0 && badSrc.length === 0,
+        badSrc.length ? show(badSrc, r => r.at + " src " + r.src + " (v " + r.v + ")") : vids.length + " of " + pre.length + " rows (next and previous)");
       const badAttr = vids.filter(r => r.loading !== "lazy" || r.decoding !== "async" || r.alt !== "" ||
         !(Math.abs(r.ratio - 16 / 9) <= 0.01) || !(Math.abs(r.boxRatio - 16 / 9) <= 0.01));
       check(where + ": each image is loading=lazy, decoding=async, alt=\"\", and 16:9 (±0.01)", vids.length > 0 && badAttr.length === 0,
@@ -3634,7 +3648,7 @@ function t28SeedClips(list) {
       check(where + ": the duration chip reads the lesson's min as m:ss or h:mm:ss, and is aria-hidden (the title is beside it)", pre.length > 0 && badChip.length === 0,
         badChip.length ? show(badChip, r => r.at + " \"" + r.chip + "\", want \"" + r.want + "\", aria-hidden " + r.chipAria) : pre.length + " chips, e.g. \"" + pre[0].chip + "\", aria-hidden");
       // The seeded state: lecture 1 watched, lecture 14 proven.
-      const wr = pre.find(r => r.at === "math110/0/0"), pr = pre.find(r => r.at === "math110/0/13");
+      const wr = pre.find(r => r.at === "math110/0/0"), pr = preP.find(r => r.at === "math110/0/13");
       const stateOk = !!wr && !!pr && /\bwatched\b/.test(wr.cls) && wr.edge === "100%" && wr.edgeCol === "#ffffff" && /· Watched$/.test(wr.sub) &&
         /\bproven\b/.test(pr.cls) && pr.edge === "100%" && pr.edgeCol !== wr.edgeCol && /· Proven$/.test(pr.sub);
       check(where + ": a watched lecture's frame has a full white edge, a proven one's a full gold edge, and each row says which", stateOk,
@@ -3644,7 +3658,7 @@ function t28SeedClips(list) {
       mode = "abort";
       held.splice(0).forEach(r => r.abort().catch(() => {}));
       const settled = await visitThumbs(page);
-      const post = await page.evaluate(thumbState);
+      const post = await page.evaluate(thumbState, "#view .lsn-nav");   // T-080 PR 3: the In this unit rows, as above
       const pv = post.filter(r => r.v);
       coverRows += pv.length;
       const badCover = pv.filter(r => !/\bcover\b/.test(r.cls) || r.imgs !== 0 || !r.bgOpaque || r.skeleton ||
@@ -3663,13 +3677,14 @@ function t28SeedClips(list) {
 
       // Readings and papers: a cover from the first paint, nothing to load.
       mode = "hold";
-      await go(page, "/course/ai300");
-      const ai = await page.evaluate(thumbState);
+      // T-080 PR 3: AI 300's paper 3 (unit 0): its next row is a paper, its previous a video.
+      await go(page, "/lesson/ai300/0/2");
+      const ai = await page.evaluate(thumbState, "#view .lsn-nav");
       const reads = ai.filter(r => !r.v), aiv = ai.filter(r => r.v);
       const badRead = reads.filter(r => !r.thumb || !/\bcover\b/.test(r.cls) || r.imgs !== 0 || r.chip !== r.want || (r.vis && !r.codeShown));
       const badAiv = aiv.filter(r => r.src !== ytimg(r.v));
-      check(at + " /course/ai300: every reading and paper row is a typeset cover with no <img> from its first paint, its chip \"Paper\" or \"Reading\"; every video row's frame is its own v",
-        reads.length === readingsOf("ai300") && reads.length > 0 && badRead.length === 0 && badAiv.length === 0,
+      check(at + " /lesson/ai300/0/2: every reading and paper row is a typeset cover with no <img> from its first paint, its chip \"Paper\" or \"Reading\"; every video row's frame is its own v",
+        reads.length === 1 && aiv.length === 1 && badRead.length === 0 && badAiv.length === 0,
         badRead.length || badAiv.length ? show(badRead.concat(badAiv), r => r.at + " " + r.cls + " imgs " + r.imgs + " chip \"" + r.chip + "\" src " + r.src)
           : reads.length + " readings (" + reads.filter(r => r.vis).length + " on screen), " + aiv.length + " video rows with their frames");
       check(at + " thumbnails: no page errors", errors.length === 0, errors.join(" | "));
@@ -3685,7 +3700,8 @@ function t28SeedClips(list) {
   // same task: a fade is a CSSTransition on opacity, or it is not there.
   console.log("\nthumbnails that load, 390px light");
   const u0 = CURRICULUM.COURSES.find(c => c.id === "math110").units[0].lessons;
-  const BIG = ytimg(u0[1].v), GREY = ytimg(u0[2].v);
+  // T-080 PR 3: lecture 3's page, whose previous row is lecture 2 (BIG) and next is lecture 4 (GREY).
+  const BIG = ytimg(u0[1].v), GREY = ytimg(u0[3].v);
   const bigPng = png(480, 360, [38, 84, 140]), greyPng = png(120, 90, [204, 204, 204]);
   let fadesSeen = 0;
   for (const motion of ["reduce", "no-preference"]) {
@@ -3711,12 +3727,12 @@ function t28SeedClips(list) {
     });
     await page.goto(URL + "/__boot", { waitUntil: "load" });
     await page.waitForSelector("#view > *");
-    await go(page, "/course/math110");
-    const sel = li => '#view a.grow[href="#/lesson/math110/0/' + li + '"] > .thumb';
+    await go(page, "/lesson/math110/0/2");
+    const sel = li => '#view .lsn-nav a.grow[href="#/lesson/math110/0/' + li + '"] > .thumb';
     const landed = await page.waitForFunction(([a, b]) => {
       const x = document.querySelector(a), y = document.querySelector(b);
       return !!x && !!y && x.classList.contains("loaded") && y.classList.contains("cover");
-    }, [sel(1), sel(2)], { timeout: 6000, polling: 100 }).then(() => true, () => false);
+    }, [sel(1), sel(3)], { timeout: 6000, polling: 100 }).then(() => true, () => false);
     await page.evaluate(() => Promise.all(document.getAnimations().map(a => a.finished.catch(() => {}))));
     const r = await page.evaluate(([a, b]) => {
       const x = document.querySelector(a), y = document.querySelector(b), img = x && x.querySelector("img");
@@ -3724,7 +3740,7 @@ function t28SeedClips(list) {
       return { cls: x ? x.className : "", img: !!img, op: cs ? cs.opacity : null, prop: cs ? cs.transitionProperty : null,
                dur: cs ? cs.transitionDuration : null, grey: y ? y.className : "", greyImgs: y ? y.querySelectorAll("img").length : -1,
                fade: window.__fade };
-    }, [sel(1), sel(2)]);
+    }, [sel(1), sel(3)]);
     const at = "390px light, motion " + motion;
     check(at + ": a frame that loads is shown — .loaded, opacity 1", landed && /\bloaded\b/.test(r.cls) && r.img && r.op === "1",
       (landed ? "" : "did not settle; ") + r.cls + ", img " + r.img + ", opacity " + r.op);
@@ -3756,9 +3772,10 @@ function t28SeedClips(list) {
     const low = [], lowChip = [];
     let least = null, worstChip = Infinity, covers = 0, unsettled = [];
     for (const cid of FAC_COURSES) {
-      await go(page, "/course/" + cid);
+      // T-080 PR 3: a lecture page's In this unit rows (lecture 2: lectures 1 and 3), where frames still are.
+      await go(page, "/lesson/" + cid + "/0/1");
       if (!(await visitThumbs(page))) unsettled.push(cid);
-      (await page.evaluate(thumbState)).filter(r => r.vis).forEach(r => {
+      (await page.evaluate(thumbState, "#view .lsn-nav")).filter(r => r.vis).forEach(r => {
         if (/\bcover\b/.test(r.cls)) covers++;
         (r.texts || []).forEach(t => {
           facTexts++;
@@ -3782,7 +3799,8 @@ function t28SeedClips(list) {
   // loop/specs/T-026a-atlas-courses/spec.md, acceptance 1 and 2, at 1440 and
   // 390 in dark and light, on the seeded state plus a resume point. The page
   // boots on #/__test so the schedule can be asked who is running.
-  const T26_W = [{ w: 1440, h: 900, mobile: false, cols: 3, shelf: 4 }, { w: 390, h: 844, mobile: true, cols: 1, shelf: 2 }];
+  // T-080 PR 3: the Courses shelf is cards of a title, a code and a bar: 3 across at 1440, 1 on a phone (was 4 and 2 covers).
+  const T26_W = [{ w: 1440, h: 900, mobile: false, cols: 3, shelf: 3 }, { w: 390, h: 844, mobile: true, cols: 1, shelf: 1 }];
   let t26Checks = 0;
   const c26 = (name, ok, detail) => { t26Checks++; return check(name, ok, detail); };
   const capFirst = s => s.charAt(0).toUpperCase() + s.slice(1);
@@ -3873,8 +3891,11 @@ function t28SeedClips(list) {
           !!document.querySelector("#view .seg [data-shelf=later][aria-pressed=true]"), null, { timeout: 8000, polling: "raf" }).then(() => true, () => false);
         const s = landed ? await page.evaluate(coursesState) : null;
         const hrefs = s ? [].concat(...s.shelves.map(x => x.books.map(b => b.href))) : [];
-        c26(at + " /atlas: \"+" + more + "\" lands on #/courses?later with Later pressed and the " + sets.later.length + " later courses on the shelf",
-          landed && JSON.stringify(hrefs) === JSON.stringify(sets.later.map(id => "#/course/" + id)), landed ? hrefs.join(" ") : "did not land");
+        // T-080 PR 3: the later courses sit on one shelf per track now: the same set, each shelf in start order.
+        const inOrder = s ? s.shelves.every(y => JSON.stringify(y.books.map(b => b.href)) === JSON.stringify(sets.later.map(id => "#/course/" + id).filter(h => y.books.some(b => b.href === h)))) : false;
+        c26(at + " /atlas: \"+" + more + "\" lands on #/courses?later with Later pressed and the " + sets.later.length + " later courses on its track shelves",
+          landed && JSON.stringify(hrefs.slice().sort()) === JSON.stringify(sets.later.map(id => "#/course/" + id).sort()) && hrefs.length === sets.later.length && inOrder,
+          landed ? hrefs.join(" ") : "did not land");
       }
 
       // ---- Courses ----
@@ -3891,12 +3912,14 @@ function t28SeedClips(list) {
         !!lead && s.shelves[0].head === "Continue" && lead.href === "#/lesson/ai200/0/1" && /resume at 5:00$/.test(lead.meta),
         lead ? s.shelves[0].head + ": " + lead.code + " " + lead.href + " \"" + lead.meta + "\"" : "no shelf");
       const nowHrefs = [].concat(...s.shelves.map(x => x.books.map(b => b.href.replace(/^#\/lesson\/([^/]+)\/.*/, "#/course/$1"))));
-      c26(at + " /courses: Now holds every running course once (Continue, then Also running)",
+      c26(at + " /courses: Now holds every running course once (Continue, then one shelf per track)",
         nowHrefs.length === sets.running.length && sets.running.every(id => nowHrefs.indexOf("#/course/" + id) >= 0),
         s.shelves.map(x => x.head + " " + x.books.map(b => b.code).join("/")).join("; "));
       const allBooks = [].concat(...s.shelves.map(x => x.books));
-      const coverBad = allBooks.filter(b => !b.facCol || !__same(b.codeCol, b.facCol) || !__same(b.coverBg, b.coverWant, 2));
-      c26(at + " /courses: every cover carries its faculty colour — the code in it, and the cover --fac at 14% over --surface",
+      // T-080 PR 3: the colour block went; the faculty colour is the code and the progress bar's fill, on a --surface card.
+      const coverBad = allBooks.filter(b => !b.facCol || !__same(b.codeCol, b.facCol) || !__same(b.coverBg, b.coverWant, 2) ||
+        (!b.later && (!b.barCol || !__same(b.barCol, b.facCol))));
+      c26(at + " /courses: every card carries its faculty colour — the code in it and a running course's bar — on --surface (a later one --bg-2)",
         allBooks.length > 0 && coverBad.length === 0,
         coverBad.length ? coverBad.map(b => b.code + " code " + hx(b.codeCol) + " vs " + hx(b.facCol) + ", cover " + hx(b.coverBg) + " vs " + hx(b.coverWant && b.coverWant.map(Math.round))).join("; ") : allBooks.length + " covers");
       c26(at + " /courses: the shelves are " + shelf + " columns wide", s.shelves.length > 0 && s.shelves.every(x => x.cols === shelf),
@@ -3906,8 +3929,11 @@ function t28SeedClips(list) {
       // The filter, clicked for real: the shelf changes and nothing is written.
       const before = await page.evaluate(() => window.__stateWrites);
       for (const [k, test] of [
-        ["later", x => x.shelves.length === 1 && x.shelves[0].books.length === sets.later.length && x.shelves[0].books.every(b => b.later) &&
-          JSON.stringify(x.shelves[0].books.map(b => b.href)) === JSON.stringify(sets.later.map(id => "#/course/" + id))],
+        // T-080 PR 3: Later is one shelf per track; every later course once, each shelf in start order.
+        ["later", x => { const bs = [].concat(...x.shelves.map(y => y.books));
+          return x.shelves.length >= 1 && x.shelves.every(y => ["Math & physics", "AI & build", "Storytelling", "Other"].includes(y.head)) && bs.length === sets.later.length && bs.every(b => b.later) &&
+            JSON.stringify(bs.map(b => b.href).sort()) === JSON.stringify(sets.later.map(id => "#/course/" + id).sort()) &&
+            x.shelves.every(y => JSON.stringify(y.books.map(b => b.href)) === JSON.stringify(sets.later.map(id => "#/course/" + id).filter(h => y.books.some(b => b.href === h)))); }],
         ["finished", x => x.shelves.length === 0 && x.empty === 1],
         // Every course the page has (curriculum.js plus SPCH 100 from storytelling.js),
         // the later ones dimmed and the running ones not.
@@ -4968,9 +4994,11 @@ function t28SeedClips(list) {
         m.prompt === "Tell one story from this week" && m.hint === "Under 90 seconds. Beginning, turn, ending." && m.time === "0:00 / 1:30", JSON.stringify([m.prompt, m.hint, m.time]));
       c28(at + " /practice: the record button is a <button type=button> labelled \"Start recording\", in the tab order, at least 88x88 (" + (r.w || 0).toFixed(0) + "x" + (r.h || 0).toFixed(0) + "), its disc round",
         !!m.rec && r.tag === "BUTTON" && r.type === "button" && r.label === "Start recording" && r.tab === 0 && r.w >= 88 && r.h >= 88 && r.round, JSON.stringify(m.rec));
-      c28(at + " /practice: the record button is centred in its card (centre within 1px of the card's)",
-        !!m.rec && Math.abs(r.cx - r.card.cx) <= 1 && r.x >= r.card.x && r.x + r.w <= r.card.x + r.card.w,
-        m.rec ? "button centre " + r.cx.toFixed(1) + ", card centre " + r.card.cx.toFixed(1) : "no button");
+      // T-080 PR 3 (owner: Practice "left-aligned like the rest"): the card reads from the left, so the
+      // button starts at the card's 24px content edge (within 1px), still wholly inside the card.
+      c28(at + " /practice: the record button starts at its card's left content edge (24px in, within 1px)",
+        !!m.rec && Math.abs((r.x - r.card.x) - 24) <= 1 && r.x >= r.card.x && r.x + r.w <= r.card.x + r.card.w,
+        m.rec ? "button left " + (r.x - r.card.x).toFixed(1) + "px into the card" : "no button");
       c28(at + " /practice: its red is the theme's --bad (" + (r.bad || "?") + "), which beats #ff453a on the card (" + (r.redRatio || 0).toFixed(2) + ":1 against " + (r.sysRatio || 0).toFixed(2) + ":1 on " + (r.cardBg || "?") + "), and clears 3:1",
         !!m.rec && r.red === r.bad && r.redRatio >= r.sysRatio && r.redRatio >= 3, JSON.stringify({ red: r.red, bad: r.bad, cardBg: r.cardBg }));
       c28(at + " /practice: its ring is --ink (" + (r.ink || "?") + "), " + (r.ringW || 0) + "px, at " + (r.ringRatio || 0).toFixed(2) + ":1 on the card (>= 3:1)",
@@ -5156,7 +5184,9 @@ function t28SeedClips(list) {
         kicker: txt("#view .page-head .kicker"), btn: (lock.querySelector("a.btn") || { getAttribute: () => null }).getAttribute("href"),
         cards: document.querySelectorAll("#view .card").length, ahead: lock.dataset.ahead } : null,
       kind: txt(".card.one.lead .one-kind"), go: (document.querySelector(".card.one.lead a.one-go") || { getAttribute: () => null }).getAttribute("href"),
-      railLock: !!document.querySelector("#rail .rl-lock"), railRule: txt("#rail .rl-rule"),
+      // T-080 PR 3: the rail's card is the lecture page's side column now (#view .lsn-side), visible there.
+      railLock: !!document.querySelector("#view .lsn-side .rl-lock") && document.querySelector("#view .lsn-side .rl-lock").checkVisibility(),
+      railRule: txt("#view .lsn-side .rl-rule"),
       todayRoot: (r => r ? "#/lesson/" + r.split(".").join("/") : null)(window.__brickfordTest.lockRoot("math120", 1, 0)),
     };
   }
@@ -5554,6 +5584,130 @@ function t28SeedClips(list) {
     }
   }
 
+  // ---- T-080 PR 3: a layout of its own per page (loop/specs/T-080-redesign) ----
+  //   - Courses (Now) is the Continue shelf, then one shelf per track — Math &
+  //     physics, AI & build, Storytelling — and every open course's card has a
+  //     progress bar whose width is lectures watched / total, worked out here
+  //     from storage, its title set larger than its code;
+  //   - the course page has exactly one filled button: "Continue: …" once a
+  //     lecture is watched (MATH 110 in the seed), "Start the course" before
+  //     (MATH 130); its lecture rows have no frame — a number or a tick, the
+  //     title, the length as m:ss — and its facts are one line, not boxes;
+  //   - the lecture page is two columns at 1100px and up (the side column to
+  //     the right of the video's, overlapping it vertically, sticky) and one
+  //     stacked column on a phone;
+  //   - the Week page leads with seven day cells, Sunday to Saturday, the
+  //     Saturday marked rest;
+  //   - Practice's "Press the red button" shows only on a tab with one.
+  let t80c = 0;
+  {
+    console.log("\nT-080 PR 3: a layout of its own per page");
+    const c9 = (n, ok, d) => { t80c++; return check(n, ok, d); };
+    const TRACKS = ["Math & physics", "AI & build", "Storytelling"];
+    for (const theme of THEMES) {
+      for (const [w, h, mobile] of [[1440, 900, false], [390, 844, true]]) {
+        const at = "T-080 PR 3 " + w + "px " + theme;
+        const { ctx, page, errors } = await fresh(browser, { viewport: { width: w, height: h }, isMobile: mobile, hasTouch: mobile, colorScheme: theme }, theme);
+        await page.goto(URL + "/__boot", { waitUntil: "load" });
+        await page.waitForSelector("#view > *");
+        await themePainted(page, theme, at);
+        // Courses
+        await go(page, "/courses");
+        const cs = await page.evaluate(() => {
+          const st = JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").lessons || {};
+          const heads = [...document.querySelectorAll("#view .shelf")].map(x => x.previousElementSibling ? x.previousElementSibling.firstChild.textContent.trim() : "");
+          const cards = [...document.querySelectorAll("#view .shelf .book:not(.later)")].map(b => {
+            const id = b.getAttribute("href").replace(/^#\/(course|lesson)\/([^/]+).*$/, "$2"), c = window.DAR.COURSES.find(x => x.id === id);
+            let n = 0, of = 0;
+            if (c && c.units) c.units.forEach((u, ui) => u.lessons.forEach((_, li) => { of++; const s = st[id + "." + ui + "." + li] || {}; if (s.done || s.verified) n++; }));
+            const bar = b.querySelector(".bk-bar"), i = bar && bar.querySelector("i"), t = b.querySelector(".bk-t"), k = b.querySelector(".cv-code");
+            return { id, tracker: !!(c && c.tracker), aria: bar ? bar.getAttribute("aria-label") : null, width: i ? i.style.width : null,
+                     want: of ? Math.round(n / of * 1000) / 10 + "%" : null, wantAria: n + " of " + of + " watched",
+                     bigger: !!t && !!k && parseFloat(getComputedStyle(t).fontSize) > parseFloat(getComputedStyle(k).fontSize),
+                     barH: bar ? bar.getBoundingClientRect().height : 0 };
+          });
+          return { heads, cards };
+        });
+        const trackHeads = cs.heads.filter(x => x !== "Continue");
+        const order = trackHeads.every((x, i) => i === 0 || TRACKS.indexOf(x) > TRACKS.indexOf(trackHeads[i - 1]));
+        const badCard = cs.cards.filter(c => c.barH <= 0 || !c.bigger || (c.tracker ? !/^\d+ of 150 solved$/.test(c.aria || "") : (c.width !== c.want || c.aria !== c.wantAria)));
+        c9(at + " /courses: Continue, then one shelf per track (" + TRACKS.join(", ") + ") in that order, and every open course's card has a progress bar of lectures watched / total and its title larger than its code",
+          cs.heads[0] === "Continue" && trackHeads.length >= 2 && trackHeads.every(x => TRACKS.includes(x)) && order && cs.cards.length > 0 && badCard.length === 0,
+          cs.heads.join(" | ") + "; " + (badCard.length ? badCard.slice(0, 3).map(c => c.id + " " + c.width + " (want " + c.want + ") \"" + c.aria + "\"").join("; ") : cs.cards.length + " cards"));
+        // the course page, started and not
+        const coursePage = () => page.evaluate(() => {
+          const z = window.__dz, fill = z.tok("--btn-bg");
+          const filled = [...document.querySelectorAll("#view .btn")].filter(n => n.checkVisibility() &&
+            (b => b[3] === 255 && z.same(b, fill, 2))(z.bytes(getComputedStyle(n).backgroundColor))).map(n => n.textContent.trim());
+          const rows = [...document.querySelectorAll("#view .crs-list a.grow")];
+          const id = location.hash.split("/")[2], c = window.DAR.COURSES.find(x => x.id === id);
+          const clock = s => { const hh = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), ss = s % 60; return (hh ? hh + ":" + String(m).padStart(2, "0") : m) + ":" + String(ss).padStart(2, "0"); };
+          const badRows = rows.filter(a => {
+            const [, , , ui, li] = a.getAttribute("href").split("/"), l = c.units[+ui].lessons[+li];
+            const lead = a.querySelector(".g-lead"), v = (a.querySelector(".g-v") || {}).textContent || "";
+            const leadOk = !!lead && (lead.textContent.trim() === String(+li + 1) || (!!lead.querySelector("svg.tick") && a.classList.contains("done-row")));
+            return a.querySelector(".thumb, img") || !leadOk || v !== (l.min ? clock(l.min * 60) : l.paper ? "paper" : "reading");
+          }).map(a => a.getAttribute("href"));
+          return { filled, rows: rows.length, badRows, boxes: document.querySelectorAll("#view .onecounts").length,
+                   stats: !!document.querySelector("#view .crs-stats"), ring: !!document.querySelector("#view .crs-head .ring") };
+        });
+        await go(page, "/course/math110");
+        await page.evaluate(() => document.querySelectorAll("#view details.unit").forEach(d => { d.open = true; }));
+        const cp = await coursePage();
+        c9(at + " /course/math110 (a lecture watched): exactly one filled button, its label \"Continue: …\"; a ring in the header; the facts one line, no boxes",
+          cp.filled.length === 1 && /^Continue: \S/.test(cp.filled[0]) && cp.ring && cp.stats && cp.boxes === 0, JSON.stringify({ filled: cp.filled, ring: cp.ring, stats: cp.stats, boxes: cp.boxes }));
+        c9(at + " /course/math110: no lecture row has a frame — each is a number (a tick once watched), the title, and its length as m:ss",
+          cp.rows === 51 && cp.badRows.length === 0, cp.rows + " rows; " + (cp.badRows.slice(0, 3).join(", ") || "all as asked"));
+        await go(page, "/course/math130");
+        const cq = await coursePage();
+        c9(at + " /course/math130 (nothing watched): exactly one filled button, \"Start the course\"", cq.filled.length === 1 && cq.filled[0] === "Start the course", JSON.stringify(cq.filled));
+        // the lecture page, stacked on a phone
+        if (mobile) {
+          await go(page, "/lesson/math110/0/1");
+          const L = await page.evaluate(() => { const b = s => document.querySelector(s).getBoundingClientRect();
+            return { lead: b("#view .lsn-lead"), side: b("#view .lsn-side"), body: b("#view .lsn-body") }; });
+          c9(at + " /lesson/math110/0/1: one column on a phone — the video, then the quiz and practice, then the notes",
+            L.side.top >= L.lead.bottom - 0.5 && L.body.top >= L.side.bottom - 0.5 && Math.abs(L.side.left - L.lead.left) < 1, JSON.stringify({ lead: [L.lead.left, L.lead.bottom], side: [L.side.left, L.side.top, L.side.bottom], body: L.body.top }));
+        }
+        // the Week strip
+        await go(page, "/review");
+        const wk = await page.evaluate(() => [...document.querySelectorAll("#view .wk-strip > li")].map(li => ({ cls: li.className, label: li.getAttribute("aria-label") })));
+        c9(at + " /review: the page leads with seven day cells, Sunday to Saturday, the Saturday rest",
+          wk.length === 7 && /^Sunday /.test(wk[0].label || "") && /^Saturday /.test(wk[6].label || "") && /\bst-rest\b/.test(wk[6].cls) && wk.slice(0, 6).every(x => !/\bst-rest\b/.test(x.cls)),
+          wk.map(x => (x.label || "").split(",")[0] + " " + (x.cls.match(/st-\w+/) || [""])[0]).join(" | "));
+        // Practice: the red-button line only where there is a red button
+        await go(page, "/practice");
+        await page.waitForFunction(() => { const c = document.querySelector("#view #prClips"); return !!c && c.getAttribute("aria-busy") === "false"; }, null, { timeout: 6000 }).catch(() => {});
+        const pr = {};
+        for (const tab of ["story", "bank"]) {
+          await page.click("#view [data-ptab=" + tab + "]");
+          pr[tab] = await page.evaluate(() => { const e = document.querySelector("#view .pr-empty-rec"), r = document.querySelector("#view .pr-rec");
+            return { line: !!e && e.checkVisibility(), rec: !!r && r.checkVisibility() }; });
+        }
+        c9(at + " /practice: \"Press the red button\" shows on the Story tab (which has the button) and not on Story bank (which has none)",
+          pr.story.rec && pr.story.line && !pr.bank.rec && !pr.bank.line, JSON.stringify(pr));
+        c9(at + ": no page errors", errors.length === 0, errors.join(" | "));
+        await ctx.close();
+      }
+    }
+    // the lecture page's two columns, at 1100px and up
+    for (const w of [1100, 1280, 1440]) {
+      const at = "T-080 PR 3 " + w + "px light";
+      const { ctx, page, errors } = await fresh(browser, { viewport: { width: w, height: 900 }, colorScheme: "light" }, "light");
+      await page.goto(URL + "/__boot", { waitUntil: "load" });
+      await page.waitForSelector("#view > *");
+      await go(page, "/lesson/math110/0/1");
+      const L = await page.evaluate(() => { const b = s => document.querySelector(s).getBoundingClientRect();
+        return { lead: b("#view .lsn-lead"), side: b("#view .lsn-side"), body: b("#view .lsn-body"), pos: getComputedStyle(document.querySelector("#view .lsn-side")).position,
+                 rail: getComputedStyle(document.querySelector("#rail")).display, frame: !!document.querySelector("#view .lsn-lead .video-frame iframe, #view .lsn-lead .video-off") }; });
+      c9(at + " /lesson/math110/0/1: two columns — the video and notes left, the side column (sticky) to their right beside the video, and the rail off the page",
+        L.frame && L.side.left >= L.lead.right && L.side.top < L.lead.bottom && L.body.left === L.lead.left && L.body.top >= L.lead.bottom - 0.5 && L.pos === "sticky" && L.rail === "none" && L.lead.width >= 360,
+        JSON.stringify({ lead: [Math.round(L.lead.left), Math.round(L.lead.right), Math.round(L.lead.width)], side: [Math.round(L.side.left), Math.round(L.side.top)], body: Math.round(L.body.top), pos: L.pos, rail: L.rail, frame: L.frame }));
+      c9(at + ": no page errors", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
+  }
+
   // ---- T-080 PR 2: fewer buttons, grouped (loop/specs/T-080-redesign) ----
   //   - the sidebar is at most 7 top-level rows in its nav (links and groups)
   //     and one row under it (Settings), and every route is still a link in it;
@@ -5618,9 +5772,12 @@ function t28SeedClips(list) {
           await go(page, "/courses");
           const r1 = await page.evaluate(() => ({ disp: getComputedStyle(document.querySelector("#rail")).display, w: document.querySelector("#rail").getBoundingClientRect().width }));
           await go(page, "/lesson/math110/0/13");
-          const r2 = await page.evaluate(() => getComputedStyle(document.querySelector("#rail")).display);
-          c8(at + ": the Next up rail takes no room on /courses, and is on a lecture page", r1.disp === "none" && r1.w === 0 && r2 !== "none",
-            "/courses display " + r1.disp + " width " + r1.w + "; lecture display " + r2);
+          // T-080 PR 3: on a lecture the same card is the top of the page's own side
+          // column (the reading layout's second column), so the rail itself takes no room there either.
+          const r2 = await page.evaluate(() => { const c = document.querySelector("#view .lsn-side .rail-card");
+            return { rail: getComputedStyle(document.querySelector("#rail")).display, card: !!c && c.checkVisibility() }; });
+          c8(at + ": the Next up rail takes no room on /courses, and on a lecture page its card is shown in the page's side column",
+            r1.disp === "none" && r1.w === 0 && r2.card, "/courses display " + r1.disp + " width " + r1.w + "; lecture " + JSON.stringify(r2));
         }
         // one filled button on each main route
         const many = [];
@@ -5783,6 +5940,7 @@ function t28SeedClips(list) {
       "T-043: the lecture quiz gate at 1440/390 x 2 themes — before watched, the quiz after a miss, the pass with Go deeper, the locked lecture and the dashboard pointing at a quiz, one primary each, Rewatch >= 44x44 (" + t43Checks + " checks)" + "; " +
       "T-045: Problems as what's due now at 1440/390 x 2 themes — one quiz waiting, one catch-up, one pset, one lab, nothing due, the daily review, a grandfathered unlock — the rows, tags and why-lines worked out from storage, Coming up <= 3, the empty state, and the dashboard's line (" + t45Checks + " checks)" + "; " +
       "T-054: Monk Mode at 1440/390 x 2 themes x 2 states, Full day shut and open — one filled primary at most, every control >= 44x44, nothing clipped, every text at 4.5:1, the 3 x 7 map, the Priorities first and the ring of five, and no clip at 7 widths x roots 16/24 (" + t54Checks + " checks)" + "; " +
+      "T-080 PR 3: Courses by track with progress bars, the course page's one Continue button and frameless rows, the lecture page's two columns, the Week strip and Practice's red-button line (" + t80c + " checks); " +
       "T-080 PR 2: the grouped sidebar, the Settings sheet, the rail's routes, one filled button per main route, the chevrons, the due note and the Playfair wordmark at 390/1280 x 2 themes (" + t80b + " checks); " +
       "T-080: the midnight page, Playfair on the titles and the navy filled button at 390/1280 in Dark, Auto-dark and Light (" + t80 + " checks); " +
       "T-046: the transcript card, its struck fillers and chips >= 4.5:1, its controls and the question's >= 44x44 at 1440 x 2 themes, and nothing of it on a phone at 390 (" + t46Checks + " checks)"

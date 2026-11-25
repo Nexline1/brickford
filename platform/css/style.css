@@ -2703,28 +2703,26 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
    above it: at 6.75rem a track between the two split it "Mathematic/s"
    (1132px at a 16px root, 376px at 24px). The 0.5px keeps the count exact
    at the default size (auto-fill floors the number of tracks that fit). */
-.shelf { display: grid; grid-template-columns: repeat(auto-fill, minmax(max(7rem, calc((100% - 12px) / 2 - 0.5px)), 1fr)); gap: 18px 12px; }
-@media (min-width: 600px) { .shelf { grid-template-columns: repeat(auto-fill, minmax(max(7rem, calc((100% - 24px) / 3 - 0.5px)), 1fr)); } }
-@media (min-width: 1024px) { .shelf { grid-template-columns: repeat(auto-fill, minmax(max(7rem, calc((100% - 36px) / 4 - 0.5px)), 1fr)); } }
-.book { display: block; min-width: 0; color: var(--ink); text-decoration: none; }
-.book:hover { text-decoration: none; }
-/* clip-path, not overflow:hidden: the cover rounds its bar into the corner
-   without losing its automatic minimum height, so a large text size grows
-   the cover instead of cutting the code off. */
-.book .cover {
-  position: relative; display: flex; align-items: flex-end;
-  aspect-ratio: 16 / 10; padding: 12px 14px; border-radius: var(--r-lg);
-  clip-path: inset(0 round var(--r-lg));
-  background: color-mix(in srgb, var(--fac, var(--accent)) 14%, var(--surface));
+/* T-080 PR 3: cards, not colour blocks — 1 column on a phone, 2 from 600px,
+   3 from 1024px (the page has the rail's width since PR 2). The title is
+   the large thing on the card; the code is a small faculty-coloured label. */
+.shelf { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+@media (min-width: 600px) { .shelf { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; } }
+@media (min-width: 1024px) { .shelf { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.book {
+  display: flex; flex-direction: column; min-width: 0; min-height: 44px; padding: 14px 16px 14px;
+  border-radius: var(--r-lg); background: var(--surface); color: var(--ink); text-decoration: none;
 }
-.cv-code { min-width: 0; font-size: 1.25rem; font-weight: 700; line-height: 1.15; letter-spacing: 0.02em; color: var(--fac, var(--accent)); overflow-wrap: anywhere; }
-.cv-bar { position: absolute; left: 0; bottom: 0; height: 4px; background: var(--fac, var(--accent)); }
+.book:hover { text-decoration: none; }
+.cv-code { font-size: var(--fs-footnote); font-weight: 600; letter-spacing: 0.02em; color: var(--fac, var(--accent)); font-variant-numeric: tabular-nums; }
 .bk-t, .bk-m { display: block; }
-.bk-t { margin-top: 10px; font-size: var(--fs-subhead); font-weight: 600; line-height: 1.3; overflow-wrap: anywhere; }
-.bk-m { margin-top: 2px; font-size: var(--fs-footnote); color: var(--ink-2); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-.book.later .cover { background: color-mix(in srgb, color-mix(in srgb, var(--fac, var(--accent)) 14%, var(--surface)) 45%, var(--bg)); }
+.bk-t { margin-top: 4px; font-size: var(--fs-title3); font-weight: 700; line-height: var(--lh-title3); letter-spacing: var(--tr-title3); overflow-wrap: anywhere; }
+.bk-bar { display: block; height: 4px; margin-top: 12px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+.bk-bar i { display: block; height: 100%; min-width: 0; border-radius: 999px; background: var(--fac, var(--accent)); }
+.bk-m { margin-top: 6px; font-size: var(--fs-footnote); color: var(--ink-2); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.book.later { background: var(--bg-2); box-shadow: inset 0 0 0 1px var(--line); }
 .book.later .cv-code, .book.later .bk-t { color: var(--ink-2); }
-.book.later .bk-m { color: var(--ink-3); }
+.book.later .bk-m { color: var(--ink-2); }
 .shelf-empty { font-size: var(--fs-subhead); color: var(--ink-2); padding: 0 4px; }
 
 /* The press: a scale only, so nothing a press shows changes colour. */
@@ -3094,9 +3092,12 @@ button.at-chip.lb-more { font-weight: 600; }
 
 /* ---- the card ---- */
 .pr-pane { margin-top: 18px; }
+/* T-080 PR 3 (owner: "the Practice form is centred while every other page is
+   left-aligned"): the card reads from the left like every other page — the
+   prompt, the hint, the record button under them, and the forms. */
 .card.pr-card {
-  display: flex; flex-direction: column; align-items: center; gap: 12px;
-  padding: 30px 24px 26px; border: 0; background: var(--surface); text-align: center;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 12px;
+  padding: 24px 24px 22px; border: 0; background: var(--surface); text-align: left;
 }
 .pr-prompt { font-size: var(--fs-title3); font-weight: 650; line-height: var(--lh-title3); letter-spacing: var(--tr-title3); color: var(--ink); text-wrap: balance; }
 .pr-hint { margin: 0; font-size: var(--fs-subhead); color: var(--ink-2); }
@@ -3105,10 +3106,10 @@ button.at-chip.lb-more { font-weight: 600; }
    this has to be three: one class alone was a dead rule, and the forms were
    squeezed to their fields' intrinsic width (review 1, ~220px). */
 .card.pr-card.pr-hand { align-items: stretch; text-align: left; }
-.pr-hand .pr-prompt, .pr-hand .pr-hint, .pr-hand .pr-nomic, .pr-hand .pr-rest { text-align: center; }
+.pr-hand .pr-prompt, .pr-hand .pr-hint, .pr-hand .pr-nomic, .pr-hand .pr-rest { text-align: left; }
 .pr-rest { margin: 4px 0 0; font-size: var(--fs-subhead); color: var(--ink-2); }
 .pr-form { text-align: left; }
-.pr-hand .one-go { margin-top: 4px; align-self: center; }
+.pr-hand .one-go { margin-top: 4px; align-self: flex-start; }
 .pr-form input, .pr-form textarea { background: var(--surface-2); }
 .pr-form input::placeholder { color: var(--ink-2); opacity: 1; }
 
@@ -3513,3 +3514,78 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 .courses-go { margin: var(--sp-2) 0 var(--sp-3); }
 /* T-080 PR 2: under the due note the button needs no section's worth of space. */
 .one-due + .one-go { margin-top: var(--sp-2); }
+
+/* ---------- T-080 PR 3: the course page ----------
+   A header of its own: who teaches it and a ring for how much is watched,
+   then the description, one line of facts, and the one button. Units are the
+   collapsible sections they were; a lecture row is number, title, state and
+   length, with no frame. */
+.crs-top { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--sp-3); }
+.crs-id { min-width: 0; }
+.crs-ring { flex: none; margin-top: 4px; }
+.crs-ring .ring .fill:not(.good) { stroke: var(--fac, var(--accent)); }
+.crs-stats { display: flex; flex-wrap: wrap; gap: 4px 0; margin-top: var(--sp-2); font-size: var(--fs-subhead); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.crs-stats span:not(:last-child)::after { content: "\00b7"; margin: 0 8px; color: var(--ink-3); }
+.crs-head .crs-go { margin-top: var(--sp-3); }
+.crs-next { margin-top: 6px; font-size: var(--fs-footnote); color: var(--ink-2); }
+.crs-list .lrow { position: relative; }
+.crs-list .lrow .g-lead { font-variant-numeric: tabular-nums; }
+.crs-list .lrow.done-row .g-lead { color: var(--good); }
+.crs-list .lr-prog { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: transparent; }
+.crs-list .lr-prog i { display: block; height: 100%; background: var(--fac, var(--accent)); }
+@media (max-width: 599px) { .crs-ring .ring-wrap { transform: scale(0.85); transform-origin: top right; } }
+
+/* ---------- T-080 PR 3: the lecture page's reading layout ----------
+   Stacked on a phone (lead, side, body: the order the page always had). From
+   1040px — where the rail used to stand beside it — two columns: the video and
+   the notes, and a 320px side column with today's card, the quiz and the
+   practice, sticky so it stays in view while the notes scroll. */
+.lsn-cols { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-areas: "lead" "side" "body"; }
+.lsn-lead { grid-area: lead; min-width: 0; }
+.lsn-side { grid-area: side; min-width: 0; }
+.lsn-body { grid-area: body; min-width: 0; }
+.lsn-side .rail-card { display: none; }
+@media (min-width: 1040px) {
+  .lsn-cols { grid-template-columns: minmax(0, 1fr) 320px; grid-template-areas: "lead side" "body side"; grid-template-rows: auto 1fr; column-gap: var(--sp-4); align-items: start; }
+  /* auto 1fr: the side column spans both rows, and any height it has beyond the
+     lead goes to the second row, so the notes follow the video with no gap. */
+  .lsn-side { position: sticky; top: var(--sp-4); align-self: start; }
+  .lsn-side .rail-card { display: block; margin-bottom: var(--sp-3); }
+  .lsn-side .rail-card .rl-ring { padding-top: 0; }
+}
+/* T-080 PR 3: "Press the red button" only where there is one on screen (the
+   Story and Humour recorders); the Story bank tab has none. CSS, so a tab swap
+   (which repaints the pane alone) never leaves the line stale. */
+.pr-empty-rec { display: none; }
+#view:has(.pr-rec) .pr-empty-rec { display: inline; }
+
+/* ---------- T-080 PR 3: the Week page's day strip ----------
+   Seven cells, Sunday to Saturday: the weekday, the date, and a mark — a tick
+   when done, a half disc when part done, a --bad ring when missed, an --accent
+   ring for today, a quiet ring ahead, a dash on the rest day. Not controls. */
+.wk-strip { list-style: none; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; margin: 0 0 var(--sp-4); padding: 0; }
+.wk-d { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 0 12px; border-radius: var(--r-md); background: var(--surface); }
+.wk-d.now { box-shadow: inset 0 0 0 2px var(--accent); }
+.wk-d.st-rest, .wk-d.st-before { background: var(--bg-2); box-shadow: inset 0 0 0 1px var(--line); }
+.wk-d.now.st-rest { box-shadow: inset 0 0 0 2px var(--accent); }
+.wk-dw { font-size: var(--fs-footnote); font-weight: 600; color: var(--ink-2); }
+.wk-dn { font-size: var(--fs-headline); font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+.wk-dm { display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; font-size: var(--fs-footnote); color: var(--ink-2); }
+.wk-dm .tick { width: 14px; height: 14px; }
+.st-completed .wk-dm { background: var(--good); color: var(--surface); }
+.st-partial .wk-dm { background: linear-gradient(90deg, var(--accent) 50%, transparent 50%); box-shadow: inset 0 0 0 2px var(--accent); }
+.st-missed .wk-dm { box-shadow: inset 0 0 0 2px var(--bad); }
+.st-today .wk-dm { box-shadow: inset 0 0 0 2px var(--accent); }
+.st-upcoming .wk-dm, .st-before .wk-dm { box-shadow: inset 0 0 0 1.5px var(--line-strong); }
+.st-rest .wk-dm { width: auto; border-radius: 0; }
+/* T-080 PR 3: on a phone the tab bar already carries Problems and Exams, so
+   the More list does not repeat them (both stay one tap away, in the bar). */
+@media (max-width: 860px) { .more-page .more-tab { display: none; } }
+/* T-080 PR 3: the course page's one button is one line, whatever the next
+   lecture is called: the label ends in an ellipsis rather than wrapping the
+   capsule to two lines (a button paints 30-38px, T-051-1). */
+.crs-go { max-width: 100%; }
+.crs-go .go-t { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+/* The phone's type scale holds at 17px under the large title (T-051-1): a card's title is the headline there. */
+@media (max-width: 860px) { .bk-t { font-size: var(--fs-headline); line-height: var(--lh-headline); letter-spacing: var(--tr-headline); } }
+

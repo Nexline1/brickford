@@ -2269,7 +2269,7 @@
     if (t < D.START_DATE) return "Begins " + D.START_DATE;
     const f = currentFocus();
     if (isRestDay(t)) return REST_NAME + " \u00b7 Week " + f.week;
-    return "Day " + String(studyToday() + 1).padStart(3, "0") + " \u00b7 Week " + f.week;
+    return "Day " + (studyToday() + 1) + " \u00b7 Week " + f.week;   // T-080 PR 3: "Day 35", not "Day 035"
   }
   function folio(title, meta) {
     return '<h1 class="folio">' + title +
@@ -2703,9 +2703,11 @@
     if (mark) tbObs.observe(mark);
   }
 
-  // The rail, and its collapsed one-line form for phones. Same data, both
-  // rendered outside #view so they survive every route change.
-  function mountRail() {
+  // The rail's card: today's ring, what counts, and the next thing (or, on a
+  // lecture whose quiz is not passed, the next lecture shown locked). `ghost`
+  // draws its button tinted — on a lecture page, where the page has its own
+  // one primary (T-080 PR 3). A read: nothing here writes.
+  function railCardHTML(ghost) {
     const a = nextAction();
     const real = realSched(todayISO());
     const doneToday = real.filter(schedDone).length;
@@ -2717,14 +2719,7 @@
     // screen — and since the hero became the lecture the two carried the same
     // four facts word for word, 400px apart: the code, the title, "17m video ·
     // 1 of 6 today", and the count. So it stows on "/" and works everywhere else.
-    const rail = $("#rail");
-    if (rail) rail.classList.toggle("stowed", route() === "/");
-    // T-080 PR 2 (owner: "fewer buttons per page"): the rail belongs to the
-    // dashboard (stowed there, as above, the hero being the same card) and to a
-    // lecture, where it says how the ring counts and what opens next. Anywhere
-    // else it repeated the dashboard's hero beside the page, so it is gone and
-    // the page has the width.
-    if (rail) rail.classList.toggle("gone", !(route() === "/" || route().indexOf("/lesson/") === 0));
+
     // T-043: on a lecture whose quiz is not passed yet, the rail says how the
     // ring counts, and the next lecture in the course shows as locked.
     const lm = route().match(/^\/lesson\/([^/]+)\/(\d+)\/(\d+)/);
@@ -2732,7 +2727,7 @@
     const lflat = lm && D.COURSES.some(x => x.id === lm[1]) ? flatLessons(lm[1]) : null;
     const lnext = lflat ? lflat[lflat.findIndex(f => f.ui === +lm[2] && f.li === +lm[3]) + 1] : null;
     const lockNext = lnext && lockedBy(lnext.cid, lnext.ui, lnext.li) && !lockedBy(lm[1], +lm[2], +lm[3]) ? lnext : null;
-    if (rail) rail.innerHTML =
+    return (
       '<div class="rail-card ' + (a.fac || "") + '">' +
       '<div class="rl-ring">' + ringHTML(pct, real.length ? doneToday + "/" + real.length : (studied ? "✓" : "—"), "today", pct >= 100 ? "good" : "", 84) + "</div>" +
       (lk && !lessonCleared(lk) && lessonQuiz(lk) ? '<div class="rl-rule">A lecture counts once its quiz is passed</div>' : "") +
@@ -2745,11 +2740,25 @@
           '<div class="rl-code">' + esc(a.code) + "</div>" +
           '<div class="rl-title">' + esc(clipTitle(a.title, 56)) + "</div>" +
           '<div class="rl-meta">' + esc(a.hint) + "</div>" +
-          '<a class="btn" href="' + a.href + '">' + esc(a.verb) + CHEV + "</a>") +
+          '<a class="btn' + (ghost ? " ghost" : "") + '" href="' + a.href + '">' + esc(a.verb) + CHEV + "</a>") +
       (studied
         ? '<div class="rl-foot"><span>Day sealed</span><b style="color:var(--good);">' + TICK + "</b></div>"
         : '<div class="rl-foot"><span>Streak</span><b>' + streak() + "d</b></div>") +
-      "</div>";
+      "</div>");
+  }
+
+  // The rail, and its collapsed one-line form for phones. Same data, both
+  // rendered outside #view so they survive every route change.
+  function mountRail() {
+    const rail = $("#rail");
+    const a = nextAction();
+    if (rail) rail.classList.toggle("stowed", route() === "/");
+    // T-080 PR 2: the rail belongs to the dashboard (stowed there, the hero
+    // being the same card). T-080 PR 3: a lecture page draws the same card at
+    // the top of its own side column (railCardHTML), so the reading layout can
+    // have two columns; the rail element keeps its content and takes no room.
+    if (rail) rail.classList.toggle("gone", route() !== "/");
+    if (rail) rail.innerHTML = railCardHTML(false);
 
     const bar = $("#railbar");
     if (bar) bar.innerHTML =
@@ -2884,7 +2893,7 @@
       '<div class="card one lead ' + (cta.fac || "") + '">' +
       // The day and week are wrapped so the phone can drop them: its running
       // head carries the same two facts, twenty pixels above this line.
-      '<div class="ghead oh"><span class="gh-day">Day ' + String(day).padStart(3, "0") +
+      '<div class="ghead oh"><span class="gh-day">Day ' + day +   // T-080 PR 3: no zero padding
       " \u00b7 Week " + f.week + "</span>" +
       '<span class="gh-meta">Phase ' + f.phase +
       (real.length ? " \u00b7 " + doneToday + " / " + real.length + " today"
@@ -3096,20 +3105,40 @@
   // One cover: the faculty colour over --surface, the code large, a 4px bar
   // for mastery. A course that has not opened is the same cover mixed into
   // the page, its text in the muted inks (never under opacity).
-  function bookHTML(c, o) {
-    const m = courseMastery(c);
-    return '<a class="book ' + facClass(c) + (o.later ? " later" : "") + '" href="' + o.href + '">' +
-      '<span class="cover"><span class="cv-code">' + esc(c.code) + "</span>" +
-      (o.later || !m ? "" : '<span class="cv-bar" style="width:' + m + '%;"></span>') + "</span>" +
-      '<span class="bk-t">' + esc(c.title) + '</span><span class="bk-m">' + o.meta + "</span></a>";
+  // T-080 PR 3 (owner: "Courses tiles are big flat colour blocks showing only
+  // the code again"): a course is a card — its code small in its faculty
+  // colour, its title large, and a real progress bar, lectures watched of the
+  // total (problems solved of 150 for the tracker). A course not open yet has
+  // no bar; its meta says when it opens.
+  const COURSE_TRACKS = [["Math & physics", ["Mathematics", "Physics"]],
+    ["AI & build", ["Artificial Intelligence", "Computer Science", "Systems", "Research"]],
+    ["Storytelling", ["Speech"]]];
+  const trackOf = c => (COURSE_TRACKS.find(t => t[1].indexOf(c.faculty) >= 0) || ["Other"])[0];
+  function courseProgress(c) {
+    if (c.tracker) return { n: Math.min(dsaCount(), 150), of: 150, word: "solved" };
+    let n = 0, of = 0;
+    (c.units || []).forEach((u, ui) => u.lessons.forEach((_, li) => {
+      of++;
+      const st = S.lessons[lessonKey(c.id, ui, li)] || {};
+      if (st.done || st.verified) n++;
+    }));
+    return { n, of, word: "watched" };
   }
+  function bookHTML(c, o) {
+    const p = courseProgress(c), pct = p.of ? Math.round(p.n / p.of * 1000) / 10 : 0;
+    return '<a class="book ' + facClass(c) + (o.later ? " later" : "") + '" href="' + o.href + '">' +
+      '<span class="cv-code">' + esc(c.code) + "</span>" +
+      '<span class="bk-t">' + esc(c.title) + "</span>" +
+      (o.later ? "" : '<span class="bk-bar" role="img" aria-label="' + p.n + " of " + p.of + " " + p.word + '"><i style="width:' + pct + '%;"></i></span>') +
+      '<span class="bk-m">' + o.meta + "</span></a>";
+  }
+
   function shelfHTML(f) {
     const { starts, running, later } = courseSets();
     const plural = (n, w) => n + " " + w + (n === 1 ? "" : "s");
     const runMeta = c => {
-      if (c.tracker) return "150 problems · " + dsaCount() + " solved";
-      const st = courseLessonStats(c);
-      return plural(st.total, "lecture") + " · " + st.verified + " proven";
+      const p = courseProgress(c);
+      return p.n + " of " + p.of + " " + p.word;
     };
     const runBook = c => bookHTML(c, { href: "#/course/" + c.id, meta: runMeta(c) });
     const laterBook = c => {
@@ -3120,21 +3149,19 @@
       (meta ? '<span class="gh-meta">' + meta + "</span>" : "") + "</div>" +
       '<div class="shelf">' + books.join("") + "</div>";
     const empty = t => '<p class="shelf-empty">' + t + "</p>";
+    // T-080 PR 3: one shelf per track, each in the order it was given.
+    const byTrack = (list, book) => COURSE_TRACKS.map(t => t[0]).concat(["Other"]).map(tr => {
+      const cs = list.filter(c => trackOf(c) === tr);
+      return cs.length ? shelf(esc(tr), plural(cs.length, "course"), cs.map(book)) : "";
+    }).join("");
 
-    if (f === "later") return later.length ? shelf("Opens later", plural(later.length, "course"), later.map(laterBook)) : empty("Every course is open.");
+    if (f === "later") return later.length ? byTrack(later, laterBook) : empty("Every course is open.");
     if (f === "finished") {
       const fin = D.COURSES.filter(c => courseMastery(c) >= 85);
-      return fin.length ? shelf("Finished", "85% or more", fin.map(runBook))
+      return fin.length ? byTrack(fin, runBook)
         : empty("Nothing finished yet. A course moves here when its mastery reaches 85%.");
     }
-    if (f === "all") {
-      const facs = [];
-      D.COURSES.forEach(c => { if (facs.indexOf(c.faculty) < 0) facs.push(c.faculty); });
-      return facs.map(fa => {
-        const cs = D.COURSES.filter(c => c.faculty === fa);
-        return shelf(esc(fa), plural(cs.length, "course"), cs.map(c => later.indexOf(c) >= 0 ? laterBook(c) : runBook(c)));
-      }).join("");
-    }
+    if (f === "all") return byTrack(D.COURSES, c => later.indexOf(c) >= 0 ? laterBook(c) : runBook(c));
     // Now: Continue, at most four, most recent first; then the rest running.
     const cont = continueOrder(running).slice(0, 4);
     const rest = running.filter(c => !cont.some(p => p.c === c));
@@ -3146,8 +3173,8 @@
         meta: what + (p.pos != null ? " · resume at " + clockLabel(p.pos) : l.min ? " · " + l.min + " min" : "") });
     };
     return (cont.length ? shelf("Continue", "where you left off", cont.map(contBook)) : "") +
-      (rest.length ? shelf(cont.length ? "Also running" : "Running now",
-        cont.length ? rest.length + " more" : plural(rest.length, "course"), rest.map(runBook)) : "") +
+      // T-080 PR 3: the rest of what is running, one shelf per track.
+      byTrack(rest, runBook) +
       (cont.length || rest.length ? "" : empty("Nothing is running yet."));
   }
   // The running courses you have started, most recent first (the Continue shelf's order).
@@ -3227,13 +3254,15 @@
     // own counts row now, and nothing else reached it.
     // "watched 0 / proven 0" on a course you have not started is two absences
     // beside three real facts.
-    return factsHTML([
-      { k: "lectures", v: cst.total },
-      { k: "video", v: hoursLabel(courseHours(c)) },
-      cst.done ? { k: "watched", v: cst.done } : null,
-      cst.verified ? { k: "proven", v: cst.verified } : null,
-      when === "running" ? null : { k: "begins", v: when },
-    ]);
+    // T-080 PR 3 (owner: "the course stats are square-bordered boxes in an
+    // otherwise rounded UI"): one plain line of facts under the header.
+    return '<p class="crs-stats">' + [
+      cst.total + " lectures",
+      hoursLabel(courseHours(c)) + " of video",
+      cst.done ? cst.done + " watched" : "",
+      cst.verified ? cst.verified + " proven" : "",
+      when === "running" ? "" : "begins " + when,
+    ].filter(Boolean).map(t => "<span>" + esc(t) + "</span>").join("") + "</p>";
   }
 
   // ---------- thumbnails ----------
@@ -3326,36 +3355,35 @@
       if (!nx && !(S.lessons[lessonKey(c.id, ui, li)] || {}).done) nx = { l, ui, li };
     }));
     const started = c.units.some((u, ui) => unitDone(ui) > 0);
-    const one = nx
-      ? '<div class="card one">' +
-        '<div class="one-kind">' + esc(nx.l.t) + "</div>" +
-        '<p class="one-hint">' + (started ? "Next up" : "Lecture 1") +
-        (nx.l.min ? " \u00b7 " + nx.l.min + "m" : "") + " \u00b7 " + esc(c.units[nx.ui].name) + "</p>" +
-        '<a class="btn lg one-go" href="#/lesson/' + c.id + "/" + nx.ui + "/" + nx.li + '">' +
-        (started ? "Continue" : "Start the course") + CHEV + "</a></div>"
-      : '<div class="card one one-clear">' +
-        '<div class="one-kind">' + (c.quiz ? "Prove it" : "Prove it by building") +
-        (cbest != null ? ' <span class="one-more">best ' + cbest + "%</span>" : "") + "</div>" +
-        '<p class="one-hint">' +
-        (c.quiz
-          ? "Every lecture watched. 15 questions on " + esc(c.code) + ", drawn fresh, graded instantly. \u226585% is Mastered."
-          : "Every lecture watched. This course is proven by building, not multiple choice \u2014 reimplement the papers, ship the systems.") +
-        "</p>" +
-        (c.quiz
-          ? '<a class="btn lg one-go" href="#/quiz/' + c.quiz + '">Sit the examination' + CHEV + "</a>"
-          : '<a class="btn lg one-go" href="#/workshop">Open the labs' + CHEV + "</a>") +
-        "</div>";
+    // T-080 PR 3: the header carries the one action — "Continue: <the next
+    // lecture>" once anything is watched, "Start the course" before — and, once
+    // every lecture is watched, the examination (or the labs) instead.
+    const go = nx
+      ? '<a class="btn lg one-go crs-go" href="#/lesson/' + c.id + "/" + nx.ui + "/" + nx.li + '">' +
+        '<span class="go-t">' + (started ? "Continue: " + esc(clipTitle(nx.l.t, 48)) : "Start the course") + "</span>" + CHEV + "</a>" +
+        '<p class="crs-next">' + (started ? "Lecture " : "Starts with lecture ") + (nx.li + 1) +
+        (nx.l.min ? " \u00b7 " + nx.l.min + "m" : "") + " \u00b7 " + esc(c.units[nx.ui].name) + "</p>"
+      : (c.quiz
+          ? '<a class="btn lg one-go crs-go" href="#/quiz/' + c.quiz + '">Sit the examination' + CHEV + "</a>"
+          : '<a class="btn lg one-go crs-go" href="#/workshop">Open the labs' + CHEV + "</a>") +
+        '<p class="crs-next">Every lecture watched. ' +
+        (c.quiz ? "15 questions on " + esc(c.code) + ", drawn fresh; \u226585% is Mastered." + (cbest != null ? " Best so far " + cbest + "%." : "")
+          : "This course is proven by building \u2014 reimplement the papers, ship the systems.") + "</p>";
+    const cst = courseLessonStats(c);
+    const watchedN = c.units.reduce((n, u, ui) => n + u.lessons.filter((_, i) => { const st = S.lessons[lessonKey(c.id, ui, i)] || {}; return st.done || st.verified; }).length, 0);
+    const pct = cst.total ? watchedN / cst.total * 100 : 0;
 
     // Open the unit you are actually in — the first with anything left — and
     // leave the rest shut. Nobody scrolls a fully-expanded 36-lecture syllabus.
     let openUi = c.units.findIndex((u, ui) => unitDone(ui) < u.lessons.length);
     if (openUi < 0) openUi = 0;
 
-    return '<div class="view-enter ' + facClass(c) + '"><div class="page-head"><div class="kicker">' + esc(c.code) + " \u00b7 " + esc(c.faculty) + "</div><h1>" + esc(c.title) + "</h1>" +
-      '<div class="sub">' + esc(c.desc) + "</div>" + taughtHTML(c) + "</div>" +
-
-      one +
-      courseFacts(c) +
+    return '<div class="view-enter crs-page ' + facClass(c) + '"><div class="page-head crs-head">' +
+      '<div class="crs-top"><div class="crs-id"><div class="kicker">' + esc(c.code) + " \u00b7 " + esc(c.faculty) + "</div><h1>" + esc(c.title) + "</h1>" +
+      taughtHTML(c) + "</div>" +
+      '<div class="crs-ring">' + ringHTML(pct, watchedN + "/" + cst.total, "watched", pct >= 100 ? "good" : "", 92) + "</div></div>" +
+      '<div class="sub">' + esc(c.desc) + "</div>" +
+      courseFacts(c) + go + "</div>" +
 
       c.units.map((u, ui) => {
         const dn = unitDone(ui), tot = u.lessons.length;
@@ -3369,13 +3397,20 @@
           // duration is the chip on the frame, the watched share is its
           // bottom edge, and the number and the state are the line under the
           // title.
-          '<div class="u-body"><div class="glist">' +
+          // T-080 PR 3 (owner: the thumbnails repeated "MATH 110 1" in tiny
+          // text): a row is the lecture's number (a tick once watched), its
+          // title, where you stand with it, and its length. A half-watched
+          // lecture keeps a thin bar for how far you got.
+          '<div class="u-body"><div class="glist crs-list">' +
           u.lessons.map((l, i) => {
             const st = S.lessons[lessonKey(c.id, ui, i)] || {};
-            return '<a class="grow' + (st.done ? " done-row" : "") + '" href="#/lesson/' + c.id + "/" + ui + "/" + i + '">' +
-              thumbHTML(c, ui, i) +
+            const len = (l.min || 0) * 60, part = !st.done && !st.verified && st.pos && len ? Math.min(1, st.pos / len) : 0;
+            return '<a class="grow lrow' + (st.done || st.verified ? " done-row" : "") + '" href="#/lesson/' + c.id + "/" + ui + "/" + i + '">' +
+              '<span class="g-lead">' + (st.done || st.verified ? TICK : i + 1) + "</span>" +
               '<span class="g-main"><span class="g-t">' + esc(l.t) + "</span>" +
-              '<span class="g-s">' + lessonLine(l, i, st) + "</span></span></a>";
+              '<span class="g-s">' + lessonLine(l, i, st) + "</span></span>" +
+              '<span class="g-v">' + (l.min ? clockLabel(len) : l.paper ? "paper" : "reading") + "</span>" +
+              (part ? '<span class="lr-prog" aria-hidden="true"><i style="width:' + Math.round(part * 1000) / 10 + '%"></i></span>' : "") + "</a>";
           }).join("") + "</div></div></details>";
       }).join("") +
 
@@ -3697,6 +3732,13 @@
 
     return '<div class="view-enter ' + facClass(c) + '"><div class="page-head"><div class="kicker"><a href="#/course/' + cid + '">' + esc(c.code) + "</a> · " + esc(u.name) + "</div>" +
       "<h1>" + (+li + 1) + ". " + esc(l.t) + "</h1></div>" +
+      // T-080 PR 3: a reading layout of its own. On a desktop (from 1040px)
+      // two columns — the video and the notes on the left, the quiz and the
+      // practice in a side column that stays in view (sticky) — and on a phone
+      // the same blocks stacked in the order they always had: video, quiz,
+      // practice, notes. The <iframe> is still drawn once per foreground render
+      // and never moved: the columns are a grid around it, not a re-parenting.
+      '<div class="lsn-cols"><div class="lsn-lead">' +
       (watchedBar
         ? '<div class="lq-watched" id="lqWatched" data-src="' + esc(srcBase) + '" data-k="' + k + '" data-v="' + esc(l.v) + '" data-title="' + esc(l.t) + '">' +
           thumbHTML(c, ui, li) +
@@ -3733,6 +3775,7 @@
           '<button class="btn lg" data-act="toggleDone">Mark watched</button>' +
           '<span class="lsn-run">' + esc(runtime) + "</span></div>") +
 
+      '</div><aside class="lsn-side" aria-label="Quiz and practice">' + railCardHTML(true) +
       // The quiz, the pass, and what comes after it.
       (st.done && quiz && !passed
         ? '<div class="lq-mount" id="lqMount" data-k="' + k + '"></div>'
@@ -3742,6 +3785,7 @@
       (st.done ? practiceHTML(k) : "") +
       (st.done && cleared ? deeperHTML() : "") +
 
+      '</aside><div class="lsn-body">' +
       // The summary, on the page the lecture is on, folded under its heading.
       // Its own "Check yourself" goes when the lecture has a quiz: the quiz is
       // the check.
@@ -3779,7 +3823,7 @@
           '<span class="g-main"><span class="g-t">' + esc(u.lessons[li - 1].t) + "</span>" +
           '<span class="g-s">Previous · ' + lessonLine(u.lessons[li - 1], li - 1, S.lessons[lessonKey(cid, ui, li - 1)] || {}) + "</span></span></a>"
         : "") +
-      "</div></div>";
+      "</div></div></div></div>";
   };
 
   function mapRowsHTML(k) {
@@ -5491,6 +5535,24 @@
   // it always has, so a sealed week is the shape it always was:
   // { week, date, shipped, dsa, posts, revenue, notes }. DSA is the running
   // total, as that field always was (the dashboard draws it "over time").
+  // T-080 PR 3: a week as a strip of seven days, Sunday to Saturday, ending the
+  // day before `sun` (the Sunday that seals it). A read: dayStatus per date.
+  function weekStripHTML(sun) {
+    const word = { completed: "done", partial: "part done", missed: "missed", today: "today", upcoming: "ahead", rest: "rest", before: "before the start" };
+    const today = todayISO();
+    let out = "";
+    for (let i = 0; i < 7; i++) {
+      const iso = addDaysISO(sun, i - 7);
+      const st = iso < D.START_DATE ? "before" : dayStatus(iso);
+      const d = new Date(iso + "T00:00:00");
+      out += '<li class="wk-d st-' + st + (iso === today ? " now" : "") + '" aria-label="' +
+        esc(d.toLocaleString("en-US", { weekday: "long" }) + " " + d.getDate() + ", " + word[st]) + '">' +
+        '<span class="wk-dw" aria-hidden="true">' + d.toLocaleString("en-US", { weekday: "narrow" }) + "</span>" +
+        '<span class="wk-dn" aria-hidden="true">' + d.getDate() + "</span>" +
+        '<span class="wk-dm" aria-hidden="true">' + (st === "completed" ? TICK : st === "rest" ? "\u2014" : "") + "</span></li>";
+    }
+    return '<ol class="wk-strip" aria-label="This week, day by day">' + out + "</ol>";
+  }
   V.review = function () {
     // T-056 r2: the revision week, sealed on its Sunday. Its Saturday is in
     // it (a payment logged on the rest day belongs to the week just worked).
@@ -5545,6 +5607,10 @@
 
     return '<div class="view-enter"><div class="page-head"><h1>Week ' + w + "</h1>" +
       '<div class="sub">Every Sunday: what shipped, what didn’t. Seal it in two minutes.</div></div>' +
+      // T-080 PR 3: the week leads with its own days — the seven from this
+      // revision week's Sunday to its Saturday, each marked the way the
+      // calendar marks it (dayStatus), Saturday visibly rest — then the form.
+      weekStripHTML(sun) +
 
       '<div class="at-tiles wk-tiles">' +
       // The running total, as the stored field has always been: said so.
@@ -5991,7 +6057,8 @@
       // T-046: what the transcript UI reads — never the Blob.
       txClips.clear();
       list.forEach(c => txClips.set(c.key, { key: c.key, seconds: c.seconds, transcript: c.transcript || null, remote: !!c.remote }));
-      if (!list.length) return done('<p class="pr-empty">Nothing recorded yet. Press the red button and talk.</p>');
+      // T-080 PR 3: the second sentence only shows while a record button is on screen (CSS, .pr-empty-rec).
+      if (!list.length) return done('<p class="pr-empty">Nothing recorded yet.<span class="pr-empty-rec"> Press the red button and talk.</span></p>');
       done('<div id="prTxAsk">' + txAskNow() + '</div><div class="pr-list">' + list.map(c => {
         const url = c.blob ? URL.createObjectURL(c.blob) : "";
         if (url) clipURLs.push(url);
@@ -6209,7 +6276,7 @@
   const TX_MODEL = "onnx-community/whisper-large-v3-turbo";
   const TX_REVISION = "360ebcde2559d60bb474678be3c1de9ef347d01a";
   const TX_MODEL_MB = 1115;
-  const TX_WORKER = "js/transcribe-worker.js?v=20261126a";
+  const TX_WORKER = "js/transcribe-worker.js?v=20261127a";
   const TX_MSG = {
     unsupported: "This browser cannot run the speech model, so this one stays audio only.",
     download: "Could not download the speech model. The recording is kept.",
@@ -7293,14 +7360,16 @@
   // already draws. Settings opens the one sheet (wired in wire(), not here).
   const MORE_GROUPS = [
     ["", [["/practice", "Practice"], ["/review", "Week"], ["/record", "Proof"]]],
-    ["Study tools", [["/workshop", "Problems"], ["/exams", "Exams"], ["/atlas", "The Atlas"], ["/calendar", "Calendar"], ["/library", "Library"]]],
+    // T-080 PR 3: the two the phone's tab bar also holds go last, so hiding them there leaves no gap.
+    ["Study tools", [["/atlas", "The Atlas"], ["/calendar", "Calendar"], ["/library", "Library"], ["/workshop", "Problems"], ["/exams", "Exams"]]],
     ["Life", [["/monk", "Monk Mode"], ["/treasury", "Treasury"]]],
   ];
   const MORE_ROUTES = ["/more"].concat(...MORE_GROUPS.map(g => g[1].map(x => x[0]))).filter(x => x !== "/workshop" && x !== "/exams");
   V.more = function () {
     const glyph = rt => { const g = $('#nav a[href="#' + rt + '"] svg'); return g ? g.outerHTML : ""; };
     const due = reviewsDue().length;
-    const row = ([rt, t]) => '<a class="grow" href="#' + rt + '"><span class="g-lead">' + glyph(rt) + "</span>" +
+    // T-080 PR 3: Problems and Exams are tabs in the phone's bar; .more-tab hides them here below 861px.
+    const row = ([rt, t]) => '<a class="grow' + (rt === "/workshop" || rt === "/exams" ? " more-tab" : "") + '" href="#' + rt + '"><span class="g-lead">' + glyph(rt) + "</span>" +
       '<span class="g-main"><span class="g-t">' + esc(t) + "</span></span>" +
       (rt === "/review" && due ? '<span class="g-v">' + due + " due</span>" : "") + "</a>";
     return '<div class="view-enter more-page">' + folio("More") +

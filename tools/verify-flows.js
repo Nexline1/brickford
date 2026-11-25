@@ -693,7 +693,8 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
       const row = await page.evaluate(href => {
         const a = document.querySelector('#view a.grow[href="#' + href + '"]');
         if (!a) return null;
-        const i = a.querySelector(".thumb .th-prog i");
+        // T-080 PR 3: the course row has no frame now; how far you got is the row's own thin bar.
+        const i = a.querySelector(".lr-prog i");
         return { line: ((a.querySelector(".g-s") || {}).textContent || "").trim(), edge: i ? i.style.width : "" };
       }, LROUTE);
       const want = Math.round(754 / (CUR.min * 60) * 1000) / 10 + "%";

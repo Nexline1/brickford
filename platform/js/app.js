@@ -3360,7 +3360,7 @@
     // every lecture is watched, the examination (or the labs) instead.
     const go = nx
       ? '<a class="btn lg one-go crs-go" href="#/lesson/' + c.id + "/" + nx.ui + "/" + nx.li + '">' +
-        (started ? "Continue: " + esc(clipTitle(nx.l.t, 48)) : "Start the course") + CHEV + "</a>" +
+        '<span class="go-t">' + (started ? "Continue: " + esc(clipTitle(nx.l.t, 48)) : "Start the course") + "</span>" + CHEV + "</a>" +
         '<p class="crs-next">' + (started ? "Lecture " : "Starts with lecture ") + (nx.li + 1) +
         (nx.l.min ? " \u00b7 " + nx.l.min + "m" : "") + " \u00b7 " + esc(c.units[nx.ui].name) + "</p>"
       : (c.quiz

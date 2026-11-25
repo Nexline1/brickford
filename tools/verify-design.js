@@ -3658,7 +3658,7 @@ function t28SeedClips(list) {
       mode = "abort";
       held.splice(0).forEach(r => r.abort().catch(() => {}));
       const settled = await visitThumbs(page);
-      const post = await page.evaluate(thumbState);
+      const post = await page.evaluate(thumbState, "#view .lsn-nav");   // T-080 PR 3: the In this unit rows, as above
       const pv = post.filter(r => r.v);
       coverRows += pv.length;
       const badCover = pv.filter(r => !/\bcover\b/.test(r.cls) || r.imgs !== 0 || !r.bgOpaque || r.skeleton ||

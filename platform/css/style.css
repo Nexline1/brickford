@@ -3581,4 +3581,11 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 /* T-080 PR 3: on a phone the tab bar already carries Problems and Exams, so
    the More list does not repeat them (both stay one tap away, in the bar). */
 @media (max-width: 860px) { .more-page .more-tab { display: none; } }
+/* T-080 PR 3: the course page's one button is one line, whatever the next
+   lecture is called: the label ends in an ellipsis rather than wrapping the
+   capsule to two lines (a button paints 30-38px, T-051-1). */
+.crs-go { max-width: 100%; }
+.crs-go .go-t { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+/* The phone's type scale holds at 17px under the large title (T-051-1): a card's title is the headline there. */
+@media (max-width: 860px) { .bk-t { font-size: var(--fs-headline); line-height: var(--lh-headline); letter-spacing: var(--tr-headline); } }
 

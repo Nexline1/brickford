@@ -536,6 +536,26 @@ async function t083Flows(browser) {
       await ctx.close();
     }
 
+    // #9: the 13px floor on the labels the review measured at 8-11px, and 44px Practice fields (on a phone, where they were small).
+    if (w < 860) {
+      const { ctx, page, errors } = await uxFresh(browser, w);
+      const px = sel => page.evaluate(sel => [...document.querySelectorAll(sel)].filter(e => e.checkVisibility()).map(e => parseFloat(getComputedStyle(e).fontSize)), sel);
+      const rb = await px("#railbar .rb-label");
+      await go(page, "/calendar");
+      const dow = await px("#view .cal-dow"), dnum = await px("#view .cal-cell .dnum");
+      await go(page, "/course/math110");
+      const ring = await px("#view .ring-label small");
+      await go(page, "/practice");
+      const fields = await page.evaluate(() => [...document.querySelectorAll("#view .pr-form input:not([type=checkbox]):not([type=radio]), #view .pr-form select, #view .pr-in, #view .pr-name")]
+        .filter(e => e.checkVisibility()).map(e => Math.round(e.getBoundingClientRect().height)));
+      const all = { rb, dow, dnum, ring };
+      const low = Object.keys(all).filter(k => !all[k].length || all[k].some(v => v < 13));
+      check("(ux #9) " + at + ": the calendar's weekday letters and day numbers, the ring's caption and the Next bar's label are at least 13px",
+        low.length === 0, JSON.stringify(all));
+      check("(ux #9) " + at + ": every Practice field on screen is at least 44px tall (" + fields.length + ")", fields.length > 0 && fields.every(h => h >= 44), fields.join(", "));
+      check("(ux #9) " + at + ": no page errors", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
     // #4: before Sunday, "Seal early" is tinted and asks; Escape and Cancel write nothing; only its confirm seals.
     {
       const { ctx, page, errors } = await uxFresh(browser, w);
@@ -3446,9 +3466,10 @@ export async function pipeline(task, model, opts) {
       check("(cp) " + (w < 860 ? "a second tap" : "a click") + " unticks it: one write, { done: false, at } stored (the untick kept, so it syncs), the count reads 0/4",
         off.w === 1 && !off.checked && off.st && off.st.done === false && !!off.st.at && off.meta.startsWith("0/4") && off.open, JSON.stringify(off));
       await page.evaluate(() => window.scrollTo(0, 0));
-      await go(page, "/record");
+      // T-083: the block is on Proof now, so Today is drawn first and Proof last, where the untick is read.
       await go(page, "/");
-      check("(cp) drawing Proof and Today again writes nothing, and Today still shows the untick", (await writes(page)) - w1 === 1 &&
+      await go(page, "/record");
+      check("(cp) drawing Today and Proof again writes nothing, and Proof still shows the untick", (await writes(page)) - w1 === 1 &&
         !(await page.evaluate(sel => document.querySelector(sel).checked, ITEM)), ((await writes(page)) - w1 - 1) + " write(s) on render");
       await shot(page, "checkpoints-" + w);
     } catch (e) { check("(cp) the checkpoints flow ran to its end without a harness error", false, String(e.message).split("\n")[0]); }

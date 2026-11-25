@@ -1205,7 +1205,7 @@ i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
   position: absolute; text-align: center; font-family: var(--font-rounded); font-variant-numeric: tabular-nums;
   font-size: 1.15rem; font-weight: 500; color: var(--ink); line-height: 1.1;
 }
-.ring-wrap .ring-label small { display: block; font-family: var(--font-body); font-size: 0.8125rem; letter-spacing: 0.01em;   /* T-083 #9: 13px floor (was 0.56rem, 0.06em) */
+.ring-wrap .ring-label small { display: block; font-family: var(--font-body); font-size: 13px; letter-spacing: 0.01em;   /* T-083 #9: 13px floor (was 0.56rem, 0.06em); px like the ring it sits in, so a larger text setting cannot push it out of a 92px ring */
   text-transform: uppercase; color: var(--ink-3); font-weight: 600; margin-top: 2px; }
 
 

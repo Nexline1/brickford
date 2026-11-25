@@ -2728,12 +2728,19 @@
     if (!bar) return;
     if (typeof IntersectionObserver === "undefined") { bar.classList.add("lt-on"); return; }
     const h = Math.round(bar.getBoundingClientRect().height);
+    // T-083 #10: the h1 can wrap now (Today's is its next lecture's title, two
+    // or three lines on a phone), so "under the bar" is its FIRST line having
+    // gone under, as a large title collapses; for a one-line title that is the
+    // whole of it, as before. Thresholds every 5% so a tall title reports as
+    // it passes, not only when it has wholly left.
+    const line = h1 ? (parseFloat(getComputedStyle(h1).lineHeight) || 0) : 0;
     tbObs = new IntersectionObserver(es => {
       es.forEach(e => {
-        const under = !e.isIntersecting && !!e.rootBounds && e.boundingClientRect.bottom <= e.rootBounds.top + 1;
+        const r = e.boundingClientRect, gone = e.target === mark || !line ? r.bottom : Math.min(r.bottom, r.top + line);
+        const under = !!e.rootBounds && (e.target !== mark || !e.isIntersecting) && gone <= e.rootBounds.top + 1;
         bar.classList.toggle(e.target === mark ? "edge-on" : "lt-on", under);
       });
-    }, { rootMargin: -h + "px 0px 0px 0px" });
+    }, { rootMargin: -h + "px 0px 0px 0px", threshold: Array.from({ length: 21 }, (_, i) => i / 20) });
     if (h1) tbObs.observe(h1);
     if (mark) tbObs.observe(mark);
   }

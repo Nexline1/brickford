@@ -876,7 +876,9 @@ function barState() {
             fvn: chs.fontVariantNumeric, family: chs.fontFamily, radius: parseFloat(chs.borderTopLeftRadius), right: cr.right, h: cr.height },
     menu: { w: menu.width, h: menu.height, left: menu.left, color: z.bytes(getComputedStyle(menuEl).color), accent: z.tok("--accent") },
     h1: h1 ? { text: [...h1.childNodes].filter(n => n !== fm).map(n => n.textContent).join("").trim(),
-               size: hs.fontSize, weight: hs.fontWeight, tt: hs.textTransform, meta: fm ? getComputedStyle(fm).display : null } : null,
+               size: hs.fontSize, weight: hs.fontWeight, tt: hs.textTransform, meta: fm ? getComputedStyle(fm).display : null,
+               // T-083 #10: Today's h1 is its next lecture's title, and names the page for the bar in data-tb-title.
+               tb: h1.dataset.tbTitle || null } : null,
   };
 }
 // Scroll so the page h1's top edge is `under` px above the bar's bottom edge,
@@ -2139,6 +2141,7 @@ function t26cWeekWant(st, today) {
       notes: x.notes || "No notes." })),
     meta: weeks.length ? weeks.length + " sealed" : "none sealed yet",
     // T-083 #14: before the first seal, one line naming the first Sunday (was four placeholder cards, this week and three ahead).
+    early: today < sun,   // T-083 #4: before the week's Sunday the seal is a tinted "Seal early" behind a confirm
     none: weeks.length ? null : "Sealed weeks appear here; the first opens " + t26cUTC(sun, { weekday: "long" }) + " " + t26cShort(sun) + ".",
   };
 }
@@ -2167,6 +2170,7 @@ function t26cWeek() {
     filled: [...document.querySelectorAll("#view a, #view button")].filter(n => n.checkVisibility() &&
       (b => b[3] === 255 && z.same(b, fill, 2))(z.bytes(getComputedStyle(n).backgroundColor))).map(n => ({ text: n.textContent.trim(), act: n.dataset.act || null })),
     state: txt(document, "#view .wk-foot .wk-state"),
+    seal: (b => b ? { text: b.textContent.trim(), ghost: b.classList.contains("ghost") } : null)(document.querySelector("#view [data-act=logWeek]")),
     qs: vis("#view .wk-q").map(c => { const l = c.querySelector("label"), i = c.querySelector("input, textarea");
       return { q: l ? l.textContent.trim() : null, forId: l ? l.htmlFor : null, input: i ? i.id : null, h: i ? i.getBoundingClientRect().height : 0 }; }),
     cards: vis("#view .wk-weeks > *").map(c => ({ tag: c.tagName, slot: c.classList.contains("wk-slot"), h: c.classList.contains("wk-slot") ? txt(c, "span") : txt(c, ".wk-h b"),
@@ -3085,8 +3089,8 @@ function t28SeedClips(list) {
       check(where + ": the page h1 is the large title (34px/700, sentence case, no day meta in it)",
         !!a.h1 && a.h1.size === "34px" && a.h1.weight === "700" && a.h1.tt === "none" && (a.h1.meta === null || a.h1.meta === "none"),
         a.h1 ? "\"" + a.h1.text + "\" " + a.h1.size + "/" + a.h1.weight + " " + a.h1.tt + (a.h1.meta ? ", meta " + a.h1.meta : "") : "no h1");
-      check(where + ": the inline title is 17px/600 and reads the h1",
-        a.title.size === "17px" && a.title.weight === "600" && !!a.h1 && a.title.text === a.h1.text,
+      check(where + ": the inline title is 17px/600 and reads the h1 (or the page name the h1 carries, T-083)",
+        a.title.size === "17px" && a.title.weight === "600" && !!a.h1 && a.title.text === (a.h1.tb || a.h1.text),
         a.title.size + "/" + a.title.weight + " \"" + a.title.text + "\"");
       check(where + ": at scroll 0 the inline title is hidden (opacity 0) and there is no scroll edge",
         a.title.op === "0" && a.edge.op === "0", "title opacity " + a.title.op + ", edge opacity " + a.edge.op + " (" + a.cls + ")");
@@ -3639,6 +3643,20 @@ function t28SeedClips(list) {
       const vids = pre.filter(r => r.v);
       thumbRows += pre.length;
       const unitFrames = await page.evaluate(() => document.querySelectorAll("#view .lsn-nav .thumb").length);
+      // The bar's frame is a desktop thing (style.css: hidden below 600px, where the bar is one line). On a
+      // phone it is asserted absent from the screen, and the frame's own measurements are made at 1280.
+      if (mobile) {
+        check(where + ": on a phone the bar draws no frame on screen, and In this unit draws none at all",
+          pre.length === 1 && pre[0].boxW === 0 && preP.length === 1 && preP[0].boxW === 0 && unitFrames === 0,
+          pre.map(r => r.at + " box " + r.boxW).join(", ") + "; " + unitFrames + " in In this unit");
+        await go(page, "/lesson/ai300/0/2");
+        const aiP = await page.evaluate(() => document.querySelectorAll("#view .lsn-nav .thumb, #view .lsn-nav img").length);
+        check(at + " /lesson/ai300/0/2: In this unit's rows draw no frame (T-083)", aiP === 0, aiP + " frame(s)");
+        check(at + " thumbnails: no page errors", errors.length === 0, errors.join(" | "));
+        held.splice(0).forEach(r => r.abort().catch(() => {}));
+        await ctx.close();
+        continue;
+      }
       const badSrc = pre.filter(r => !r.thumb || (r.v ? r.imgs !== 1 || r.src !== ytimg(r.v) : r.imgs !== 0));
       check(where + ": the watched lecture's bar leads with an <img> of i.ytimg.com/vi/<its v>/hqdefault.jpg, and In this unit draws no frame",
         pre.length === 1 && vids.length === 1 && badSrc.length === 0 && unitFrames === 0,
@@ -3669,10 +3687,12 @@ function t28SeedClips(list) {
       const post = await page.evaluate(thumbState, "#view .lq-watched");   // T-083: the watched bar's frame, as above
       const pv = post.filter(r => r.v);
       coverRows += pv.length;
+      // T-083: the bar's 96px frame shows no code, title or chip (style.css hides them there), so the cover is
+      // asserted as the course's colour with its code and title in the markup, none of it drawn.
       const badCover = pv.filter(r => !/\bcover\b/.test(r.cls) || r.imgs !== 0 || !r.bgOpaque || r.skeleton ||
-        r.bgHue == null || r.facHue == null || hueOff(r.bgHue, r.facHue) > 4 || !r.codeShown ||
+        r.bgHue == null || r.facHue == null || hueOff(r.bgHue, r.facHue) > 4 || r.codeShown ||
         r.code !== r.course + " · " + (+r.at.split("/")[2] + 1) || r.ttl !== r.title);
-      check(where + ": a frame that fails falls back to the typeset cover — no <img>, the course's colour, its code shown, its title in the markup",
+      check(where + ": a frame that fails falls back to the typeset cover — no <img>, the course's colour, its code and title in the markup (not drawn at 96px)",
         settled && pv.length === vids.length && badCover.length === 0,
         !settled ? "not every frame settled within 6s: " + post.filter(r => r.v && !/\bcover\b/.test(r.cls)).length + " still waiting" :
         badCover.length ? show(badCover, r => r.at + " " + r.cls + " imgs " + r.imgs + " bg " + r.bg + " (hue " + (r.bgHue == null ? "-" : r.bgHue.toFixed(1)) + " vs --fac " + r.fac + ") code \"" + r.code + "\" shown " + r.codeShown)
@@ -3680,8 +3700,10 @@ function t28SeedClips(list) {
       const low = [];
       post.forEach(r => (r.texts || []).forEach(t => { thumbTexts++; if (t.r < 4.5 - 0.005) low.push(r.at + " " + t.what + " " + t.r.toFixed(2) + ":1 (" + t.fg + " on " + t.bg + ")"); }));
       const least = post.flatMap(r => (r.texts || []).map(t => Object.assign({ at: r.at }, t))).sort((a, b) => a.r - b.r)[0];
-      check(where + ": on the cover, its code and the chip are >= 4.5:1", !!least && low.length === 0,
-        low.length ? low.length + " — " + low.slice(0, 3).join("; ") : least ? "least " + least.r.toFixed(2) + ":1 (" + least.what + ", " + least.fg + " on " + least.bg + ")" : "no text measured");
+      // T-083: no text is drawn on the bar's frame (code, title and chip hidden), so there is none to fall under 4.5:1;
+      // any that appears is measured here and must pass.
+      check(where + ": on the cover, any text drawn is >= 4.5:1 (the bar's frame draws none)", low.length === 0,
+        low.length ? low.length + " — " + low.slice(0, 3).join("; ") : least ? "least " + least.r.toFixed(2) + ":1 (" + least.what + ", " + least.fg + " on " + least.bg + ")" : "no text drawn");
 
       // Readings and papers. T-083 #15: no row draws a frame now, so a paper's row says what it is in its
       // length column, as the course page's does: AI 300's paper 3 (unit 0), whose next row is a paper and
@@ -3706,7 +3728,7 @@ function t28SeedClips(list) {
   // "no such video" placeholder, which it serves instead of an error. The
   // moment .loaded lands, the frame's running animations are read in that
   // same task: a fade is a CSSTransition on opacity, or it is not there.
-  console.log("\nthumbnails that load, 390px light");
+  console.log("\nthumbnails that load, 1280px light");   // T-083: the bar's frame is hidden below 600px
   const u0 = CURRICULUM.COURSES.find(c => c.id === "math110").units[0].lessons;
   // T-083 #15: the watched bars' frames — lecture 1's (watched in the seed: BIG) and lecture 14's (proven: GREY),
   // one page each. (T-080 PR 3 used lecture 3's In this unit rows, which have no frame now.)
@@ -3715,7 +3737,7 @@ function t28SeedClips(list) {
   let fadesSeen = 0;
   for (const motion of ["reduce", "no-preference"]) {
     const { ctx, page, errors } = await fresh(browser,
-      { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, colorScheme: "light", reducedMotion: motion }, "light",
+      { viewport: { width: 1280, height: 800 }, colorScheme: "light", reducedMotion: motion }, "light",   // T-083: was 390 (the frame is desktop-only now)
       () => {
         if (window.top !== window) return;
         window.__fade = [];
@@ -3753,7 +3775,7 @@ function t28SeedClips(list) {
       return { cls: x ? x.className : "", img: !!img, op: cs ? cs.opacity : null, prop: cs ? cs.transitionProperty : null,
                dur: cs ? cs.transitionDuration : null, fade: window.__fade };
     }, sel(0)), grey);
-    const at = "390px light, motion " + motion;
+    const at = "1280px light, motion " + motion;
     check(at + ": a frame that loads is shown — .loaded, opacity 1", landed && /\bloaded\b/.test(r.cls) && r.img && r.op === "1",
       (landed ? "" : "did not settle; ") + r.cls + ", img " + r.img + ", opacity " + r.op);
     const fade = (r.fade || [])[0] || [];
@@ -3785,7 +3807,7 @@ function t28SeedClips(list) {
   let facTexts = 0;
   for (const theme of ALL_THEMES) {
     console.log("\nthumbnail contrast, " + theme);
-    const { ctx, page, errors } = await fresh(browser, { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }, theme, facWatched);
+    const { ctx, page, errors } = await fresh(browser, { viewport: { width: 1280, height: 800 } }, theme, facWatched);   // T-083: was 390; the bar's frame is desktop-only
     await page.goto(URL + "/__boot", { waitUntil: "load" });
     await page.waitForSelector("#view > *");
     await themePainted(page, theme, theme + " thumbnail contrast");
@@ -3805,10 +3827,11 @@ function t28SeedClips(list) {
         if (r.chipWorst != null) { worstChip = Math.min(worstChip, r.chipWorst); if (r.chipWorst < 4.5) lowChip.push(r.at + " " + r.chipWorst.toFixed(2)); }
       });
     }
-    check(theme + ": every cover's text and every chip is >= 4.5:1, on " + FAC_COURSES.length + " courses (one per faculty)",
-      unsettled.length === 0 && covers > 0 && !!least && low.length === 0,
+    // T-083: the bar's frame draws no text (see above), so "least" can be empty; any drawn text still must pass.
+    check(theme + ": every cover falls back, and any text on it is >= 4.5:1, on " + FAC_FIRST.length + " courses (one per faculty)",
+      unsettled.length === 0 && covers === FAC_FIRST.length && low.length === 0,
       unsettled.length ? "frames still waiting on " + unsettled.join(", ") : low.length ? low.length + " — " + low.slice(0, 3).join("; ")
-        : covers + " covers, least " + least.r.toFixed(2) + ":1 (" + least.at + " " + least.what + ", " + least.fg + " on " + least.bg + ")");
+        : covers + " covers" + (least ? ", least " + least.r.toFixed(2) + ":1 (" + least.at + " " + least.what + ", " + least.fg + " on " + least.bg + ")" : ", no text drawn"));
     check(theme + ": the chip stays >= 4.5:1 over any picture (its fill over pure white and over pure black)",
       worstChip !== Infinity && lowChip.length === 0, lowChip.length ? lowChip.slice(0, 3).join("; ") : "worst " + worstChip.toFixed(2) + ":1");
     check(theme + " thumbnail contrast: no page errors", errors.length === 0, errors.join(" | "));
@@ -3919,6 +3942,11 @@ function t28SeedClips(list) {
       }
 
       // ---- Courses ----
+      // T-083 #1 (the owner's "design fixes"): a Continue cover opens the plan's pick for its course — the
+      // lecture the course page's Continue opens — not the last one touched; the shelf's ORDER is still the
+      // most recent first. The pick is read off the course page, the one resolver both use.
+      await go(page, "/course/ai200");
+      const aiPick = await page.evaluate(() => (document.querySelector("#view .crs-go") || { getAttribute: () => null }).getAttribute("href"));
       await go(page, "/courses");
       let s = await page.evaluate(coursesState);
       const wantSeg = ["Now · " + sets.running.length, "Later · " + sets.later.length, "Finished · 0", "All"];
@@ -3928,8 +3956,8 @@ function t28SeedClips(list) {
       c26(at + " /courses: every filter option is >= 44x44", s.seg.length === 4 && s.seg.every(b => b.w >= 44 && b.h >= 44),
         s.seg.map(b => b.w.toFixed(0) + "x" + b.h.toFixed(0)).join(", "));
       const lead = s.shelves[0] && s.shelves[0].books[0];
-      c26(at + " /courses: the Continue shelf leads with AI 200, the course with the stored resume point — its lecture, at 5:00",
-        !!lead && s.shelves[0].head === "Continue" && lead.href === "#/lesson/ai200/0/1" && /resume at 5:00$/.test(lead.meta),
+      c26(at + " /courses: the Continue shelf leads with AI 200, the course with the stored resume point — at the plan's pick for it, as its course page's Continue (T-083; was the resume point's lecture)",
+        !!lead && s.shelves[0].head === "Continue" && lead.code === "AI 200" && !!aiPick && lead.href === aiPick && /^(Lecture|Reading|Paper) \d+( · |$)/.test(lead.meta),
         lead ? s.shelves[0].head + ": " + lead.code + " " + lead.href + " \"" + lead.meta + "\"" : "no shelf");
       const nowHrefs = [].concat(...s.shelves.map(x => x.books.map(b => b.href.replace(/^#\/lesson\/([^/]+)\/.*/, "#/course/$1"))));
       c26(at + " /courses: Now holds every running course once (Continue, then one shelf per track)",
@@ -4133,11 +4161,14 @@ function t28SeedClips(list) {
     page.on("pageerror", e => errors.push(e.message));
     await page.goto(URL + "/__boot", { waitUntil: "load" });
     await page.waitForSelector("#view > *");
+    // T-083 #1: the cover opens the plan's pick (the course page's Continue); the ORDER is what this checks.
+    await go(page, "/course/ai200");
+    const aiPick = await page.evaluate(() => (document.querySelector("#view .crs-go") || { getAttribute: () => null }).getAttribute("href"));
     await go(page, "/courses");
     const s = await page.evaluate(coursesState);
     const lead = s.shelves[0] && s.shelves[0].books[0];
-    c26(at + ": Continue leads with AI 200 (paused 02:00 local) over MATH 110 (watched the same local day)",
-      !!lead && s.shelves[0].head === "Continue" && lead.href === "#/lesson/ai200/0/1" && /resume at 5:00$/.test(lead.meta),
+    c26(at + ": Continue leads with AI 200 (paused 02:00 local) over MATH 110 (watched the same local day), at the plan's pick for it",
+      !!lead && s.shelves[0].head === "Continue" && lead.code === "AI 200" && !!aiPick && lead.href === aiPick && s.shelves[0].books.length === 2,
       s.shelves[0] ? s.shelves[0].head + ": " + s.shelves[0].books.map(b => b.code + " \"" + b.meta + "\"").join(", ") : "no shelf");
     c26(at + ": no page errors", errors.length === 0, errors.join(" | "));
     await ctx.close();
@@ -4671,7 +4702,10 @@ function t28SeedClips(list) {
       const cols = new Set(m.tiles.map(t => t.left)).size;
       c26c(at + " /review: the tiles are " + o.cols + " across", cols === o.cols, cols + " distinct columns");
     }
-    c26c(at + " /review: \"Seal the week\" is the only filled primary (data-act logWeek, the existing handler)",
+    // T-083 #4: filled only from the week's Sunday; before it the same handler sits behind a tinted "Seal early".
+    if (W.early) c26c(at + " /review: before Sunday there is no filled primary; the seal is a tinted \"Seal early\" (data-act logWeek, the existing handler)",
+      m.filled.length === 0 && !!m.seal && m.seal.text === "Seal early" && m.seal.ghost, JSON.stringify({ filled: m.filled, seal: m.seal }));
+    else c26c(at + " /review: \"Seal the week\" is the only filled primary (data-act logWeek, the existing handler)",
       m.filled.length === 1 && m.filled[0].text === "Seal the week" && m.filled[0].act === "logWeek", m.filled.map(f => "\"" + f.text + "\" " + f.act).join("; ") || "no filled button");
     c26c(at + " /review: beside it the state reads \"" + W.state + "\"", m.state === W.state, "\"" + m.state + "\"");
     c26c(at + " /review: each question's placeholder reads at >= 4.5:1 on its field (" + m.ph.map(x => "#" + x.id).join(", ") + ")",

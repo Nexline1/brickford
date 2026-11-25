@@ -453,12 +453,19 @@ async function t083Flows(browser) {
         if (w < 860) {
           const bar = () => page.evaluate(() => { const b = document.querySelector("#railbar"); return { stowed: b.classList.contains("stowed"), off: b.classList.contains("off") }; });
           const b0 = await bar();
+          // A button only partly showing still counts as showing: 30% of it above what the tab bar and the
+          // Next bar cover at the bottom of the screen (the 0.6 threshold this replaced let the bar out here).
+          await page.evaluate(() => { const r = document.querySelector("#view .card.one.lead a.one-go").getBoundingClientRect(), cs = getComputedStyle(document.documentElement);
+            const cover = (parseFloat(cs.getPropertyValue("--tabbar-h")) || 0) + (parseFloat(cs.getPropertyValue("--railbar-h")) || 0);
+            window.scrollTo({ top: scrollY + r.top - (innerHeight - cover - 0.3 * r.height), behavior: "instant" }); });
+          const bPart = await page.waitForFunction(() => document.querySelector("#railbar").classList.contains("stowed"), null, { timeout: 1500 }).then(() => true, () => false)
+            && await page.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(() => r(document.querySelector("#railbar").classList.contains("stowed"))))));
           await page.evaluate(() => window.scrollTo({ top: document.querySelector("#view .card.one.lead a.one-go").getBoundingClientRect().bottom + scrollY + 400, behavior: "instant" }));
           const b1 = await page.waitForFunction(() => !document.querySelector("#railbar").classList.contains("stowed"), null, { timeout: 4000 }).then(() => true, () => false);
           await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
           const b2 = await page.waitForFunction(() => document.querySelector("#railbar").classList.contains("stowed"), null, { timeout: 4000 }).then(() => true, () => false);
-          check("(ux #2) " + at + ": the Next bar is stowed from the first frame while the hero's button shows, out once it has scrolled away, stowed again back at the top",
-            b0.stowed && !b0.off && b1 && b2, JSON.stringify({ first: b0, away: b1, back: b2 }));
+          check("(ux #2) " + at + ": the Next bar is stowed while any of the hero's button shows (at the top, and with 30% of it showing), out once it has scrolled away, stowed again back at the top",
+            b0.stowed && !b0.off && bPart && b1 && b2, JSON.stringify({ top: b0, part: bPart, away: b1, back: b2 }));
         }
         // #1: the hero, Courses' Continue and the course page's Continue name one lecture per course.
         const heroCid = t.heroHref ? t.heroHref.split("/")[2] : null;
@@ -543,8 +550,9 @@ async function t083Flows(browser) {
         await page.keyboard.press("Escape");
         await page.waitForSelector("dialog.ask-sheet", { state: "detached", timeout: 4000 }).catch(() => {});
         await page.click("#view [data-act=logWeek]");
-        await page.waitForSelector("dialog.ask-sheet[open]", { timeout: 4000 });
-        await page.click("dialog.ask-sheet [data-sheet-cancel]");
+        // Not awaited as a throw: with the confirm gone (a plant) the check below must be what fails.
+        if (await page.waitForSelector("dialog.ask-sheet[open]", { timeout: 4000 }).then(() => true, () => false))
+          await page.click("dialog.ask-sheet [data-sheet-cancel]");
         await page.waitForSelector("dialog.ask-sheet", { state: "detached", timeout: 4000 }).catch(() => {});
         const w2 = await writes(page);
         const weeks0 = await page.evaluate(() => (JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").weeks || []).length);

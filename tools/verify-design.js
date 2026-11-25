@@ -389,7 +389,7 @@ const PRESS_ROUTES = ["/", "/course/math110"];
 //   dark  --accent/--panel-accent  #409cff -> #78aef0  Tokens.navyOnDark (8.0:1)
 //   dark  --accent-fill/--btn-bg   #0071e3 -> #1e4f8f  Tokens.primary, the same navy button as Light
 //   dark  --accent-soft            #212e3e -> #2b364b  the tint 14% into the new card, as before (accent on it 5.3:1)
-//   dark  --gold                   #ff9f0a -> #dfb46b  the owner's crest gold: crest, wins, today's ring
+//   dark  --gold                   #ff9f0a -> #c89b60  Tokens.gold: wins, today's ring (7.3:1); kept apart from --crest, as the sidebar check asks
 //   dark  --crest                  #e0b35a -> #dfb46b  the owner's artwork's own gold (T-079), exactly
 // Unchanged: every --good/--bad/--urgent, every --fac hue, --ink in both,
 // --accent-2, the white labels, light --crest. The --fac and --bad inks were
@@ -409,7 +409,7 @@ const BRIEF = {
   dark:  { "--bg": "#12141c", "--bg-2": "#12141c", "--surface": "#1e2230", "--surface-2": "#2a2f40", "--surface-float": "#2a2f40",
            "--line": "#363c50", "--line-strong": "#474e66",
            "--ink": "#f5f5f7", "--ink-2": "#a9aec2", "--ink-3": "#a9aec2", "--accent": "#78aef0",
-           "--accent-fill": "#1e4f8f", "--accent-soft": "#2b364b", "--gold": "#dfb46b", "--accent-2": "#64a8ff",
+           "--accent-fill": "#1e4f8f", "--accent-soft": "#2b364b", "--gold": "#c89b60", "--accent-2": "#64a8ff",
            "--good": "#30d158", "--bad": "#ff6961", "--urgent": "#ff9f0a",
            "--btn-bg": "#1e4f8f", "--btn-ink": "#ffffff", "--accent-fill-ink": "#ffffff",
            "--fac-math": "#9b99ff", "--fac-ai": "#ff9f0a", "--fac-sys": "#40c8e0", "--fac-phys": "#ff766e", "--fac-res": "#da8fff", "--fac-speech": "#ff7691",
@@ -5543,8 +5543,6 @@ function t28SeedClips(list) {
     }
   }
 
-  await browser.close();
-
   // ---- T-080: the phone app's identity (loop/specs/T-080-redesign, PR 1) ----
   // Three things the token table alone could not say:
   //   - the page in dark is midnight, not pure black: every layer that could
@@ -5590,7 +5588,7 @@ function t28SeedClips(list) {
       for (const [w, h, mobile] of [[390, 844, true], [1280, 800, false]]) {
         const at = "T-080 " + w + "px " + label;
         const { ctx, page, errors } = await fresh(browser, { viewport: { width: w, height: h }, isMobile: mobile, hasTouch: mobile, colorScheme: scheme }, theme);
-        await page.goto(URL + "/", { waitUntil: "load" });
+        await page.goto(URL + "/__boot", { waitUntil: "load" });
         await page.waitForSelector("#view > *");
         const want = theme === "auto" ? scheme : theme;
         await themePainted(page, want, at);
@@ -5625,6 +5623,8 @@ function t28SeedClips(list) {
       }
     }
   }
+
+  await browser.close();
 
   console.log("");
   const caslonReq = requests.filter(u => /caslon/i.test(u));

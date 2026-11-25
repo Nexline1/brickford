@@ -310,8 +310,9 @@
      ring. Grey text is the app's onMidnight2 #a9aec2 (8.3:1 on the page, 6.0:1
      on the fill), the tint text its navyOnDark #78aef0 (8.0:1; 5.3:1 on the
      current pill), and the filled button is the navy itself, Tokens.primary
-     #1e4f8f, with white on it at 8.2:1 — the same button as Light. Gold is
-     the owner's crest gold #dfb46b: the crest, wins and today's ring. Red text
+     #1e4f8f, with white on it at 8.2:1 — the same button as Light. The crest
+     is the owner's gold #dfb46b; wins and today's ring are the app's gold
+     #c89b60. Red text
      stays #ff6961 and the faculty hues stay; each is re-measured on the new
      fills (>= 4.5:1 on the lightest, #2a2f40).
      Before T-080 (T-051): page #000000, cells #1c1c1e, fills #2c2c2e, grey
@@ -333,7 +334,10 @@
   /* The tint 14% into the #1e2230 card: the sidebar's current pill and the
      tinted fills stand off the card (1.31:1) and carry --accent at 5.3:1. */
   --accent-soft: #2b364b;
-  --gold: #dfb46b;
+  /* Wins (the streak, achievements, today's ring): the app's Tokens.gold,
+     7.3:1 on the page. Not --crest: the crest is the owner's own #dfb46b and
+     stays its own colour (T-051-1 r1's rule, held by verify-design). */
+  --gold: #c89b60;
   --crest: #dfb46b;
   --accent-2: #64a8ff;
   --good: #30d158;

@@ -23,7 +23,7 @@ Owner decision, 2026-09-25: the app should look and feel like a premium app on t
 | `--accent` | `#1e4f8f` | `#78aef0` | navy tint / `Tokens.navyOnDark` |
 | `--accent-fill`, `--btn-bg` | `#1e4f8f` | `#1e4f8f` | **`Tokens.primary`**: the filled button is navy in both themes, white label 8.2:1 |
 | `--accent-soft` | `#e6edf6` | `#2b364b` | `Tokens.accentWash` / the tint 14% into the card |
-| `--gold` | `#8a5f12` | `#dfb46b` | wins: the streak, achievements, today's ring (`Tokens.goldInk` / the crest's gold) |
+| `--gold` | `#8a5f12` | `#c89b60` | wins: the streak, achievements, today's ring (`Tokens.goldInk` / `Tokens.gold`); never the crest's own value, so the crest stays distinct |
 | `--crest` | `#d3a874` | `#dfb46b` | the crest (the owner's artwork, T-079) |
 | `--panel` | `#ffffff` | `#1e2230` | sidebar and tab bar only |
 
